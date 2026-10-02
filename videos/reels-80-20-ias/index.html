@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Jakarta"; font-weight: 500; src: url(assets/fonts/plus-jakarta-sans-latin-500-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Jakarta"; font-weight: 700; src: url(assets/fonts/plus-jakarta-sans-latin-700-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Jakarta"; font-weight: 800; src: url(assets/fonts/plus-jakarta-sans-latin-800-normal.woff2) format("woff2"); }
+      @font-face { font-family: "Jakarta"; font-weight: 500; src: url(assets/fonts/plus-jakarta-sans-latin-ext-500-normal.woff2) format("woff2"); unicode-range: U+0100-024F; }
+      @font-face { font-family: "Jakarta"; font-weight: 700; src: url(assets/fonts/plus-jakarta-sans-latin-ext-700-normal.woff2) format("woff2"); unicode-range: U+0100-024F; }
+      @font-face { font-family: "Jakarta"; font-weight: 800; src: url(assets/fonts/plus-jakarta-sans-latin-ext-800-normal.woff2) format("woff2"); unicode-range: U+0100-024F; }
+      :root {
+        /* marca: primary + escala neutral (conversaovisual.com.br) */
+        --g500: #22c55e; --g400: #4ade80; --g50: #f0fdf4;
+        --n50: #fafafa; --n100: #f5f5f5; --n200: #e5e5e5; --n400: #a3a3a3; --n500: #737373;
+        --n600: #525252; --n800: #232323; --n900: #0f0f0f; --n950: #070707;
+        --red: #ef4444;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--n950); }
+      #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--n950); font-family: "Jakarta", sans-serif; color: var(--n50); }
+      .layer { position: absolute; inset: 0; }
+      .bg-brand {
+        background:
+          radial-gradient(900px 700px at 50% -8%, rgba(34,197,94,.16), transparent 62%),
+          radial-gradient(800px 700px at 100% 105%, rgba(34,197,94,.09), transparent 60%),
+          linear-gradient(180deg, #fafafa 0%, #efefef 100%);
+      }
+
+      /* rosto */
+      #faceCam { overflow: hidden; }
+      #faceZoom { position: absolute; inset: 0; transform-origin: 50% 40%; }
+      #facePan { position: absolute; left: 0; top: 0; width: 3413.333px; height: 1920px; }
+      #facePan video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      #faceShade { background: linear-gradient(to top, rgba(7,7,7,.78) 0%, rgba(7,7,7,.35) 26%, transparent 46%), linear-gradient(to bottom, rgba(7,7,7,.45), transparent 18%); }
+
+      /* cena de tela */
+      #screenScene { opacity: 0; visibility: hidden; }
+      .card { position: absolute; border-radius: 34px; overflow: hidden; background: var(--n900); box-shadow: 0 0 0 1px rgba(15,15,15,.06), 0 60px 110px -24px rgba(15,15,15,.42), 0 24px 44px -20px rgba(15,15,15,.28); }
+      #dashStage { position: absolute; inset: 0; perspective: 1800px; }
+      #dash { left: 50px; top: 170px; width: 980px; height: 465px; }
+      #dashInner { position: absolute; left: 0; top: 0; width: 980px; height: 465px; transform-origin: 0 0; }
+      #dashImg { position: absolute; left: -359.328px; top: -118.2px; width: 1512.96px; height: 851.04px; }
+      #notes { position: absolute; left: 0; top: 0; overflow: visible; }
+      .note .ring { fill: none; stroke: var(--red); stroke-width: 4; stroke-dasharray: 1; stroke-dashoffset: 1; }
+      .note .tag rect { fill: var(--red); }
+      .note .tag text { fill: #fff; font: 700 17px "Jakarta"; }
+      .note .ok circle { fill: var(--g500); }
+      .note .ok path { fill: none; stroke: var(--n950); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+      .note .tag, .note .ok { opacity: 0; }
+      #cursor { position: absolute; left: 0; top: 0; width: 34px; height: 34px; opacity: 0; filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+      #dashGlow { position: absolute; inset: 0; border-radius: 34px; box-shadow: inset 0 0 0 2px var(--g500), 0 0 80px rgba(34,197,94,.45); opacity: 0; }
+      #bub { left: 225px; top: 830px; width: 630px; height: 498px; }
+      #bub video { position: absolute; left: -2183.023px; top: -1084.186px; width: 2813.023px; height: 1582.326px; }
+      #bubRing { position: absolute; inset: 0; border-radius: 34px; box-shadow: inset 0 0 0 7px #fff; }
+      #chips { position: absolute; left: 0; right: 0; top: 678px; display: flex; justify-content: center; gap: 16px; }
+      .chip { display: flex; align-items: center; gap: 12px; padding: 16px 26px 16px 18px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px rgba(15,15,15,.05), 0 16px 34px -10px rgba(15,15,15,.28); font: 700 30px "Jakarta"; color: var(--n900); opacity: 0; }
+      .chip i { width: 34px; height: 34px; border-radius: 50%; background: var(--g500); display: grid; place-items: center; }
+      .chip i svg { width: 20px; height: 20px; }
+      #aiBadge { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 762px; padding: 10px 22px; border-radius: 999px; background: var(--g500); color: var(--n950); font: 800 24px "Jakarta"; letter-spacing: .06em; opacity: 0; white-space: nowrap; }
+
+      /* barra 80/20 */
+      .bar { position: absolute; left: 90px; width: 900px; height: 112px; padding: 16px; border-radius: 30px; background: #fff; box-shadow: 0 0 0 1px rgba(15,15,15,.05), 0 34px 70px -18px rgba(15,15,15,.45); opacity: 0; }
+      .bar .track { position: relative; width: 100%; height: 100%; display: flex; gap: 10px; }
+      .bar .seg { position: relative; height: 100%; border-radius: 16px; display: flex; align-items: center; padding: 0 24px; font: 800 36px "Jakarta"; white-space: nowrap; overflow: hidden; }
+      .bar .ai { width: 80%; background: var(--g500); color: var(--n950); transform-origin: 0 50%; }
+      .bar .you { flex: 1; justify-content: center; color: var(--n900); box-shadow: inset 0 0 0 2.5px #d4d4d4; background: repeating-linear-gradient(135deg, rgba(15,15,15,.05) 0 10px, transparent 10px 20px); }
+      .bar .you .fill { position: absolute; inset: 0; background: var(--g400); transform-origin: 0 50%; opacity: 0; border-radius: 16px; }
+      .bar .you span { position: relative; }
+      .bar small { font-weight: 800; font-size: 36px; margin-left: 14px; }
+      #barHook { top: 236px; }
+      #barScreen { top: 670px; }
+      #total { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 792px; font: 800 26px "Jakarta"; color: #16a34a; letter-spacing: .12em; opacity: 0; white-space: nowrap; }
+
+      /* vitrine (modo dividido) */
+      #vitrine { opacity: 0; visibility: hidden; }
+      #vitTitle { position: absolute; left: 90px; top: 1100px; display: flex; align-items: center; gap: 18px; font: 800 30px "Jakarta"; letter-spacing: .18em; color: #16a34a; }
+      #vitTitle svg { width: 56px; height: 56px; }
+      #vitTitle path { fill: none; stroke: #16a34a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .row { position: absolute; left: 90px; width: 900px; height: 118px; display: flex; align-items: center; gap: 26px; padding: 0 30px; border-radius: 28px; background: #fff; color: var(--n900); box-shadow: 0 0 0 1px rgba(15,15,15,.05), 0 22px 46px -16px rgba(15,15,15,.3); font: 800 46px "Jakarta"; opacity: 0; }
+      .row i { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; flex: none; }
+      .row i svg { width: 34px; height: 34px; }
+      .row.good i { background: var(--g500); }
+      .row.bad i { background: var(--n200); }
+      .row.bad { color: var(--n500); }
+      #row1 { top: 1186px; } #row2 { top: 1324px; } #row3 { top: 1462px; }
+      #coin { position: absolute; right: 120px; top: 760px; padding: 18px 30px; border-radius: 999px; background: var(--n900); color: var(--n50); font: 800 44px "Jakarta"; box-shadow: 0 20px 50px rgba(0,0,0,.5); opacity: 0; }
+
+      /* DESIGN */
+      #designWord { position: absolute; left: 0; right: 0; top: 250px; text-align: center; font: 800 190px/1 "Jakarta"; letter-spacing: -.02em; color: var(--n50); text-shadow: 0 20px 60px rgba(0,0,0,.6); opacity: 0; }
+      #designLine { position: absolute; left: 240px; width: 600px; top: 470px; height: 14px; border-radius: 7px; background: var(--g500); transform-origin: 0 50%; opacity: 0; }
+
+      /* legendas */
+      #caps { position: absolute; left: 0; right: 0; top: 1450px; height: 240px; }
+      .cap { position: absolute; left: 60px; right: 60px; top: 0; text-align: center; font: 800 76px/1.12 "Jakarta"; letter-spacing: -.01em; opacity: 0; visibility: hidden; }
+      .w { display: inline-block; opacity: 0; visibility: hidden; text-shadow: 0 6px 26px rgba(0,0,0,.65), 0 2px 4px rgba(0,0,0,.4); }
+      .w.kw { color: var(--g400); }
+      #caps[data-mode="light"] .w { color: var(--n900); text-shadow: none; }
+      #caps[data-mode="light"] .w.kw { color: #16a34a; }
+      .w.hl, #caps[data-mode="light"] .w.hl { color: var(--n950); background: var(--g500); padding: 0 16px; border-radius: 18px; text-shadow: none; }
+
+      /* CTA */
+      #cta { opacity: 0; visibility: hidden; }
+      #ctaIcon { position: absolute; left: 504px; top: 300px; width: 72px; height: 72px; }
+      #ctaKicker { position: absolute; left: 0; right: 0; top: 420px; text-align: center; font: 800 28px "Jakarta"; letter-spacing: .22em; color: #16a34a; }
+      #ctaHead { position: absolute; left: 80px; right: 80px; top: 476px; text-align: center; font: 800 68px/1.1 "Jakarta"; letter-spacing: -.02em; color: var(--n900); }
+      #ctaCardWrap { position: absolute; left: 60px; top: 720px; width: 960px; height: 540px; perspective: 1400px; }
+      #ctaCard { position: absolute; inset: 0; border-radius: 30px; overflow: hidden; box-shadow: 0 0 0 8px #fff, 0 70px 130px -30px rgba(15,15,15,.5), 0 30px 60px -30px rgba(15,15,15,.35); transform-origin: 50% 100%; }
+      #ctaCard img { width: 100%; height: 100%; object-fit: cover; }
+      #play { position: absolute; left: 50%; top: 50%; width: 140px; height: 100px; margin: -50px 0 0 -70px; border-radius: 28px; background: var(--g500); display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+      #play svg { width: 44px; height: 44px; }
+      #bio { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 1340px; display: flex; align-items: center; gap: 16px; padding: 24px 40px; border-radius: 999px; background: var(--n900); color: var(--n50); font: 800 44px "Jakarta"; white-space: nowrap; opacity: 0; box-shadow: 0 24px 50px -18px rgba(15,15,15,.5); }
+      #bio svg { width: 40px; height: 40px; }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="main" data-start="0" data-duration="75.05" data-width="1080" data-height="1920">
+
+      <div id="splitBg" class="layer bg-brand" style="opacity:0;visibility:hidden"></div>
+
+      <!-- ROSTO (enquadramento vertical com câmera que segue o rosto) -->
+      <div id="faceCam" class="layer">
+        <div id="faceZoom">
+          <div id="facePan">
+            <video id="vFaceA" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="0" data-duration="14.36" data-media-start="0" data-track-index="0"></video>
+            <video id="vFaceB" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="44.68" data-duration="25.37" data-media-start="44.68" data-track-index="1"></video>
+          </div>
+        </div>
+        <div id="faceShade" class="layer"></div>
+      </div>
+
+      <div id="barHook" class="bar"><div class="track"><div class="seg ai"><span>IA</span><small id="hookPct">0%</small></div><div class="seg you"><span>VOCÊ</span></div></div></div>
+      <div id="designWord">DESIGN</div><div id="designLine"></div>
+
+      <!-- TELA (dashboard + câmera ao vivo) -->
+      <div id="screenScene" class="layer bg-brand" style="opacity:0;visibility:hidden">
+        <div id="dashStage"><div id="dash" class="card">
+          <div id="dashInner">
+            <img id="dashImg" src="assets/media/dashboard.png" alt="" />
+            <svg id="notes" width="980" height="465" viewBox="0 0 980 465">
+            <g class="note" id="n1">
+              <circle class="ring" cx="687.924" cy="178.876" r="26.792" pathLength="1" />
+              <g transform="translate(565.17 142.084)"><g class="tag"><rect x="0" y="-22" rx="11" width="104" height="30"/><text x="13" y="-2">errado</text></g></g>
+              <g transform="translate(687.924 178.876)"><g class="ok"><circle r="17"/><path d="M-8 0 L-2 6 L9 -6" /></g></g>
+            </g>
+            <g class="note" id="n2">
+              <circle class="ring" cx="911.716" cy="103.228" r="34.672" pathLength="1" />
+              <g transform="translate(731.446 58.556)"><g class="tag"><rect x="0" y="-22" rx="11" width="156" height="30"/><text x="13" y="-2">não gostei</text></g></g>
+              <g transform="translate(911.716 103.228)"><g class="ok"><circle r="17"/><path d="M-8 0 L-2 6 L9 -6" /></g></g>
+            </g>
+            <g class="note" id="n3">
+              <circle class="ring" cx="468.072" cy="374.3" r="55.16" pathLength="1" />
+              <g transform="translate(506.684 309.14)"><g class="tag"><rect x="0" y="-22" rx="11" width="91" height="30"/><text x="13" y="-2">torto</text></g></g>
+              <g transform="translate(468.072 374.3)"><g class="ok"><circle r="17"/><path d="M-8 0 L-2 6 L9 -6" /></g></g>
+            </g>
+            </svg>
+          </div>
+          <svg id="cursor" viewBox="0 0 24 24"><path d="M4 2 L4 20 L9 15 L12 22 L15 21 L12 14 L19 14 Z" fill="#fafafa" stroke="#070707" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <div id="dashGlow"></div>
+        </div></div>
+        <div id="chips">
+          <div class="chip" id="chip1"><i><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10" fill="none" stroke="#070707" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Tokens</div>
+          <div class="chip" id="chip2"><i><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10" fill="none" stroke="#070707" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Tipografia</div>
+          <div class="chip" id="chip3"><i><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10" fill="none" stroke="#070707" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Conceito</div>
+        </div>
+        <div id="aiBadge">100% FEITO POR IA</div>
+        <div id="barScreen" class="bar"><div class="track"><div class="seg ai"><span>IA</span><small>80%</small></div><div class="seg you"><div class="fill"></div><span id="youTxt">VOCÊ ?</span></div></div></div>
+        <div id="total">80% IA + 20% VOCÊ = 100%</div>
+        <div id="bub" class="card">
+          <video id="vBub" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="14.36" data-duration="30.32" data-media-start="14.36" data-track-index="2"></video>
+          <div id="bubRing"></div>
+        </div>
+      </div>
+
+      <!-- VITRINE (modo dividido) -->
+      <div id="vitrine" class="layer" style="opacity:0;visibility:hidden">
+        <div id="vitTitle"><svg viewBox="0 0 56 56"><path d="M8 22 L12 10 H44 L48 22 M8 22 H48 M8 22 V48 H48 V22 M20 48 V32 H36 V48" pathLength="1" /></svg>A VITRINE</div>
+        <div class="row good" id="row1"><i><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10" fill="none" stroke="#070707" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Seleciona clientes</div>
+        <div class="row bad" id="row2"><i><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="#737373" stroke-width="3" stroke-linecap="round"/></svg></i>Afasta curiosos</div>
+        <div class="row good" id="row3"><i><svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z M2 9h20 M9 3l3 18 3-18" fill="none" stroke="#070707" stroke-width="2.2" stroke-linejoin="round"/></svg></i>Gera valor</div>
+      </div>
+      <div id="coin">R$ R$ R$</div>
+
+      <!-- CTA -->
+      <div id="cta" class="layer bg-brand" style="opacity:0;visibility:hidden">
+        <img id="ctaIcon" src="assets/brand/logo-icone.png" alt="" />
+        <div id="ctaKicker">VÍDEO COMPLETO</div>
+        <div id="ctaHead">Assista agora no meu canal do YouTube</div>
+        <div id="ctaCardWrap"><div id="ctaCard"><img src="assets/brand/capa-youtube.webp" alt="" /><div id="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#070707"/></svg></div></div></div>
+        <div id="bio"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fafafa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Link na bio</div>
+      </div>
+
+      <!-- LEGENDAS -->
+      <div id="caps" data-mode="dark">
+        <div class="cap" id="cap-0"><span class="w " id="w-0-0">Se</span> <span class="w " id="w-0-1">alguém</span> <span class="w " id="w-0-2">te</span></div>
+        <div class="cap" id="cap-1"><span class="w " id="w-1-0">falar</span> <span class="w " id="w-1-1">que</span> <span class="w " id="w-1-2">faz</span></div>
+        <div class="cap" id="cap-2"><span class="w " id="w-2-0">página</span> <span class="w hl" id="w-2-1">100%</span> <span class="w " id="w-2-2">com</span></div>
+        <div class="cap" id="cap-3"><span class="w kw" id="w-3-0">IA</span></div>
+        <div class="cap" id="cap-4"><span class="w kw" id="w-4-0">desconfie</span></div>
+        <div class="cap" id="cap-5"><span class="w " id="w-5-0">porque</span> <span class="w " id="w-5-1">ou</span> <span class="w " id="w-5-2">é</span></div>
+        <div class="cap" id="cap-6"><span class="w kw" id="w-6-0">mentira</span> <span class="w " id="w-6-1">ou</span> <span class="w " id="w-6-2">a</span></div>
+        <div class="cap" id="cap-7"><span class="w " id="w-7-0">página</span> <span class="w " id="w-7-1">é</span> <span class="w kw" id="w-7-2">horrível</span></div>
+        <div class="cap" id="cap-8"><span class="w " id="w-8-0">E</span> <span class="w " id="w-8-1">eu</span> <span class="w " id="w-8-2">vou</span></div>
+        <div class="cap" id="cap-9"><span class="w " id="w-9-0">te</span> <span class="w " id="w-9-1">mostrar</span> <span class="w " id="w-9-2">na</span></div>
+        <div class="cap" id="cap-10"><span class="w kw" id="w-10-0">prática</span> <span class="w " id="w-10-1">que</span> <span class="w " id="w-10-2">a</span></div>
+        <div class="cap" id="cap-11"><span class="w kw" id="w-11-0">IA</span> <span class="w " id="w-11-1">resolve</span> <span class="w " id="w-11-2">pelo</span></div>
+        <div class="cap" id="cap-12"><span class="w " id="w-12-0">menos</span> <span class="w hl" id="w-12-1">80%</span></div>
+        <div class="cap" id="cap-13"><span class="w " id="w-13-0">Mas</span> <span class="w " id="w-13-1">os</span> <span class="w hl" id="w-13-2">20%</span></div>
+        <div class="cap" id="cap-14"><span class="w " id="w-14-0">que</span> <span class="w " id="w-14-1">falta</span> <span class="w " id="w-14-2">é</span></div>
+        <div class="cap" id="cap-15"><span class="w kw" id="w-15-0">responsabilidade</span></div>
+        <div class="cap" id="cap-16"><span class="w " id="w-16-0">inteiramente</span> <span class="w kw" id="w-16-1">sua</span></div>
+        <div class="cap" id="cap-17"><span class="w " id="w-17-0">E</span> <span class="w " id="w-17-1">veja</span></div>
+        <div class="cap" id="cap-18"><span class="w " id="w-18-0">eu</span> <span class="w " id="w-18-1">defini</span> <span class="w " id="w-18-2">os</span></div>
+        <div class="cap" id="cap-19"><span class="w kw" id="w-19-0">tokens</span></div>
+        <div class="cap" id="cap-20"><span class="w " id="w-20-0">eu</span> <span class="w " id="w-20-1">defini</span> <span class="w " id="w-20-2">as</span></div>
+        <div class="cap" id="cap-21"><span class="w kw" id="w-21-0">tipografias</span></div>
+        <div class="cap" id="cap-22"><span class="w " id="w-22-0">eu</span> <span class="w " id="w-22-1">defini</span> <span class="w " id="w-22-2">o</span></div>
+        <div class="cap" id="cap-23"><span class="w kw" id="w-23-0">conceito</span> <span class="w " id="w-23-1">do</span></div>
+        <div class="cap" id="cap-24"><span class="w " id="w-24-0">projeto</span></div>
+        <div class="cap" id="cap-25"><span class="w " id="w-25-0">só</span> <span class="w " id="w-25-1">que</span> <span class="w " id="w-25-2">quem</span></div>
+        <div class="cap" id="cap-26"><span class="w " id="w-26-0">fez</span> <span class="w " id="w-26-1">tudo</span> <span class="w " id="w-26-2">foi</span></div>
+        <div class="cap" id="cap-27"><span class="w kw" id="w-27-0">IA</span></div>
+        <div class="cap" id="cap-28"><span class="w " id="w-28-0">A</span> <span class="w kw" id="w-28-1">IA</span> <span class="w " id="w-28-2">definiu</span></div>
+        <div class="cap" id="cap-29"><span class="w hl" id="w-29-0">80%</span> <span class="w " id="w-29-1">do</span> <span class="w " id="w-29-2">meu</span></div>
+        <div class="cap" id="cap-30"><span class="w " id="w-30-0">projeto</span></div>
+        <div class="cap" id="cap-31"><span class="w " id="w-31-0">Qual</span> <span class="w " id="w-31-1">é</span> <span class="w " id="w-31-2">o</span></div>
+        <div class="cap" id="cap-32"><span class="w hl" id="w-32-0">20%</span> <span class="w " id="w-32-1">agora</span></div>
+        <div class="cap" id="cap-33"><span class="w kw" id="w-33-0">Leonel?</span></div>
+        <div class="cap" id="cap-34"><span class="w " id="w-34-0">Eu</span> <span class="w " id="w-34-1">pegar</span> <span class="w " id="w-34-2">tudo</span></div>
+        <div class="cap" id="cap-35"><span class="w " id="w-35-0">isso</span> <span class="w " id="w-35-1">daqui</span> <span class="w " id="w-35-2">e</span></div>
+        <div class="cap" id="cap-36"><span class="w " id="w-36-0">fazer</span> <span class="w " id="w-36-1">na</span> <span class="w kw" id="w-36-2">mão</span></div>
+        <div class="cap" id="cap-37"><span class="w " id="w-37-0">Não</span></div>
+        <div class="cap" id="cap-38"><span class="w " id="w-38-0">mas</span> <span class="w " id="w-38-1">está</span> <span class="w " id="w-38-2">tão</span></div>
+        <div class="cap" id="cap-39"><span class="w " id="w-39-0">bem</span> <span class="w " id="w-39-1">calculado</span></div>
+        <div class="cap" id="cap-40"><span class="w " id="w-40-0">tão</span> <span class="w " id="w-40-1">ajustado</span></div>
+        <div class="cap" id="cap-41"><span class="w " id="w-41-0">Verdade</span></div>
+        <div class="cap" id="cap-42"><span class="w " id="w-42-0">Se</span> <span class="w " id="w-42-1">que</span> <span class="w " id="w-42-2">tem</span></div>
+        <div class="cap" id="cap-43"><span class="w " id="w-43-0">detalhes</span> <span class="w " id="w-43-1">aqui</span> <span class="w " id="w-43-2">que</span></div>
+        <div class="cap" id="cap-44"><span class="w " id="w-44-0">eu</span> <span class="w " id="w-44-1">tô</span> <span class="w " id="w-44-2">vendo</span></div>
+        <div class="cap" id="cap-45"><span class="w " id="w-45-0">que</span> <span class="w " id="w-45-1">está</span> <span class="w kw" id="w-45-2">errado</span></div>
+        <div class="cap" id="cap-46"><span class="w " id="w-46-0">tem</span> <span class="w " id="w-46-1">coisas</span> <span class="w " id="w-46-2">que</span></div>
+        <div class="cap" id="cap-47"><span class="w " id="w-47-0">eu</span> <span class="w " id="w-47-1">não</span> <span class="w " id="w-47-2">gostei</span></div>
+        <div class="cap" id="cap-48"><span class="w " id="w-48-0">tem</span> <span class="w " id="w-48-1">coisas</span> <span class="w " id="w-48-2">que</span></div>
+        <div class="cap" id="cap-49"><span class="w " id="w-49-0">estão</span> <span class="w " id="w-49-1">meio</span> <span class="w kw" id="w-49-2">torta</span></div>
+        <div class="cap" id="cap-50"><span class="w " id="w-50-0">quando</span> <span class="w " id="w-50-1">eu</span> <span class="w " id="w-50-2">faço</span></div>
+        <div class="cap" id="cap-51"><span class="w " id="w-51-0">isso</span> <span class="w " id="w-51-1">à</span> <span class="w kw" id="w-51-2">mão</span></div>
+        <div class="cap" id="cap-52"><span class="w " id="w-52-0">que</span> <span class="w " id="w-52-1">aí</span> <span class="w " id="w-52-2">é</span></div>
+        <div class="cap" id="cap-53"><span class="w " id="w-53-0">os</span> <span class="w hl" id="w-53-1">20%</span> <span class="w " id="w-53-2">final</span></div>
+        <div class="cap" id="cap-54"><span class="w " id="w-54-0">aí</span> <span class="w " id="w-54-1">sim</span></div>
+        <div class="cap" id="cap-55"><span class="w " id="w-55-0">eu</span> <span class="w " id="w-55-1">coloco</span> <span class="w " id="w-55-2">a</span></div>
+        <div class="cap" id="cap-56"><span class="w kw" id="w-56-0">mão</span> <span class="w " id="w-56-1">e</span> <span class="w " id="w-56-2">dou</span></div>
+        <div class="cap" id="cap-57"><span class="w kw" id="w-57-0">vida</span> <span class="w " id="w-57-1">ao</span> <span class="w " id="w-57-2">negócio</span></div>
+        <div class="cap" id="cap-58"><span class="w " id="w-58-0">projetos</span> <span class="w " id="w-58-1">que</span> <span class="w " id="w-58-2">são</span></div>
+        <div class="cap" id="cap-59"><span class="w " id="w-59-0">mais</span> <span class="w kw" id="w-59-1">bonitos</span></div>
+        <div class="cap" id="cap-60"><span class="w kw" id="w-60-0">vendem</span> <span class="w " id="w-60-1">mais</span></div>
+        <div class="cap" id="cap-61"><span class="w " id="w-61-0">Projetos</span> <span class="w " id="w-61-1">que</span> <span class="w " id="w-61-2">são</span></div>
+        <div class="cap" id="cap-62"><span class="w " id="w-62-0">mais</span> <span class="w kw" id="w-62-1">organizados</span></div>
+        <div class="cap" id="cap-63"><span class="w " id="w-63-0">que</span> <span class="w " id="w-63-1">tem</span> <span class="w " id="w-63-2">uma</span></div>
+        <div class="cap" id="cap-64"><span class="w " id="w-64-0">estrutura</span> <span class="w " id="w-64-1">bonita</span></div>
+        <div class="cap" id="cap-65"><span class="w " id="w-65-0">que</span> <span class="w " id="w-65-1">tem</span> <span class="w " id="w-65-2">uma</span></div>
+        <div class="cap" id="cap-66"><span class="w " id="w-66-0">arquitetura</span> <span class="w " id="w-66-1">bem</span></div>
+        <div class="cap" id="cap-67"><span class="w " id="w-67-0">feita</span></div>
+        <div class="cap" id="cap-68"><span class="w " id="w-68-0">eles</span> <span class="w " id="w-68-1">são</span> <span class="w " id="w-68-2">mais</span></div>
+        <div class="cap" id="cap-69"><span class="w kw" id="w-69-0">valorizados</span></div>
+        <div class="cap" id="cap-70"><span class="w " id="w-70-0">Quer</span> <span class="w " id="w-70-1">ver</span> <span class="w " id="w-70-2">eu</span></div>
+        <div class="cap" id="cap-71"><span class="w " id="w-71-0">te</span> <span class="w " id="w-71-1">provar</span> <span class="w " id="w-71-2">isso?</span></div>
+        <div class="cap" id="cap-72"><span class="w " id="w-72-0">Você</span> <span class="w " id="w-72-1">já</span> <span class="w " id="w-72-2">entrou</span></div>
+        <div class="cap" id="cap-73"><span class="w " id="w-73-0">no</span> <span class="w " id="w-73-1">shopping</span> <span class="w " id="w-73-2">e</span></div>
+        <div class="cap" id="cap-74"><span class="w " id="w-74-0">só</span> <span class="w " id="w-74-1">pela</span> <span class="w kw" id="w-74-2">vitrine</span></div>
+        <div class="cap" id="cap-75"><span class="w " id="w-75-0">da</span> <span class="w " id="w-75-1">loja</span></div>
+        <div class="cap" id="cap-76"><span class="w " id="w-76-0">você</span> <span class="w " id="w-76-1">já</span> <span class="w " id="w-76-2">sabia</span></div>
+        <div class="cap" id="cap-77"><span class="w " id="w-77-0">que</span> <span class="w " id="w-77-1">aquela</span> <span class="w " id="w-77-2">loja</span></div>
+        <div class="cap" id="cap-78"><span class="w " id="w-78-0">não</span> <span class="w " id="w-78-1">era</span> <span class="w " id="w-78-2">para</span></div>
+        <div class="cap" id="cap-79"><span class="w " id="w-79-0">o</span> <span class="w " id="w-79-1">seu</span> <span class="w kw" id="w-79-2">bolso?</span></div>
+        <div class="cap" id="cap-80"><span class="w " id="w-80-0">A</span> <span class="w kw" id="w-80-1">vitrine</span> <span class="w " id="w-80-2">ela</span></div>
+        <div class="cap" id="cap-81"><span class="w " id="w-81-0">seleciona</span> <span class="w kw" id="w-81-1">clientes</span></div>
+        <div class="cap" id="cap-82"><span class="w " id="w-82-0">a</span> <span class="w kw" id="w-82-1">vitrine</span> <span class="w " id="w-82-2">ela</span></div>
+        <div class="cap" id="cap-83"><span class="w " id="w-83-0">afasta</span> <span class="w kw" id="w-83-1">curiosos</span> <span class="w " id="w-83-2">e</span></div>
+        <div class="cap" id="cap-84"><span class="w " id="w-84-0">a</span> <span class="w kw" id="w-84-1">vitrine</span> <span class="w " id="w-84-2">gera</span></div>
+        <div class="cap" id="cap-85"><span class="w kw" id="w-85-0">valor</span></div>
+        <div class="cap" id="cap-86"><span class="w " id="w-86-0">E</span> <span class="w " id="w-86-1">é</span> <span class="w " id="w-86-2">por</span></div>
+        <div class="cap" id="cap-87"><span class="w " id="w-87-0">isso</span> <span class="w " id="w-87-1">que</span> <span class="w " id="w-87-2">você</span></div>
+        <div class="cap" id="cap-88"><span class="w " id="w-88-0">precisa</span> <span class="w " id="w-88-1">aprender</span></div>
+        <div class="cap" id="cap-89"><span class="w kw" id="w-89-0">design</span></div>
+      </div>
+
+      <!-- ÁUDIO: voz tratada (-14 LUFS) + SFX da biblioteca HyperFrames -->
+      <audio id="voice" src="assets/media/voice.m4a" data-start="0" data-duration="70.05" data-track-index="3" data-volume="1"></audio>
+      <audio id="sfx-0" src="assets/sfx/impact-bass-1.mp3" data-start="0" data-duration="2.1" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-1" src="assets/sfx/pop.mp3" data-start="3.56" data-duration="0.72" data-track-index="5" data-volume="0.3"></audio>
+      <audio id="sfx-2" src="assets/sfx/click.mp3" data-start="6.515" data-duration="0.36" data-track-index="6" data-volume="0.35"></audio>
+      <audio id="sfx-3" src="assets/sfx/whoosh-short.mp3" data-start="9.63" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-4" src="assets/sfx/ping.mp3" data-start="10.29" data-duration="1.32" data-track-index="5" data-volume="0.22"></audio>
+      <audio id="sfx-5" src="assets/sfx/click-soft.mp3" data-start="11.055" data-duration="0.36" data-track-index="6" data-volume="0.4"></audio>
+      <audio id="sfx-6" src="assets/sfx/whoosh.mp3" data-start="14.04" data-duration="0.57" data-track-index="4" data-volume="0.42"></audio>
+      <audio id="sfx-7" src="assets/sfx/click-soft.mp3" data-start="15.835" data-duration="0.36" data-track-index="5" data-volume="0.4"></audio>
+      <audio id="sfx-8" src="assets/sfx/click-soft.mp3" data-start="16.955" data-duration="0.36" data-track-index="6" data-volume="0.4"></audio>
+      <audio id="sfx-9" src="assets/sfx/click-soft.mp3" data-start="18.475" data-duration="0.36" data-track-index="4" data-volume="0.4"></audio>
+      <audio id="sfx-10" src="assets/sfx/pop.mp3" data-start="21.12" data-duration="0.72" data-track-index="5" data-volume="0.3"></audio>
+      <audio id="sfx-11" src="assets/sfx/whoosh-short.mp3" data-start="22.78" data-duration="0.57" data-track-index="6" data-volume="0.28"></audio>
+      <audio id="sfx-12" src="assets/sfx/click.mp3" data-start="25.035" data-duration="0.36" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-13" src="assets/sfx/key-press.mp3" data-start="33.92" data-duration="0.43" data-track-index="5" data-volume="0.45"></audio>
+      <audio id="sfx-14" src="assets/sfx/key-press.mp3" data-start="34.96" data-duration="0.43" data-track-index="6" data-volume="0.45"></audio>
+      <audio id="sfx-15" src="assets/sfx/key-press.mp3" data-start="36.32" data-duration="0.43" data-track-index="4" data-volume="0.45"></audio>
+      <audio id="sfx-16" src="assets/sfx/click-soft.mp3" data-start="38.045" data-duration="0.36" data-track-index="5" data-volume="0.4"></audio>
+      <audio id="sfx-17" src="assets/sfx/click-soft.mp3" data-start="38.645" data-duration="0.36" data-track-index="6" data-volume="0.4"></audio>
+      <audio id="sfx-18" src="assets/sfx/click-soft.mp3" data-start="39.245" data-duration="0.36" data-track-index="4" data-volume="0.4"></audio>
+      <audio id="sfx-19" src="assets/sfx/ping.mp3" data-start="39.68" data-duration="1.32" data-track-index="5" data-volume="0.25"></audio>
+      <audio id="sfx-20" src="assets/sfx/chime.mp3" data-start="42.26" data-duration="2.54" data-track-index="6" data-volume="0.22"></audio>
+      <audio id="sfx-21" src="assets/sfx/whoosh.mp3" data-start="44.51" data-duration="0.57" data-track-index="4" data-volume="0.42"></audio>
+      <audio id="sfx-22" src="assets/sfx/pop.mp3" data-start="46.32" data-duration="0.72" data-track-index="5" data-volume="0.25"></audio>
+      <audio id="sfx-23" src="assets/sfx/whoosh-short.mp3" data-start="56.55" data-duration="0.57" data-track-index="6" data-volume="0.32"></audio>
+      <audio id="sfx-24" src="assets/sfx/pop.mp3" data-start="60.8" data-duration="0.72" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-25" src="assets/sfx/click-soft.mp3" data-start="62.575" data-duration="0.36" data-track-index="5" data-volume="0.4"></audio>
+      <audio id="sfx-26" src="assets/sfx/click-soft.mp3" data-start="64.575" data-duration="0.36" data-track-index="6" data-volume="0.4"></audio>
+      <audio id="sfx-27" src="assets/sfx/click-soft.mp3" data-start="66.735" data-duration="0.36" data-track-index="4" data-volume="0.4"></audio>
+      <audio id="sfx-28" src="assets/sfx/whoosh-short.mp3" data-start="67.57" data-duration="0.57" data-track-index="5" data-volume="0.3"></audio>
+      <audio id="sfx-29" src="assets/sfx/impact-bass-1.mp3" data-start="69.33" data-duration="2.1" data-track-index="6" data-volume="0.35"></audio>
+      <audio id="sfx-30" src="assets/sfx/whoosh.mp3" data-start="69.88" data-duration="0.57" data-track-index="4" data-volume="0.42"></audio>
+      <audio id="sfx-31" src="assets/sfx/notification.mp3" data-start="70.91" data-duration="2.4" data-track-index="5" data-volume="0.3"></audio>
+    </div>
+
+    <script>
+      const FACE_PAN = [{"cut":"c1","t0":0,"keys":[[0,-690.222],[3,-764.889],[5.5,-649.333],[7,-853.778],[10,-1035.111]]},{"cut":"c2","t0":10.7,"keys":[[10.7,-940.889]]},{"cut":"c7","t0":44.68,"keys":[[44.68,-741.778],[47.18,-658.222],[52.18,-756],[52.68,-859.111]]},{"cut":"c8","t0":53.32,"keys":[[53.32,-1052.889],[54.32,-946.222],[55.32,-868],[57.32,-770.222],[58.82,-844.889]]},{"cut":"c9","t0":61.26,"keys":[[61.26,-736.444],[65.26,-830.667]]},{"cut":"c10","t0":67.69,"keys":[[67.69,-727.556],[69.19,-839.556]]}];
+      const GROUPS = [{"s":0,"e":0.48,"w":[0,0.24,0.4]},{"s":0.48,"e":1.36,"w":[0.48,0.72,1.04]},{"s":1.36,"e":2.88,"w":[1.36,1.84,2.56]},{"s":2.88,"e":3.6,"w":[2.88]},{"s":3.6,"e":4.4,"w":[3.6]},{"s":4.4,"e":4.96,"w":[4.4,4.64,4.8]},{"s":4.96,"e":5.92,"w":[4.96,5.6,5.76]},{"s":5.92,"e":7.2,"w":[5.92,6.32,6.56]},{"s":7.2,"e":7.52,"w":[7.2,7.28,7.36]},{"s":7.52,"e":8,"w":[7.52,7.68,7.92]},{"s":8,"e":8.56,"w":[8,8.32,8.4]},{"s":8.56,"e":9.52,"w":[8.56,8.88,9.28]},{"s":9.52,"e":10.7,"w":[9.52,9.76]},{"s":10.7,"e":11.74,"w":[10.7,10.86,11.1]},{"s":11.74,"e":12.46,"w":[11.74,11.9,12.22]},{"s":12.46,"e":13.18,"w":[12.46]},{"s":13.18,"e":14.36,"w":[13.18,13.9]},{"s":14.36,"e":15.16,"w":[14.36,14.6]},{"s":15.16,"e":15.88,"w":[15.16,15.24,15.8]},{"s":15.88,"e":16.36,"w":[15.88]},{"s":16.36,"e":17,"w":[16.36,16.52,16.84]},{"s":17,"e":17.8,"w":[17]},{"s":17.8,"e":18.52,"w":[17.8,17.96,18.44]},{"s":18.52,"e":19.08,"w":[18.52,18.92]},{"s":19.08,"e":19.72,"w":[19.08]},{"s":19.72,"e":20.36,"w":[19.72,19.96,20.12]},{"s":20.36,"e":21.16,"w":[20.36,20.6,20.84]},{"s":21.16,"e":21.72,"w":[21.16]},{"s":21.72,"e":22.92,"w":[21.72,21.88,22.28]},{"s":22.92,"e":24.04,"w":[22.92,23.64,23.8]},{"s":24.04,"e":24.52,"w":[24.04]},{"s":24.52,"e":25.08,"w":[24.52,24.76,24.92]},{"s":25.08,"e":25.96,"w":[25.08,25.64]},{"s":25.96,"e":26.52,"w":[25.96]},{"s":26.52,"e":27.24,"w":[26.52,26.68,27]},{"s":27.24,"e":28.12,"w":[27.24,27.48,27.88]},{"s":28.12,"e":28.95,"w":[28.12,28.44,28.6]},{"s":28.95,"e":29.11,"w":[28.95]},{"s":29.11,"e":29.67,"w":[29.11,29.27,29.51]},{"s":29.67,"e":30.39,"w":[29.67,29.83]},{"s":30.39,"e":31.19,"w":[30.39,30.55]},{"s":31.19,"e":31.83,"w":[31.19]},{"s":31.83,"e":32.39,"w":[31.83,31.99,32.15]},{"s":32.39,"e":33.19,"w":[32.39,32.87,33.11]},{"s":33.19,"e":33.67,"w":[33.19,33.27,33.43]},{"s":33.67,"e":34.39,"w":[33.67,33.83,33.99]},{"s":34.39,"e":34.95,"w":[34.39,34.63,34.87]},{"s":34.95,"e":35.59,"w":[34.95,35.03,35.19]},{"s":35.59,"e":36.07,"w":[35.59,35.75,35.91]},{"s":36.07,"e":36.76,"w":[36.07,36.23,36.39]},{"s":36.76,"e":37.56,"w":[36.76,37,37.16]},{"s":37.56,"e":38.52,"w":[37.56,37.88,38.04]},{"s":38.52,"e":39.08,"w":[38.52,38.68,38.92]},{"s":39.08,"e":40.6,"w":[39.08,39.24,39.96]},{"s":40.6,"e":41.32,"w":[40.6,41]},{"s":41.32,"e":42.12,"w":[41.32,41.48,41.96]},{"s":42.12,"e":43.24,"w":[42.12,42.44,42.68]},{"s":43.24,"e":44.68,"w":[43.24,43.8,44.04]},{"s":44.68,"e":45.56,"w":[44.68,45.24,45.4]},{"s":45.56,"e":46.36,"w":[45.56,45.72]},{"s":46.36,"e":47.24,"w":[46.36,46.84]},{"s":47.24,"e":48.04,"w":[47.24,47.64,47.8]},{"s":48.04,"e":49.08,"w":[48.04,48.36]},{"s":49.08,"e":49.64,"w":[49.08,49.24,49.48]},{"s":49.64,"e":50.36,"w":[49.64,50.04]},{"s":50.36,"e":50.76,"w":[50.36,50.52,50.68]},{"s":50.76,"e":51.4,"w":[50.76,51.24]},{"s":51.4,"e":51.88,"w":[51.4]},{"s":51.88,"e":52.36,"w":[51.88,52.04,52.2]},{"s":52.36,"e":53.32,"w":[52.36]},{"s":53.32,"e":53.96,"w":[53.32,53.56,53.8]},{"s":53.96,"e":54.6,"w":[53.96,54.04,54.36]},{"s":54.6,"e":55.24,"w":[54.6,54.76,54.92]},{"s":55.24,"e":56.28,"w":[55.24,55.4,55.96]},{"s":56.28,"e":57.48,"w":[56.28,56.6,56.92]},{"s":57.48,"e":58.2,"w":[57.48,57.64]},{"s":58.2,"e":59.32,"w":[58.2,58.52,58.76]},{"s":59.32,"e":60.28,"w":[59.32,59.56,59.96]},{"s":60.28,"e":60.6,"w":[60.28,60.36,60.52]},{"s":60.6,"e":61.26,"w":[60.6,60.68,60.84]},{"s":61.26,"e":62.62,"w":[61.26,61.42,62.22]},{"s":62.62,"e":63.74,"w":[62.62,63.34]},{"s":63.74,"e":64.62,"w":[63.74,63.9,64.38]},{"s":64.62,"e":65.98,"w":[64.62,65.26,65.82]},{"s":65.98,"e":67.26,"w":[65.98,66.06,66.78]},{"s":67.26,"e":67.69,"w":[67.26]},{"s":67.69,"e":68.17,"w":[67.69,67.85,68.01]},{"s":68.17,"e":68.57,"w":[68.17,68.25,68.41]},{"s":68.57,"e":69.37,"w":[68.57,68.81]},{"s":69.37,"e":70.05,"w":[69.37]}];
+      const tl = gsap.timeline({ paused: true });
+      const E = { o: "expo.out", p: "power3.out", io: "power2.inOut" };
+
+      // ── câmera do rosto: segue o rosto, corta seco nos cortes ──
+      FACE_PAN.forEach((seg) => {
+        tl.set("#facePan", { x: seg.keys[0][1] }, seg.t0 === 0 ? 0.001 : seg.t0);
+        for (let i = 1; i < seg.keys.length; i++) {
+          const [t, x] = seg.keys[i], dt = Math.max(0.4, Math.min(1.2, t - seg.keys[i - 1][0]));
+          tl.to("#facePan", { x, duration: dt, ease: "sine.inOut" }, t - dt * 0.5);
+        }
+      });
+
+      // punch-ins (zoom de ênfase) e tremidinha
+      const punch = (t, s, hold = 0.6, back = 1) => {
+        tl.to("#faceZoom", { scale: s, duration: 0.22, ease: E.o }, t);
+        if (back !== null) tl.to("#faceZoom", { scale: back, duration: 0.5, ease: E.io }, t + hold);
+      };
+      const wiggle = (t) => {
+        tl.to("#faceZoom", { rotation: 1.2, x: 8, duration: 0.06, ease: "sine.inOut" }, t);
+        tl.to("#faceZoom", { rotation: -1, x: -7, duration: 0.08, ease: "sine.inOut" }, t + 0.06);
+        tl.to("#faceZoom", { rotation: 0.5, x: 4, duration: 0.08, ease: "sine.inOut" }, t + 0.14);
+        tl.to("#faceZoom", { rotation: 0, x: 0, duration: 0.12, ease: "sine.out" }, t + 0.22);
+      };
+      tl.fromTo("#faceZoom", { scale: 1.08 }, { scale: 1, duration: 0.7, ease: E.o }, 0.01); // entrada
+      punch(3.6, 1.09, 0.75);            // desconfie
+      wiggle(6.56);                      // horrível
+      punch(12.46, 1.06, 0, null);            // responsabilidade... sua
+      punch(46.36, 1.06, 0.8);           // vendem mais
+      punch(52.36, 1.05, 0.7);           // valorizados
+      wiggle(60.84);                    // bolso?
+
+      // ── barra 80/20 no gancho ──
+      const hook = { v: 0 };
+      tl.fromTo("#barHook", { autoAlpha: 0, y: -40, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: E.o }, 9.7);
+      tl.fromTo("#barHook .ai", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: E.o }, 9.76);
+      tl.fromTo(hook, { v: 0 }, { v: 80, duration: 0.8, ease: E.o, onUpdate: () => { document.getElementById("hookPct").textContent = Math.round(hook.v) + "%"; } }, 9.76);
+      tl.to("#barHook .you", { boxShadow: "inset 0 0 0 3px #22c55e", duration: 0.3, ease: E.p }, 11.1);
+      tl.to("#barHook .you", { scale: 1.06, duration: 0.18, ease: E.o, yoyo: true, repeat: 1 }, 11.1);
+      tl.to("#barHook", { autoAlpha: 0, y: -30, duration: 0.35, ease: "power2.in" }, 13.96);
+
+      // ── transição para a tela ──
+      tl.to("#faceZoom", { scale: 1.25, duration: 0.35, ease: "power2.in" }, 14.01);
+      tl.fromTo("#screenScene", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, ease: "power1.out" }, 14.26);
+      tl.set("#faceZoom", { scale: 1 }, 14.66);
+      tl.fromTo("#dash", { y: 90, scale: 0.88, autoAlpha: 0, rotationY: -26, rotationX: 16 }, { y: 0, scale: 1, autoAlpha: 1, rotationY: -9, rotationX: 7, duration: 0.9, ease: E.o }, 14.36);
+      tl.to("#dash", { rotationY: -3, rotationX: 2.5, duration: 12, ease: "sine.inOut" }, 15.26);
+      tl.to("#dash", { rotationY: 0, rotationX: 0, duration: 1.2, ease: E.io }, 31.23);
+      tl.to("#dash", { rotationY: 4, rotationX: 3, duration: 1.4, ease: E.io }, 42.48);
+      tl.set("#caps", { attr: { "data-mode": "light" } }, 14.36);
+      tl.set("#caps", { attr: { "data-mode": "dark" } }, 44.68);
+      tl.fromTo("#bub", { y: 120, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: E.o }, 14.48);
+
+      // câmera do dashboard
+      const dcam = (o, t, d = 0.8) => tl.to("#dashInner", { ...o, duration: d, ease: E.io }, t);
+      tl.set("#dashInner", {"x":0,"y":0,"scale":1}, 14.36);
+      dcam({"x":-370.496,"y":-128.798,"scale":1.75}, 15.53);   // tokens → KPIs
+      dcam({"x":0,"y":0,"scale":2.3}, 16.7);      // tipografias → título
+      dcam({"x":0,"y":0,"scale":1}, 18.32, 0.9);  // conceito → tudo
+      dcam({"x":0,"y":-209.25,"scale":1.45}, 29.27, 2.2);      // "tão bem calculado"
+      dcam({"x":0,"y":0,"scale":1}, 31.88, 0.8);         // volta pro geral
+      dcam({"x":-29.544,"y":-13.908,"scale":1.06}, 42.68, 1.6);     // "dou vida"
+
+      // chips: tokens / tipografia / conceito
+      [["#chip1", 15.88], ["#chip2", 17], ["#chip3", 18.52]].forEach(([id, t]) =>
+        tl.fromTo(id, { autoAlpha: 0, y: 24, scale: 0.85 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(2)" }, t));
+      tl.fromTo("#aiBadge", { autoAlpha: 0, y: 14, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(2.2)" }, 21.16);
+      tl.to("#chips .chip", { autoAlpha: 0, y: -16, duration: 0.3, ease: "power2.in", stagger: 0.04 }, 22.47);
+      tl.to("#aiBadge", { autoAlpha: 0, y: -12, duration: 0.3, ease: "power2.in" }, 22.52);
+
+      // barra 80/20 na tela
+      tl.fromTo("#barScreen", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: E.o }, 22.82);
+      tl.fromTo("#barScreen .ai", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: E.o }, 22.92);
+      tl.to("#barScreen .you", { scale: 1.08, duration: 0.2, ease: E.o, yoyo: true, repeat: 3 }, 25.08);
+
+      // anotações de revisão (o que a IA errou)
+      [{"id":"n1","at":33.99},{"id":"n2","at":35.03},{"id":"n3","at":36.39}].forEach((n, i) => {
+        tl.to("#" + n.id + " .ring", { strokeDashoffset: 0, duration: 0.45, ease: "power2.out" }, n.at);
+        tl.fromTo("#" + n.id + " .tag", { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: "back.out(2)" }, n.at + 0.15);
+      });
+      // cursor corrige "à mão" → vira check verde
+      const fixAt = [38.04, 38.64, 39.24];
+      const notePos = [[687.924,178.876],[911.716,103.228],[468.072,374.3]];
+      tl.fromTo("#cursor", { autoAlpha: 0, x: 900, y: 420 }, { autoAlpha: 1, x: notePos[0][0], y: notePos[0][1], duration: 0.45, ease: E.io }, fixAt[0] - 0.45);
+      ["n1", "n2", "n3"].forEach((id, i) => {
+        if (i) tl.to("#cursor", { x: notePos[i][0], y: notePos[i][1], duration: 0.45, ease: E.io }, fixAt[i] - 0.45);
+        tl.to("#cursor", { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1 }, fixAt[i]);
+        tl.to("#" + id + " .ring", { stroke: "#22c55e", duration: 0.25 }, fixAt[i]);
+        tl.to("#" + id + " .tag", { autoAlpha: 0, duration: 0.2 }, fixAt[i]);
+        tl.fromTo("#" + id + " .ok", { autoAlpha: 0, scale: 0.3, transformOrigin: "50% 50%" }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(3)" }, fixAt[i] + 0.05);
+      });
+      tl.to("#cursor", { autoAlpha: 0, duration: 0.3 }, fixAt[2] + 0.6);
+      // 20% final: você completa os 100%
+      tl.fromTo("#barScreen .you .fill", { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, autoAlpha: 1, duration: 0.8, ease: E.o }, 39.24);
+      tl.set("#youTxt", { textContent: "20%" }, 39.24);
+      tl.to("#youTxt", { color: "#070707", duration: 0.3 }, 39.24);
+      tl.fromTo("#total", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: E.o }, 39.84);
+      tl.fromTo("#dashGlow", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: E.o }, 42.68);
+      tl.to("#dashGlow", { autoAlpha: 0.35, duration: 0.6, ease: E.io }, 43.28);
+
+      // ── volta pro rosto ──
+      tl.to("#screenScene", { autoAlpha: 0, duration: 0.25, ease: "power1.in" }, 44.6);
+      tl.set("#faceZoom", { scale: 1.2 }, 44.68);
+      tl.to("#faceZoom", { scale: 1, duration: 0.6, ease: E.o }, 44.69);
+
+      // ── vitrine: modo dividido ──
+      const SPLIT_IN = 56.62, SPLIT_OUT = 67.64;
+      tl.fromTo("#faceCam", { clipPath: "inset(0px 0px 0px 0px round 0px)" }, { clipPath: "inset(150px 48px 860px 48px round 44px)", duration: 0.6, ease: E.io }, SPLIT_IN);
+      tl.to("#faceZoom", { y: -150, scale: 0.62, duration: 0.6, ease: E.io }, SPLIT_IN);
+      tl.to("#faceShade", { autoAlpha: 0.4, duration: 0.6 }, SPLIT_IN);
+      tl.fromTo("#splitBg", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, SPLIT_IN);
+      tl.fromTo("#vitrine", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, SPLIT_IN + 0.2);
+      tl.fromTo("#vitTitle path", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, SPLIT_IN + 0.25);
+      tl.fromTo("#vitTitle", { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: E.o }, SPLIT_IN + 0.25);
+      tl.to("#caps", { y: -560, duration: 0.6, ease: E.io }, SPLIT_IN);
+      tl.fromTo("#coin", { autoAlpha: 0, scale: 0.5, rotation: -12 }, { autoAlpha: 1, scale: 1, rotation: -6, duration: 0.45, ease: "back.out(2.5)" }, 60.84);
+      tl.to("#coin", { autoAlpha: 0, scale: 0.8, duration: 0.3 }, 61.94);
+      [["#row1", 62.62], ["#row2", 64.62], ["#row3", 66.78]].forEach(([id, t]) =>
+        tl.fromTo(id, { autoAlpha: 0, x: -60 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: E.o }, t));
+      tl.to("#row3", { boxShadow: "0 0 0 3px #22c55e, 0 26px 50px -16px rgba(34,197,94,.45)", duration: 0.4 }, 67.18);
+      tl.to("#faceCam", { clipPath: "inset(0px 0px 0px 0px round 0px)", duration: 0.55, ease: E.io }, SPLIT_OUT);
+      tl.to("#faceZoom", { y: 0, scale: 1, duration: 0.55, ease: E.io }, SPLIT_OUT);
+      tl.to("#faceShade", { autoAlpha: 1, duration: 0.55 }, SPLIT_OUT);
+      tl.to("#vitrine", { autoAlpha: 0, duration: 0.3 }, SPLIT_OUT);
+      tl.to("#splitBg", { autoAlpha: 0, duration: 0.5 }, SPLIT_OUT);
+      tl.to("#caps", { y: 0, duration: 0.55, ease: E.io }, SPLIT_OUT);
+
+      // ── DESIGN ──
+      punch(69.37, 1.07, 0.7, 1.02);
+      tl.fromTo("#designWord", { autoAlpha: 0, scale: 1.3, y: 20 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.45, ease: E.o }, 69.37);
+      tl.fromTo("#designLine", { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, autoAlpha: 1, duration: 0.5, ease: E.o }, 69.52);
+
+      // ── CTA ──
+      const C = 70.05;
+      tl.to("#faceCam, #designWord, #designLine", { autoAlpha: 0, duration: 0.3 }, C - 0.05);
+      tl.fromTo("#cta", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, C - 0.05);
+      tl.fromTo("#ctaIcon", { autoAlpha: 0, scale: 0.5, rotation: -90 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.7, ease: E.o }, C + 0.05);
+      tl.fromTo("#ctaKicker", { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: E.o }, C + 0.2);
+      tl.fromTo("#ctaHead", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: E.o }, C + 0.3);
+      tl.fromTo("#ctaCard", { autoAlpha: 0, rotationX: 28, y: 120, scale: 0.86 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: 1, duration: 0.9, ease: E.o }, C + 0.45);
+      tl.fromTo("#play", { scale: 0 }, { scale: 1, duration: 0.5, ease: "back.out(2.5)" }, C + 1.1);
+      tl.to("#play", { scale: 1.1, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 5 }, C + 1.7);
+      tl.fromTo("#bio", { autoAlpha: 0, y: 40, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(2)" }, C + 0.95);
+      tl.to("#bio svg", { y: -10, duration: 0.35, ease: "sine.inOut", yoyo: true, repeat: 7 }, C + 1.5);
+      tl.to("#ctaCard", { scale: 1.03, duration: 3.5, ease: "sine.inOut" }, C + 1.4);
+
+      // ── legendas palavra por palavra ──
+      GROUPS.forEach((gr, i) => {
+        tl.set("#cap-" + i, { autoAlpha: 1 }, gr.s);
+        tl.set("#cap-" + i, { autoAlpha: 0 }, gr.e);
+        gr.w.forEach((t, j) => {
+          const el = "#w-" + i + "-" + j;
+          tl.fromTo(el, { autoAlpha: 0, y: 26, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.22, ease: "back.out(2.6)", immediateRender: false }, t);
+        });
+      });
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
