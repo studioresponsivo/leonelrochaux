@@ -16,7 +16,7 @@ Todos os vídeos (Reels/Shorts/TikTok e YouTube longo) seguem UM estilo, já pro
 6. Entregar: `entregas/<slug>/<nome>-previa.mp4` via SendUserFile (o arquivo cheio passa do limite do chat); commit + push de `entregas/<slug>/` e do JSON em `studio/specs/`.
 
 **YouTube longo**: o Leonel entrega o vídeo JÁ CORTADO no Premiere → roteiro com `"format":"horizontal"`, `"cuts":"all"` e só a camada visual (hook, beats, `screenRanges` para trechos de tela). Não cortar nada.
-**Entrega**: arquivo ≤ 95 MB vai para `entregas/<slug>/` (git); maior que isso o make coloca em `entregas/<slug>/grandes/` (fora do git) — avisar o Leonel; para longos, o ideal é renderizar no computador dele (Claude Code desktop).
+**Entrega**: master ≤ 95 MB vai para `entregas/<slug>/` (git). Se maior, o make guarda o master em `entregas/<slug>/grandes/` (fora do git) e gera `<nome>-postar.mp4` ≤ 93 MB (~9 Mbps a 80 s), que vai para o git. Para longos, o ideal é renderizar no computador dele (Claude Code desktop).
 **Fonte**: Articulat CF em `studio/assets/fonts-marca/` (não versionar enquanto o repositório for público); sem ela o make avisa "SEM fonte Articulat" e usa Plus Jakarta Sans.
 
 Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição é lida uma vez). Um vídeo longo por sessão.

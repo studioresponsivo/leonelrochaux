@@ -184,7 +184,14 @@ if (!flags.includes("--no-render")) {
   const big = fs.statSync(`${P}/render.mp4`).size > 95e6;
   const dest = big ? path.join(out, "grandes") : out; fs.mkdirSync(dest, { recursive: true });
   sh(`ffmpeg -v error -i "${P}/render.mp4" -c copy -movflags +faststart -y "${dest}/${name}.mp4"`); // sem recompressão
-  if (big) console.log(`• arquivo final > 95 MB: fica em entregas/${slug}/grandes/ (fora do GitHub) — renderizar local ou combinar entrega`);
+  if (big) {
+    // versão para postar ≤ 93 MB (cabe no GitHub; bem acima do que as redes usam após recomprimir)
+    const dur = +sh(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${P}/render.mp4"`).trim();
+    const kbps = Math.floor((93e6 * 8) / dur / 1000) - 200;
+    const pass = `-c:v libx264 -preset slow -b:v ${kbps}k -maxrate ${Math.floor(kbps * 1.4)}k -bufsize ${kbps * 2}k -pix_fmt yuv420p`;
+    sh(`cd "${P}" && ffmpeg -v error -y -i render.mp4 ${pass} -pass 1 -an -f mp4 /dev/null && ffmpeg -v error -y -i render.mp4 ${pass} -pass 2 -c:a aac -b:a 192k -movflags +faststart "${out}/${name}-postar.mp4"`);
+    console.log(`• master > 95 MB em entregas/${slug}/grandes/ (fora do git); versão para postar: entregas/${slug}/${name}-postar.mp4 (${kbps} kbps)`);
+  }
   const pv = fmt === "vertical" ? "720:1280" : "960:540";
   sh(`ffmpeg -v error -i "${P}/render.mp4" -vf scale=${pv} -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k -y "${out}/${name}-previa.mp4"`);
   const mb = (f) => (fs.statSync(f).size / 1e6).toFixed(1) + " MB";
