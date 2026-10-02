@@ -122,7 +122,7 @@ export function compose(plan) {
       }
     });
   }
-  js.push(`tl.fromTo("#faceZoom",{scale:1.08},{scale:1,duration:0.7,ease:"expo.out"},0.01);`);
+  if (!beats.some((b) => b.do === "hook" && b.t < 0.5)) js.push(`tl.fromTo("#faceZoom",{scale:1.08},{scale:1,duration:0.7,ease:"expo.out"},0.01);`);
   snd("impact-bass-1", 0.02, 0.3);
 
   // ── cenas de tela ─────────────────────────────────────────────────────────────
@@ -201,6 +201,42 @@ export function compose(plan) {
         js.push(`tl.to("#faceShake",{rotation:1.2,x:8,duration:0.06,ease:"sine.inOut"},${t});tl.to("#faceShake",{rotation:-1,x:-7,duration:0.08,ease:"sine.inOut"},${at(t + 0.06)});tl.to("#faceShake",{rotation:0.5,x:4,duration:0.08,ease:"sine.inOut"},${at(t + 0.14)});tl.to("#faceShake",{rotation:0,x:0,duration:0.12,ease:"sine.out"},${at(t + 0.22)});`);
         snd("click", t, 0.35);
         break;
+      case "hook": {
+        const slot = slotOf(t);
+        const HLW = new Set((b.hl || []).map(norm));
+        const ws = String(b.text).split(/\s+/);
+        const html = `<div class="hook">${ws.map((w, i) => `<span class="hw${/\d+%/.test(w) || HLW.has(norm(w)) ? " hl" : ""}" id="${id}w${i}">${esc(w)}</span>`).join(" ")}</div>`;
+        slots[slot].push({ t: at(t), id, html, kind: "hook", hold: b.hold ?? 3 });
+        ws.forEach((_, i) => js.push(`tl.fromTo("#${id}w${i}",{autoAlpha:0,y:30,scale:0.8},{autoAlpha:1,y:0,scale:1,duration:0.35,ease:"back.out(2.2)"},${at(t + 0.08 + i * 0.07)});`));
+        snd("whoosh-short", t, 0.32);
+        const cards = b.cards || [];
+        if (!cards.length) {
+          if (b.punch !== false) js.push(`tl.fromTo("#faceZoom",{scale:1.1},{scale:1,duration:0.9,ease:"expo.out"},${at(t + 0.01)});`);
+          break;
+        }
+        // modo palco: rosto em card central + cards 3D com trechos do vídeo, depois expande
+        const hEnd = at(t + (b.hold ?? 3));
+        const clip = V ? "inset(430px 150px 520px 150px round 40px)" : "inset(200px 560px 110px 560px round 36px)";
+        const fz = V ? "{scale:0.62" : "{scale:0.8,y:60";
+        js.push(`tl.fromTo("#splitBg",{autoAlpha:1},{autoAlpha:1,duration:0.01},${at(t)});tl.fromTo("#faceCam",{clipPath:"${clip}"},{clipPath:"${clip}",duration:0.01},${at(t)});tl.fromTo("#faceZoom",${fz}},${fz},duration:0.01},${at(t)});`);
+        js.push(`tl.to("#faceCam",{clipPath:"inset(0px 0px 0px 0px round 0px)",duration:0.6,ease:"power3.inOut"},${hEnd});tl.to("#faceZoom",{scale:1,y:0,duration:0.6,ease:"power3.inOut"},${hEnd});tl.to("#splitBg",{autoAlpha:0,duration:0.4},${at(hEnd + 0.2)});`);
+        snd("whoosh", hEnd, 0.38);
+        js.push(`tl.set("#caps",{attr:{"data-mode":"light"}},${at(t)});tl.set("#caps",{attr:{"data-mode":"dark"}},${hEnd});`);
+        const POS = V
+          ? [{ l: 30, t: 1060, w: 420, h: 280, ry: 20 }, { l: 640, t: 455, w: 400, h: 265, ry: -20 }, { l: 600, t: 1150, w: 360, h: 230, ry: -16 }]
+          : [{ l: 120, t: 300, w: 480, h: 300, ry: 22 }, { l: 1320, t: 230, w: 480, h: 300, ry: -22 }, { l: 1350, t: 600, w: 420, h: 260, ry: -18 }];
+        cards.slice(0, 3).forEach((c, i) => {
+          const p = POS[i], cid = `${id}c${i}`, ct = at(t + 0.25 + i * 0.22);
+          let inner = "";
+          if (c.type === "clip") inner = `<video id="${cid}v" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="${at(t)}" data-duration="${f2(hEnd + 0.6 - t)}" data-media-start="${c.mt}" data-track-index="${8 + i}" style="width:100%;height:100%;object-fit:cover"></video>`;
+          else if (c.type === "screen") { const sc = screens[c.id]; const cx = ((sc.crop[0] + sc.crop[2]) / 2 / 19.2).toFixed(1), cy = ((sc.crop[1] + sc.crop[3]) / 2 / 10.8).toFixed(1); inner = `<img src="assets/media/${sc.file}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${cx}% ${cy}%;transform:scale(${c.zoom ?? 1.6});transform-origin:${cx}% ${cy}%" />`; }
+          else inner = `<img src="assets/media/${c.src}" alt="" style="width:100%;height:100%;object-fit:cover" />`;
+          faceExtra += `<div class="hookStage"><div id="${cid}" class="hookCard" style="left:${p.l}px;top:${p.t}px;width:${p.w}px;height:${p.h}px">${inner}${c.label ? `<div class="hookLabel">${esc(c.label)}</div>` : ""}</div></div>`;
+          js.push(`tl.fromTo("#${cid}",{autoAlpha:0,y:90,scale:0.8,rotationY:${p.ry * 2},rotationX:10},{autoAlpha:1,y:0,scale:1,rotationY:${p.ry},rotationX:4,duration:0.7,ease:"expo.out"},${ct});tl.to("#${cid}",{y:-14,rotationY:${p.ry * 0.7},duration:${f2(hEnd - ct - 0.7)},ease:"sine.inOut"},${at(ct + 0.7)});tl.to("#${cid}",{autoAlpha:0,y:-60,scale:0.9,duration:0.4,ease:"power2.in"},${at(hEnd - 0.1)});`);
+          snd("pop", ct, 0.26);
+        });
+        break;
+      }
       case "meter": {
         const slot = slotOf(t), m = meterN++;
         const v = b.value ?? 80;
@@ -309,7 +345,7 @@ export function compose(plan) {
     occ.sort((a, b) => a.t - b.t);
     let html = "";
     occ.forEach((o, i) => {
-      const end = at(Math.min(occ[i + 1] ? occ[i + 1].t - 0.05 : Infinity, slotEnd(name, o.t)));
+      const end = at(Math.min(occ[i + 1] ? occ[i + 1].t - 0.05 : Infinity, slotEnd(name, o.t), o.hold ? o.t + o.hold : Infinity));
       const inner = o.kind === "chips" ? `<div class="chips">${o.group.items.join("")}</div>${o.group.badges.join("")}` : o.html + (o.extra || "");
       html += `<div id="${o.id}w" class="slotItem" style="opacity:0;visibility:hidden">${inner}</div>`;
       js.push(`tl.fromTo("#${o.id}w",{autoAlpha:0,y:${name === "face" ? -30 : 30}},{autoAlpha:1,y:0,duration:0.45,ease:"expo.out"},${o.t});tl.to("#${o.id}w",{autoAlpha:0,y:${name === "face" ? -24 : -16},duration:0.3,ease:"power2.in"},${at(end - 0.3)});`);
@@ -396,6 +432,11 @@ export function compose(plan) {
       .chip { display: flex; align-items: center; gap: 12px; padding: 16px 26px 16px 18px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px rgba(15,15,15,.05), 0 16px 34px -10px rgba(15,15,15,.28); font: 700 30px "Jakarta"; color: var(--n900); opacity: 0; white-space: nowrap; }
       .chip i { width: 34px; height: 34px; border-radius: 50%; background: var(--g500); display: grid; place-items: center; } .chip i svg { width: 20px; height: 20px; }
       .badge { padding: 10px 22px; border-radius: 999px; background: var(--g500); color: var(--n950); font: 800 24px "Jakarta"; letter-spacing: .06em; opacity: 0; white-space: nowrap; }
+      .hook { max-width: ${L.meterW}px; padding: ${V ? "26px 34px" : "22px 34px"}; border-radius: 30px; background: #fff; color: var(--n900); text-align: center; font: 800 ${V ? 60 : 52}px/1.12 "Jakarta"; letter-spacing: -.02em; box-shadow: 0 0 0 1px rgba(15,15,15,.05), 0 34px 70px -18px rgba(15,15,15,.45); }
+      .hookStage { position: absolute; inset: 0; perspective: 1400px; pointer-events: none; }
+      .hookCard { position: absolute; border-radius: 26px; overflow: hidden; background: var(--n900); opacity: 0; box-shadow: 0 0 0 6px #fff, 0 50px 90px -24px rgba(15,15,15,.55), 0 20px 40px -20px rgba(15,15,15,.35); }
+      .hookLabel { position: absolute; left: 16px; bottom: 16px; padding: 8px 16px; border-radius: 999px; background: #fff; color: var(--n900); font: 800 22px "Jakarta"; box-shadow: 0 10px 24px -8px rgba(15,15,15,.4); }
+      .hook .hw { display: inline-block; opacity: 0; } .hook .hw.hl { background: var(--g500); color: var(--n950); padding: 0 14px; border-radius: 14px; }
       .bar { position: relative; width: ${L.meterW}px; max-width: 100%; height: 112px; padding: 16px; border-radius: 30px; background: #fff; box-shadow: 0 0 0 1px rgba(15,15,15,.05), 0 34px 70px -18px rgba(15,15,15,.45); }
       .bar .track { position: relative; width: 100%; height: 100%; display: flex; gap: 10px; }
       .bar .seg { position: relative; height: 100%; border-radius: 16px; display: flex; align-items: center; padding: 0 24px; font: 800 36px "Jakarta"; white-space: nowrap; overflow: hidden; }

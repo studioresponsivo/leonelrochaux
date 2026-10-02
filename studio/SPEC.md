@@ -25,6 +25,7 @@ Um vídeo = um JSON em `work/<slug>/<nome>.json`. Exemplo validado: `studio/spec
 ## Beats (todos com `at`; opcional `offset` em segundos)
 | do | campos | onde | o que faz (SFX já incluso) |
 |---|---|---|---|
+| `hook` | `text`, `hl:[palavras]`, `hold` (≈3 s), `cards:[{type:"clip",at,label} \| {type:"screen",id,label,zoom} \| {type:"image",src,label}]` | início (`"at":"start"`) | **gancho obrigatório**: copy animada desde o frame 1; com `cards` vira palco (rosto em card + até 3 cards 3D com trechos de outros momentos/print/imagem) e expande para tela cheia |
 | `punch` | `scale` (1.05–1.09), `hold`, `sound:false` | rosto | zoom de ênfase |
 | `wiggle` | — | rosto | tremidinha |
 | `word` | `text`, `hold` | rosto | palavra gigante + sublinhado verde + impacto |
@@ -39,6 +40,8 @@ Um vídeo = um JSON em `work/<slug>/<nome>.json`. Exemplo validado: `studio/spec
 | `glow` | — | tela | brilho verde + giro final do card |
 
 ## Regras de estilo (não quebrar)
+- **Todo vídeo começa com `hook` em `"at":"start"`, com copy forte + 2–3 `cards`** (de preferência trechos de momentos fortes mais à frente: tela do produto, prova, resultado). Gancho só com rosto falando é proibido.
+- Qualidade: o motor mantém resolução e fps da câmera (fps máx. 60) e não recomprime o render final. `crf` (padrão 14) e `fps` podem ser forçados no JSON. A prévia 720p é só para o chat.
 - No máx. ~1 efeito a cada 2–3 s. Punch ≤ 1.09. Gancho nos 3 primeiros segundos.
 - Reels/Shorts: 45–90 s de voz + CTA 5 s. Arco: gancho → prova (tela) → virada → analogia/lista → fecho.
 - Coordenadas de tela: pegar 1 frame (`ffmpeg -ss T -i source.mp4 -frames:v 1 x.png`) só quando houver `note`/`focus` novos.

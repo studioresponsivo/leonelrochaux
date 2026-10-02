@@ -17,6 +17,10 @@ Todos os vídeos (Reels/Shorts/TikTok e YouTube longo) seguem UM estilo, já pro
 
 Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição é lida uma vez). Um vídeo longo por sessão.
 
+## Padrões do Leonel (inegociáveis)
+- **Gancho**: todo vídeo abre com `hook` + `cards` (copy forte + elementos visuais nos primeiros segundos). Organizado, nunca poluído, nunca "cara de IA".
+- **Qualidade**: câmera profissional — nunca entregar abaixo da resolução/fps da fonte. Prévia 720p só para o chat; o arquivo final completo vai para `entregas/` (GitHub).
+
 ## Economia de tokens (regras)
 - NÃO ler skills do HyperFrames, `compose.mjs` nem docs, a menos que algo quebre ou o estilo precise de um efeito novo.
 - NÃO imprimir transcrição em JSON nem logs inteiros; os scripts já resumem.

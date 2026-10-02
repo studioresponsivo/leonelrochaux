@@ -61,6 +61,7 @@ const T = (src) => { const c = cuts.find((c) => src >= c.in - 0.001 && src <= c.
 let lastT = 0;
 function anchor(v, label, after = lastT) {
   if (v == null) return null;
+  if (v === "start") return 0.02;
   if (typeof v === "number") return T(v);
   const inCut = (i) => cuts.some((c) => words[i].start >= c.in - 0.02 && words[i].start < c.out - 0.05);
   const tok = String(v).split(/\s+/).map(norm).filter(Boolean);
@@ -79,6 +80,7 @@ const beats = (spec.beats || []).map((b, bi) => {
   const r = { ...b, t: f2(anchor(b.at, `beat ${bi + 1} (${b.do})`) + (b.offset || 0)) };
   lastT = r.t;
   for (const k of ["flash", "complete", "until"]) if (b[k] != null) r[k] = anchor(b[k], `beat ${bi + 1}.${k}`, r.t);
+  if (b.cards) r.cards = b.cards.map((c, ci) => ({ ...c, mt: c.at != null ? anchor(c.at, `beat ${bi + 1} card ${ci + 1}`, 0) : null }));
   if (b.items) r.items = b.items.map((it, ii) => ({ ...it, t: anchor(it.at, `beat ${bi + 1} item ${ii + 1}`, r.t) }));
   return r;
 }).sort((a, b) => a.t - b.t);
@@ -88,9 +90,13 @@ for (const d of ["assets/media", "assets/fonts", "assets/sfx", "assets/vendor", 
 for (const d of ["fonts", "sfx", "vendor", "brand"]) sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`);
 const src = path.join(W, "source.mp4");
 const cache = path.join(W, "cache"); fs.mkdirSync(cache, { recursive: true });
+// qualidade: resolução e fps da câmera (fps máx. 60), intermediário quase sem perda
+const probe = sh(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate -of csv=p=0 "${src}"`).trim().split(",");
+const [fn, fd] = probe[2].split("/").map(Number);
+const FPS = spec.fps || Math.min(60, Math.round(fn / (fd || 1)));
 const segs = cuts.map((c) => {
-  const f = path.join(cache, `seg_${c.in}_${c.out}.mov`);
-  if (!fs.existsSync(f)) sh(`ffmpeg -v error -ss ${c.in} -i "${src}" -t ${c.dur} -vf "fps=30,scale=1920:1080" -c:v libx264 -crf 17 -preset fast -pix_fmt yuv420p -af "afade=t=in:d=0.012,afade=t=out:st=${f2(c.dur - 0.015)}:d=0.015" -ar 48000 -ac 2 -c:a pcm_s16le -y "${f}"`);
+  const f = path.join(cache, `seg_${c.in}_${c.out}_${FPS}.mov`);
+  if (!fs.existsSync(f)) sh(`ffmpeg -v error -ss ${c.in} -i "${src}" -t ${c.dur} -vf "fps=${FPS}" -c:v libx264 -crf 10 -preset fast -pix_fmt yuv420p -af "afade=t=in:d=0.012,afade=t=out:st=${f2(c.dur - 0.015)}:d=0.015" -ar 48000 -ac 2 -c:a pcm_s16le -y "${f}"`);
   return f;
 });
 fs.writeFileSync(path.join(P, "segs.txt"), segs.map((s) => `file '${s}'`).join("\n"));
@@ -125,6 +131,7 @@ for (const [id, s] of Object.entries(spec.screens || {})) {
   if (!s.live) sh(`ffmpeg -v error -ss ${still} -i "${src}" -frames:v 1 -vf scale=1920:1080 -y "${P}/assets/media/${file}"`);
   screens[id] = { file, live: !!s.live, crop: s.crop || [0, 0, 1490, 1080], cam: s.cam || [1490, 740, 430, 340] };
 }
+for (const b of spec.beats || []) for (const c of b.cards || []) if (c.type === "image") sh(`cp "${path.join(W, c.src)}" "${P}/assets/media/${c.src}"`);
 if (spec.cta?.image) sh(`cp "${path.join(W, spec.cta.image)}" "${P}/assets/media/${spec.cta.image}"`);
 
 // ── composição ──────────────────────────────────────────────────────────────────
@@ -132,7 +139,7 @@ const html = compose({ fmt, cuts, beats, words, faces, screens, spec, endVoice, 
 fs.writeFileSync(path.join(P, "index.html"), html);
 if (!fs.existsSync(path.join(P, "hyperframes.json"))) fs.writeFileSync(path.join(P, "hyperframes.json"), JSON.stringify({ paths: { assets: "assets" } }));
 fs.writeFileSync(path.join(P, "plan.json"), JSON.stringify({ cuts, beats: beats.map((b) => ({ do: b.do, t: b.t })), endVoice, total }, null, 1));
-console.log(`• ${name}: ${fmt}, ${cuts.length} cortes, ${beats.length} beats, voz ${endVoice}s + CTA ${ctaDur}s = ${total}s`);
+console.log(`• ${name}: ${fmt} ${FPS}fps (fonte ${probe[0]}x${probe[1]}), ${cuts.length} cortes, ${beats.length} beats, voz ${endVoice}s + CTA ${ctaDur}s = ${total}s`);
 
 const lint = sh(`cd "${P}" && npx hyperframes lint . 2>&1 || true`);
 const errs = lint.split("\n").filter((l) => l.includes("✗"));
@@ -149,8 +156,8 @@ if (flags.includes("--proof")) {
 if (!flags.includes("--no-render")) {
   const out = path.join(ROOT, "entregas", slug); fs.mkdirSync(out, { recursive: true });
   const t0 = Date.now();
-  sh(`cd "${P}" && npx hyperframes render . -q high -o ./render.mp4`);
-  sh(`ffmpeg -v error -i "${P}/render.mp4" -c:v libx264 -crf 19 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 192k -y "${out}/${name}.mp4"`);
+  sh(`cd "${P}" && npx hyperframes render . --fps ${FPS} --crf ${spec.crf ?? 14} -o ./render.mp4`);
+  sh(`ffmpeg -v error -i "${P}/render.mp4" -c copy -movflags +faststart -y "${out}/${name}.mp4"`); // sem recompressão
   const pv = fmt === "vertical" ? "720:1280" : "960:540";
   sh(`ffmpeg -v error -i "${P}/render.mp4" -vf scale=${pv} -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k -y "${out}/${name}-previa.mp4"`);
   const mb = (f) => (fs.statSync(f).size / 1e6).toFixed(1) + " MB";
