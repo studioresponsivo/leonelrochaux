@@ -1,0 +1,52 @@
+{
+  "name": "reels-80-20",
+  "format": "vertical",
+  "fixes": { "Só": "Se", "pra": "alguém", "desconfio,": "desconfie,", "afastam": "afasta", "curioso": "curiosos" },
+  "keywords": ["ia", "desconfie", "mentira", "horrível", "sua", "tokens", "tipografias", "conceito", "mão", "errado", "torta", "vida",
+    "bonitos", "vendem", "valorizados", "vitrine", "bolso", "clientes", "curiosos", "valor", "design", "organizados", "prática", "responsabilidade", "leonel"],
+  "cuts": [
+    { "near": 0, "from": "Só pra te falar", "to": "pelo menos 80%" },
+    { "near": 12, "from": "Mas os 20% que falta", "to": "inteiramente sua" },
+    { "near": 340, "from": "E veja, eu defini", "to": "fazer na mão", "screen": "dash" },
+    { "near": 355, "from": "Não, mas está tão", "to": "ajustado. Verdade." , "screen": "dash" },
+    { "near": 358, "from": "Só que tem detalhes", "to": "meio torta", "screen": "dash" },
+    { "near": 366, "from": "quando eu faço isso", "to": "dou vida ao negócio", "screen": "dash" },
+    { "near": 393, "from": "projetos que são mais bonitos", "to": "mais valorizados" },
+    { "near": 402, "from": "Quer ver eu te provar", "to": "seu bolso" },
+    { "near": 414, "from": "A vitrine ela seleciona", "to": "gera valor" },
+    { "near": 422, "from": "E é por isso que você precisa", "to": "aprender design" }
+  ],
+  "screens": { "dash": { "still": 348, "crop": [456, 150, 1700, 740], "cam": [1490, 740, 430, 340] } },
+  "beats": [
+    { "at": "desconfio", "do": "punch", "scale": 1.09 },
+    { "at": "horrível", "do": "wiggle" },
+    { "at": "80%", "do": "meter", "value": 80, "a": "IA", "b": "VOCÊ", "flash": "20%" },
+    { "at": "tokens", "do": "chip", "text": "Tokens" },
+    { "at": "tokens", "do": "focus", "x": 1080, "y": 412, "z": 1.75, "lead": 0.35 },
+    { "at": "tipografias", "do": "chip", "text": "Tipografia" },
+    { "at": "tipografias", "do": "focus", "x": 600, "y": 196, "z": 2.3 },
+    { "at": "conceito", "do": "chip", "text": "Conceito" },
+    { "at": "conceito", "do": "focus", "z": 1, "lead": 0.2 },
+    { "at": "foi IA", "do": "badge", "text": "100% FEITO POR IA" },
+    { "at": "definiu 80%", "do": "meter", "value": 80, "a": "IA", "b": "VOCÊ", "flash": "20% agora", "complete": "20% final", "total": "80% IA + 20% VOCÊ = 100%", "offset": 0.6 },
+    { "at": "tão bem calculado", "do": "focus", "x": 870, "y": 640, "z": 1.45, "dur": 2.2, "lead": 0 },
+    { "at": "Só que tem detalhes", "do": "focus", "z": 1 },
+    { "at": "errado", "do": "note", "x": 1329, "y": 377, "r": 34, "label": "errado" },
+    { "at": "não gostei", "do": "note", "x": 1613, "y": 281, "r": 44, "label": "não gostei" },
+    { "at": "torta", "do": "note", "x": 1050, "y": 625, "r": 70, "label": "torto" },
+    { "at": "mão que", "do": "fix" },
+    { "at": "negócio", "do": "glow", "offset": -1.4 },
+    { "at": "vendem", "do": "punch", "scale": 1.06 },
+    { "at": "valorizados", "do": "punch", "scale": 1.05, "sound": false },
+    { "at": "vitrine", "do": "list", "title": "A VITRINE", "until": "E é por isso",
+      "items": [
+        { "at": "seleciona", "text": "Seleciona clientes", "tone": "good" },
+        { "at": "afastam", "text": "Afasta curiosos", "tone": "bad" },
+        { "at": "gera valor", "text": "Gera valor", "tone": "best" }
+      ] },
+    { "at": "bolso", "do": "sticker", "text": "R$ R$ R$" },
+    { "at": "bolso", "do": "wiggle" },
+    { "at": "design", "do": "word", "text": "DESIGN" }
+  ],
+  "cta": { "kicker": "VÍDEO COMPLETO", "title": "Assista agora no meu canal do YouTube", "image": "capa.webp", "pill": "Link na bio", "seconds": 5 }
+}
