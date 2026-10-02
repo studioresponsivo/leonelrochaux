@@ -1,0 +1,19 @@
+{
+  "name": "yt-teste-v2",
+  "format": "horizontal",
+  "cuts": "all",
+  "captions": "phrase",
+  "keywords": ["ia", "bonitos", "valorizados", "vitrine", "design"],
+  "opening": { "style": "type-hook", "text": "Primeiro você tem que utilizar IA no seu dia a dia", "hl": ["IA"], "bg": "light" },
+  "beats": [
+    { "at": "mais valorizados", "do": "punch", "scale": 1.15, "dur": 1.6 },
+    { "at": "só pela vitrine", "do": "bridge", "text": "só pela vitrine da loja", "hl": ["vitrine"], "bg": "dark" },
+    { "at": "A vitrine ela seleciona", "do": "swap", "title": "A vitrine", "until": "E é por isso",
+      "items": [
+        { "at": "seleciona clientes", "text": "Seleciona clientes" },
+        { "at": "afasta curioso", "text": "Afasta curiosos", "tone": "bad" },
+        { "at": "gera valor", "text": "Gera valor onde tem valor" }
+      ] },
+    { "at": "você precisa aprender", "do": "select", "text": "você precisa aprender design", "word": "design" }
+  ]
+}

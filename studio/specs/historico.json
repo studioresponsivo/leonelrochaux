@@ -1,0 +1,82 @@
+[
+ {
+  "name": "yt-teste-v2",
+  "slug": "teste-longo",
+  "format": "horizontal",
+  "opening": "type-hook",
+  "patterns": [
+   "bridge",
+   "swap",
+   "select"
+  ],
+  "transitions": [
+   "none",
+   "cut",
+   "cut",
+   "cut",
+   "push-up",
+   "blur",
+   "cut",
+   "blur"
+  ],
+  "chapterBg": "light",
+  "date": "2026-10-02"
+ },
+ {
+  "name": "reels-24h-v2",
+  "slug": "pagina-24h",
+  "format": "vertical",
+  "opening": "screen-first",
+  "patterns": [
+   "device",
+   "select",
+   "swap",
+   "number",
+   "ticker",
+   "cutaway",
+   "icons"
+  ],
+  "transitions": [
+   "none",
+   "whip",
+   "blur",
+   "curtain",
+   "whip",
+   "cut",
+   "push-up",
+   "cut",
+   "zoom",
+   "whip",
+   "blur",
+   "zoom",
+   "blur",
+   "whip-up",
+   "cut",
+   "curtain"
+  ],
+  "chapterBg": "dark",
+  "date": "2026-10-02"
+ },
+ {
+  "name": "case-ph-academy",
+  "slug": "portfolio-teste",
+  "format": "portfolio",
+  "opening": "number-hook",
+  "patterns": [
+   "device",
+   "stack",
+   "kpis",
+   "bridge"
+  ],
+  "transitions": [
+   "none",
+   "cut",
+   "push-up",
+   "push-up",
+   "cut",
+   "cut"
+  ],
+  "chapterBg": "dark",
+  "date": "2026-10-02"
+ }
+]

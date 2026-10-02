@@ -1,0 +1,232 @@
+{
+  "name": "reels-24h-v2",
+  "format": "vertical",
+  "fixes": {
+    "AI.": "ar.",
+    "glife": "briefing",
+    "cospa": "cospe",
+    "estrela.": "estratégia."
+  },
+  "keywords": [
+    "24",
+    "horas",
+    "figma",
+    "nunca",
+    "dias",
+    "direciona",
+    "ia",
+    "semanas"
+  ],
+  "marks": [
+    "engolir"
+  ],
+  "cuts": [
+    {
+      "near": 0,
+      "from": "Eu vou te mostrar",
+      "to": "nada genérico"
+    },
+    {
+      "near": 48,
+      "from": "Tudo isso aqui foi feito",
+      "to": "demora semanas",
+      "screen": "pagina"
+    },
+    {
+      "near": 300,
+      "from": "Falei pra vocês",
+      "to": "defini a estrela",
+      "screen": "claude"
+    },
+    {
+      "near": 316,
+      "from": "Dia 10, a gente",
+      "to": "mais duas coisas",
+      "screen": "claude"
+    },
+    {
+      "near": 325,
+      "from": "E em 24, 36",
+      "to": "você está vendo",
+      "screen": "claude"
+    },
+    {
+      "near": 370,
+      "from": "O cliente preencheu",
+      "to": "sem entender nada"
+    },
+    {
+      "near": 383,
+      "from": "você vai ter que refazer",
+      "to": "em um dia só"
+    },
+    {
+      "near": 574,
+      "from": "E essa é a grande diferença",
+      "to": "cospa para você"
+    }
+  ],
+  "screens": {
+    "pagina": {
+      "crop": [
+        0,
+        60,
+        1480,
+        1080
+      ],
+      "cam": [
+        1490,
+        740,
+        430,
+        340
+      ]
+    },
+    "claude": {
+      "crop": [
+        440,
+        100,
+        1700,
+        720
+      ],
+      "cam": [
+        1490,
+        740,
+        430,
+        340
+      ]
+    }
+  },
+  "opening": {
+    "style": "screen-first",
+    "face": "Não, não foi copiando",
+    "shots": [
+      {
+        "src": 22.3,
+        "crop": [
+          740,
+          0,
+          1348,
+          1080
+        ],
+        "label": "PH Academy · no ar"
+      },
+      {
+        "src": 40,
+        "crop": [
+          316,
+          0,
+          924,
+          1080
+        ]
+      }
+    ]
+  },
+  "beats": [
+    {
+      "at": "Tudo isso aqui foi feito",
+      "do": "device",
+      "src": 26,
+      "url": "phacademy.com.br",
+      "to": "eu botei a página",
+      "out": "whip",
+      "labels": [
+        "Feito em 24 horas",
+        "Projeto de semanas"
+      ]
+    },
+    {
+      "at": "mas essa é a parte",
+      "do": "select",
+      "text": "mas essa é a parte do Figma",
+      "word": "Figma",
+      "to": "do Figma"
+    },
+    {
+      "at": "Dia 3",
+      "do": "swap",
+      "title": "Linha do tempo real",
+      "until": "E em 24, 36",
+      "items": [
+        {
+          "at": "Dia 3",
+          "text": "Dia 3 · Matriz"
+        },
+        {
+          "at": "Dia 4",
+          "text": "Dia 4 · Estratégia"
+        },
+        {
+          "at": "Dia 10",
+          "text": "Dia 10 · Validação"
+        }
+      ]
+    },
+    {
+      "at": "E em 24, 36",
+      "do": "number",
+      "from": 24,
+      "value": 48,
+      "suffix": "h",
+      "label": "e a página estava no ar",
+      "to": "você está vendo",
+      "out": "zoom"
+    },
+    {
+      "at": "Isso não vai funcionar",
+      "do": "ticker",
+      "text": "Isso não vai funcionar nunca, vai fazer você perder dias",
+      "hl": [
+        "nunca,",
+        "dias"
+      ]
+    },
+    {
+      "at": "refazer aquilo",
+      "do": "punch",
+      "scale": 1.3,
+      "to": "de novo e de novo"
+    },
+    {
+      "at": "Sendo que você poderia",
+      "do": "cutaway",
+      "src": 21,
+      "crop": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "frame": "card",
+      "bg": "dark",
+      "label": "Página em 1 dia",
+      "to": "em um dia só"
+    },
+    {
+      "at": "do jeito certo",
+      "do": "punch",
+      "scale": 1.28,
+      "dur": 1.2
+    },
+    {
+      "at": "É você que direciona",
+      "do": "icons",
+      "before": "É você que direciona a",
+      "icons": [
+        "figma",
+        "claude",
+        "ia"
+      ],
+      "out": "cut"
+    }
+  ],
+  "cta": {
+    "kicker": "Vídeo completo",
+    "title": "O processo completo está no meu canal",
+    "hl": [
+      "canal"
+    ],
+    "image": "capa.jpg",
+    "pill": "Link na bio",
+    "seconds": 5
+  }
+}

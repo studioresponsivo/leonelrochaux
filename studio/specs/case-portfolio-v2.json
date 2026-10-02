@@ -1,0 +1,11 @@
+{
+  "name": "case-ph-academy",
+  "format": "portfolio",
+  "opening": { "style": "number-hook", "value": 24, "suffix": "h", "label": "do Figma ao ar · PH Academy", "face": 2.4 },
+  "beats": [
+    { "do": "device", "src": "hero.mp4", "url": "phacademy.com.br", "dur": 4, "labels": ["Landing de alta conversão"], "in": "cut" },
+    { "do": "stack", "dur": 4.5, "cards": [ { "src": "tela-22.5.png", "label": "Hero" }, { "src": "tela-40.png", "label": "Módulos" }, { "src": "tela-50.png", "label": "Prova social" } ] },
+    { "do": "kpis", "dur": 3.6, "items": [ { "value": 2500, "prefix": "+", "label": "alunos" }, { "value": 7, "label": "módulos" }, { "value": 50, "prefix": "+", "label": "aulas" } ] },
+    { "do": "bridge", "text": "Design que vende.", "hl": ["vende."], "bg": "green", "dur": 2.4 }
+  ]
+}
