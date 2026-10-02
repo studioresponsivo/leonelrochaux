@@ -17,12 +17,14 @@
       #logo { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; }
       .ltr { fill: var(--ink); }
       .blk { fill: var(--brand); }
+      /* B e C só existem a partir do corte */
+      #blk-b, #blk-c { opacity: 0; visibility: hidden; }
     </style>
   </head>
   <body>
     <div id="stage" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
       <div id="logo-clip" class="clip" data-start="0" data-duration="5" data-track-index="0">
-        <svg id="logo" viewBox="97.91 10.813 150 84.375" preserveAspectRatio="xMidYMid meet" data-layout-allow-overflow="true" xmlns="http://www.w3.org/2000/svg">
+        <svg id="logo" viewBox="102.91 13.625 140 78.75" preserveAspectRatio="xMidYMid meet" data-layout-allow-overflow="true" xmlns="http://www.w3.org/2000/svg">
           <g id="word-studio">
           <path class="ltr s" id="ltr s-0" d="M 45.4375 51.710938 C 46.554688 52.109375 47.429688 52.722656 48.0625 53.558594 C 48.695312 54.390625 49.003906 55.523438 49.003906 56.945312 C 49.003906 58.039062 48.695312 59.046875 48.074219 59.976562 C 47.453125 60.898438 46.542969 61.636719 45.335938 62.179688 C 44.132812 62.726562 42.6875 63 41.003906 63 C 39.316406 63 37.789062 62.667969 36.585938 62 C 35.378906 61.332031 34.484375 60.460938 33.890625 59.390625 C 33.296875 58.3125 33 57.148438 33 55.894531 L 36.667969 55.894531 C 36.703125 56.929688 37.035156 57.859375 37.667969 58.671875 C 38.300781 59.484375 39.410156 59.894531 41.003906 59.894531 C 42.003906 59.894531 42.820312 59.753906 43.460938 59.460938 C 44.097656 59.175781 44.554688 58.824219 44.820312 58.40625 C 45.089844 57.992188 45.226562 57.578125 45.226562 57.171875 C 45.226562 56.453125 44.921875 55.863281 44.308594 55.40625 C 43.699219 54.949219 42.59375 54.625 41.003906 54.417969 C 39.171875 54.179688 37.71875 53.808594 36.65625 53.320312 C 35.589844 52.828125 34.824219 52.203125 34.363281 51.429688 C 33.902344 50.664062 33.667969 49.703125 33.667969 48.558594 C 33.667969 47.539062 33.964844 46.601562 34.554688 45.75 C 35.148438 44.894531 36.007812 44.226562 37.125 43.738281 C 38.242188 43.246094 39.550781 43 41.054688 43 C 42.664062 43 44.007812 43.285156 45.078125 43.859375 C 46.15625 44.433594 46.953125 45.195312 47.464844 46.136719 C 47.988281 47.078125 48.25 48.105469 48.273438 49.21875 L 44.6875 49.21875 C 44.6875 48.421875 44.390625 47.703125 43.796875 47.066406 C 43.207031 46.429688 42.273438 46.105469 40.992188 46.105469 C 39.710938 46.105469 38.796875 46.347656 38.242188 46.824219 C 37.6875 47.304688 37.410156 47.824219 37.410156 48.382812 C 37.410156 49.714844 38.679688 50.523438 41.21875 50.796875 C 42.902344 51.003906 44.308594 51.300781 45.425781 51.699219 Z M 45.4375 51.710938" />
           <path class="ltr s" id="ltr s-1" d="M 71.230469 43.222656 L 71.230469 46.554688 L 65.339844 46.554688 L 65.339844 62.777344 L 61.5625 62.777344 L 61.5625 46.554688 L 55.671875 46.554688 L 55.671875 43.222656 Z M 71.230469 43.222656" />
@@ -32,9 +34,9 @@
           <path class="ltr s" id="ltr s-5" d="M 149.988281 44.335938 C 151.46875 45.226562 152.605469 46.429688 153.394531 47.945312 C 154.175781 49.46875 154.574219 51.152344 154.574219 53 C 154.574219 54.847656 154.183594 56.539062 153.394531 58.054688 C 152.605469 59.574219 151.476562 60.773438 149.988281 61.664062 C 148.507812 62.550781 146.777344 62.996094 144.792969 62.996094 C 142.8125 62.996094 141.082031 62.550781 139.601562 61.664062 C 138.121094 60.773438 136.984375 59.570312 136.195312 58.054688 C 135.40625 56.539062 135.015625 54.847656 135.015625 53 C 135.015625 51.152344 135.40625 49.460938 136.195312 47.945312 C 136.980469 46.425781 138.113281 45.226562 139.601562 44.335938 C 141.082031 43.449219 142.8125 43.003906 144.792969 43.003906 C 146.777344 43.003906 148.507812 43.449219 149.988281 44.335938 Z M 147.988281 58.785156 C 148.894531 58.195312 149.589844 57.394531 150.070312 56.382812 C 150.550781 55.367188 150.789062 54.246094 150.789062 53.003906 C 150.789062 51.765625 150.550781 50.644531 150.070312 49.628906 C 149.589844 48.617188 148.894531 47.824219 147.988281 47.226562 C 147.082031 46.636719 146.015625 46.335938 144.792969 46.335938 C 143.570312 46.335938 142.507812 46.636719 141.601562 47.226562 C 140.695312 47.816406 140 48.617188 139.519531 49.628906 C 139.039062 50.644531 138.792969 51.765625 138.792969 53.003906 C 138.792969 54.246094 139.03125 55.367188 139.519531 56.382812 C 140 57.394531 140.695312 58.1875 141.601562 58.785156 C 142.507812 59.375 143.570312 59.675781 144.792969 59.675781 C 146.015625 59.675781 147.082031 59.375 147.988281 58.785156 Z M 147.988281 58.785156" />
           </g>
           <g id="blocks">
-            <rect class="blk" id="blk-mobile" x="167.910156" y="43" width="10" height="20" rx="5" />
-            <rect class="blk" id="blk-tablet" x="184.574219" y="43" width="20" height="20" rx="5" />
-            <rect class="blk" id="blk-desktop" x="211.242188" y="43" width="40" height="20" rx="5" />
+            <path class="blk" id="blk-a" d="M 172.91 43 L 172.91 43 C 175.672 43 177.91 45.239 177.91 48 L 177.91 58 C 177.91 60.761 175.672 63 172.91 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 48 C 167.91 45.239 170.149 43 172.91 43 Z" />
+            <path class="blk" id="blk-b" d="M 181.242 43 L 207.908 43 C 207.908 43 207.908 43 207.908 43 L 207.908 63 C 207.908 63 207.908 63 207.908 63 L 181.242 63 C 181.242 63 181.242 63 181.242 63 L 181.242 43 C 181.242 43 181.242 43 181.242 43 Z" />
+            <path class="blk" id="blk-c" d="M 207.908 43 L 246.242 43 C 249.004 43 251.242 45.239 251.242 48 L 251.242 58 C 251.242 60.761 249.004 63 246.242 63 L 207.908 63 C 207.908 63 207.908 63 207.908 63 L 207.908 43 C 207.908 43 207.908 43 207.908 43 Z" />
           </g>
           <g id="word-responsivo">
           <path class="ltr r" id="ltr r-0" d="M 273.214844 43.433594 C 275.769531 43.433594 277.652344 43.964844 278.855469 45.023438 C 280.058594 46.085938 280.664062 47.511719 280.664062 49.304688 C 280.664062 50.011719 280.484375 50.703125 280.132812 51.382812 C 279.777344 52.0625 279.269531 52.648438 278.609375 53.136719 C 277.949219 53.625 277.164062 53.933594 276.261719 54.058594 C 275.953125 54.09375 275.796875 54.257812 275.796875 54.550781 C 275.796875 54.839844 275.960938 55.003906 276.289062 55.039062 C 277.484375 55.164062 278.332031 55.445312 278.839844 55.878906 C 279.351562 56.316406 279.703125 56.839844 279.902344 57.457031 L 281.53125 62.566406 L 276.367188 62.566406 L 275.609375 58.789062 C 275.464844 58.082031 275.261719 57.53125 274.996094 57.144531 C 274.734375 56.753906 274.335938 56.472656 273.800781 56.300781 C 273.265625 56.128906 272.511719 56.042969 271.53125 56.042969 L 269.140625 56.042969 L 269.140625 62.566406 L 264.574219 62.566406 L 264.574219 43.433594 Z M 275.144531 51.667969 C 275.777344 51.214844 276.097656 50.609375 276.097656 49.847656 C 276.097656 48.996094 275.839844 48.367188 275.324219 47.960938 C 274.804688 47.550781 274.023438 47.347656 272.972656 47.347656 L 269.140625 47.347656 L 269.140625 52.347656 L 272.699219 52.347656 C 273.699219 52.347656 274.511719 52.121094 275.144531 51.667969 Z M 275.144531 51.667969" />
@@ -52,45 +54,49 @@
       </div>
 
       <!-- SFX (biblioteca embutida do HyperFrames media-use) -->
-      <audio id="sfx-pop" src="assets/sfx/pop.mp3" data-start="0.30" data-duration="0.72" data-track-index="1" data-volume="0.4"></audio>
-      <audio id="sfx-click-tablet" src="assets/sfx/click-soft.mp3" data-start="0.95" data-duration="0.36" data-track-index="2" data-volume="0.6"></audio>
-      <audio id="sfx-click-desktop" src="assets/sfx/click-soft.mp3" data-start="1.55" data-duration="0.36" data-track-index="3" data-volume="0.65"></audio>
-      <audio id="sfx-whoosh" src="assets/sfx/whoosh-short.mp3" data-start="2.02" data-duration="0.57" data-track-index="4" data-volume="0.45"></audio>
-      <audio id="sfx-chime" src="assets/sfx/chime.mp3" data-start="2.6" data-duration="2.4" data-track-index="5" data-volume="0.4"></audio>
+      <audio id="sfx-pop" src="assets/sfx/pop.mp3" data-start="0.28" data-duration="0.72" data-track-index="1" data-volume="0.4"></audio>
+      <audio id="sfx-stretch-tablet" src="assets/sfx/click-soft.mp3" data-start="0.95" data-duration="0.36" data-track-index="2" data-volume="0.55"></audio>
+      <audio id="sfx-stretch-desktop" src="assets/sfx/whoosh-short.mp3" data-start="1.5" data-duration="0.57" data-track-index="3" data-volume="0.35"></audio>
+      <audio id="sfx-cut" src="assets/sfx/click.mp3" data-start="2.3" data-duration="0.36" data-track-index="4" data-volume="0.5"></audio>
+      <audio id="sfx-reveal" src="assets/sfx/whoosh-short.mp3" data-start="2.75" data-duration="0.57" data-track-index="5" data-volume="0.3"></audio>
+      <audio id="sfx-chime" src="assets/sfx/chime.mp3" data-start="2.95" data-duration="2.05" data-track-index="6" data-volume="0.4"></audio>
     </div>
 
     <script>
-      // Câmera (viewBox) por estado: mobile → tablet → desktop → logo inteira → push-in lento
-      const CAM = {"mobile":"97.91 10.813 150 84.375","tablet":"91.242 -0.438 190 106.875","desktop":"84.576 -17.313 250 140.625","full":"-104.8 -144.438 702 394.875","push":"-87.8 -134.875 668 375.75"};
-      const B = {"y":43,"h":20,"r":5,"m":{"x":167.910156,"w":10},"t":{"x":184.574219,"w":20},"d":{"x":211.242188,"w":40}};
+      const S = {"mobileSeed":"M 172.91 57 L 172.91 57 C 175.672 57 177.91 59.239 177.91 62 L 177.91 58 C 177.91 60.761 175.672 63 172.91 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 62 C 167.91 59.239 170.149 57 172.91 57 Z","mobile":"M 172.91 43 L 172.91 43 C 175.672 43 177.91 45.239 177.91 48 L 177.91 58 C 177.91 60.761 175.672 63 172.91 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 48 C 167.91 45.239 170.149 43 172.91 43 Z","tablet":"M 172.91 43 L 182.91 43 C 185.672 43 187.91 45.239 187.91 48 L 187.91 58 C 187.91 60.761 185.672 63 182.91 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 48 C 167.91 45.239 170.149 43 172.91 43 Z","full":"M 172.91 43 L 246.242 43 C 249.004 43 251.242 45.239 251.242 48 L 251.242 58 C 251.242 60.761 249.004 63 246.242 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 48 C 167.91 45.239 170.149 43 172.91 43 Z","cutA":"M 172.91 43 L 181.242 43 C 181.242 43 181.242 43 181.242 43 L 181.242 63 C 181.242 63 181.242 63 181.242 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 48 C 167.91 45.239 170.149 43 172.91 43 Z","cutB":"M 181.242 43 L 207.908 43 C 207.908 43 207.908 43 207.908 43 L 207.908 63 C 207.908 63 207.908 63 207.908 63 L 181.242 63 C 181.242 63 181.242 63 181.242 63 L 181.242 43 C 181.242 43 181.242 43 181.242 43 Z","cutC":"M 207.908 43 L 246.242 43 C 249.004 43 251.242 45.239 251.242 48 L 251.242 58 C 251.242 60.761 249.004 63 246.242 63 L 207.908 63 C 207.908 63 207.908 63 207.908 63 L 207.908 43 C 207.908 43 207.908 43 207.908 43 Z","A":"M 172.91 43 L 172.91 43 C 175.672 43 177.91 45.239 177.91 48 L 177.91 58 C 177.91 60.761 175.672 63 172.91 63 L 167.91 63 C 167.91 63 167.91 63 167.91 63 L 167.91 48 C 167.91 45.239 170.149 43 172.91 43 Z","B":"M 189.574 43 L 199.574 43 C 202.336 43 204.574 45.239 204.574 48 L 204.574 58 C 204.574 60.761 202.336 63 199.574 63 L 184.574 63 C 184.574 63 184.574 63 184.574 63 L 184.574 48 C 184.574 45.239 186.813 43 189.574 43 Z","C":"M 216.242 43 L 246.242 43 C 249.004 43 251.242 45.239 251.242 48 L 251.242 58 C 251.242 60.761 249.004 63 246.242 63 L 211.242 63 C 211.242 63 211.242 63 211.242 63 L 211.242 48 C 211.242 45.239 213.481 43 216.242 43 Z"};
+      const CAM = {"mobile":"102.91 13.625 140 78.75","tablet":"97.91 8 160 90","full":"94.576 -11.688 230 129.375","logo":"-104.8 -144.438 702 394.875","push":"-87.8 -134.875 668 375.75"};
       const tl = gsap.timeline({ paused: true });
 
-      // 1. Mobile nasce (0.30–0.85)
-      tl.fromTo("#blk-mobile", { autoAlpha: 0, attr: { y: B.y + 6, height: B.h - 12 } },
-        { autoAlpha: 1, attr: { y: B.y, height: B.h }, duration: 0.55, ease: "power3.out" }, 0.3);
 
-      // 2. Tablet se estica a partir do mobile (0.95–1.45)
-      tl.fromTo("#blk-tablet", { autoAlpha: 0, attr: { x: B.m.x, width: B.m.w } },
-        { autoAlpha: 1, attr: { x: B.t.x, width: B.t.w }, duration: 0.5, ease: "expo.out" }, 0.95);
+      // 1. Mobile nasce, crescendo de baixo pra cima (0.30–0.85)
+      tl.fromTo("#blk-a", { autoAlpha: 0, attr: { d: S.mobileSeed } },
+        { autoAlpha: 1, attr: { d: S.mobile }, duration: 0.55, ease: "power3.out" }, 0.3);
+
+      // 2. Estica para tablet (0.95–1.45)
+      tl.to("#blk-a", { attr: { d: S.tablet }, duration: 0.5, ease: "expo.inOut" }, 0.95);
       tl.fromTo("#logo", { attr: { viewBox: CAM.mobile } },
-        { attr: { viewBox: CAM.tablet }, duration: 0.6, ease: "power2.inOut" }, 0.9);
+        { attr: { viewBox: CAM.tablet }, duration: 0.5, ease: "expo.inOut" }, 0.95);
 
-      // 3. Desktop se estica a partir do tablet (1.55–2.05)
-      tl.fromTo("#blk-desktop", { autoAlpha: 0, attr: { x: B.t.x, width: B.t.w } },
-        { autoAlpha: 1, attr: { x: B.d.x, width: B.d.w }, duration: 0.5, ease: "expo.out" }, 1.55);
-      tl.to("#logo", { attr: { viewBox: CAM.desktop }, duration: 0.55, ease: "power2.inOut" }, 1.5);
+      // 3. Estica até o tamanho final desktop (1.55–2.15)
+      tl.to("#blk-a", { attr: { d: S.full }, duration: 0.6, ease: "expo.inOut" }, 1.55);
+      tl.to("#logo", { attr: { viewBox: CAM.full }, duration: 0.6, ease: "expo.inOut" }, 1.55);
 
-      // 4. Câmera abre para a logo inteira (2.05–2.95)
-      tl.to("#logo", { attr: { viewBox: CAM.full }, duration: 0.9, ease: "power3.inOut" }, 2.05);
+      // 4. Corte suave: troca invisível para 3 peças encostadas, depois os vãos abrem (2.30–2.85)
+      tl.set("#blk-a", { attr: { d: S.cutA } }, 2.3);
+      tl.set("#blk-b, #blk-c", { autoAlpha: 1 }, 2.3);
+      tl.to("#blk-a", { attr: { d: S.A }, duration: 0.55, ease: "power3.inOut" }, 2.3);
+      tl.fromTo("#blk-b", { attr: { d: S.cutB } }, { attr: { d: S.B }, duration: 0.55, ease: "power3.inOut" }, 2.3);
+      tl.fromTo("#blk-c", { attr: { d: S.cutC } }, { attr: { d: S.C }, duration: 0.55, ease: "power3.inOut" }, 2.3);
 
-      // 5. Letras entram em cascata a partir dos blocos (2.35–3.1)
-      tl.fromTo("#word-studio .s", { autoAlpha: 0, y: 4 },
-        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: { each: 0.04, from: "end" } }, 2.35);
-      tl.fromTo("#word-responsivo .r", { autoAlpha: 0, y: 4 },
-        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: { each: 0.035, from: "start" } }, 2.35);
+      // 5. Câmera abre e os nomes aparecem depois do corte (2.85–3.75)
+      tl.to("#logo", { attr: { viewBox: CAM.logo }, duration: 0.9, ease: "power3.inOut" }, 2.85);
+      tl.fromTo("#word-studio .s", { autoAlpha: 0, x: 4 },
+        { autoAlpha: 1, x: 0, duration: 0.55, ease: "power2.out", stagger: { each: 0.04, from: "end" } }, 3.05);
+      tl.fromTo("#word-responsivo .r", { autoAlpha: 0, x: -4 },
+        { autoAlpha: 1, x: 0, duration: 0.55, ease: "power2.out", stagger: { each: 0.035, from: "start" } }, 3.05);
 
-      // 6. Push-in lento até o fim (2.95–5.0)
-      tl.to("#logo", { attr: { viewBox: CAM.push }, duration: 2.05, ease: "sine.inOut" }, 2.95);
+      // 6. Push-in lento até o fim (3.75–5.0)
+      tl.to("#logo", { attr: { viewBox: CAM.push }, duration: 1.25, ease: "sine.inOut" }, 3.75);
 
       window.__timelines["main"] = tl;
       tl.seek(0);
