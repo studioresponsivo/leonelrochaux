@@ -1,0 +1,40 @@
+{
+  "name": "reels-pagina-24h",
+  "format": "vertical",
+  "fixes": { "AI.": "ar.", "glife": "briefing", "cospa": "cospe" },
+  "keywords": ["ia", "figma", "genérico", "prompt", "verdade", "matriz", "nunca", "dias", "refazer", "direciona", "comandos", "engolir", "certo"],
+  "cuts": [
+    { "near": 0, "from": "Eu vou te mostrar como eu fiz", "to": "fazendo nada genérico" },
+    { "near": 297, "from": "Falei pra vocês que em 24", "to": "como você está vendo", "screen": "claude" },
+    { "near": 368, "from": "É diferente de", "to": "em um dia só" },
+    { "near": 574, "from": "E essa é a grande diferença", "to": "cospa para você" }
+  ],
+  "screens": { "claude": { "still": 318, "crop": [440, 100, 1700, 720], "cam": [1490, 740, 430, 340] } },
+  "beats": [
+    { "at": "start", "do": "hook", "text": "Página no ar em 24 horas?", "hl": ["24", "horas?"], "hold": 3.4,
+      "cards": [
+        { "type": "clip", "src": 19, "label": "PH Academy" },
+        { "type": "clip", "src": 44, "label": "no ar em 24h" },
+        { "type": "clip", "src": 31, "label": "sem prompt pronto" }
+      ] },
+    { "at": "colando prompt", "do": "sticker", "text": "Ctrl C + Ctrl V" },
+    { "at": "nada genérico", "do": "punch", "scale": 1.07 },
+    { "at": "Isso é verdade", "do": "badge", "text": "SÓ A PARTE DO FIGMA" },
+    { "at": "Dia 3", "do": "chip", "text": "Dia 3 · Matriz" },
+    { "at": "Dia 4", "do": "chip", "text": "Dia 4 · Estratégia" },
+    { "at": "Dia 10", "do": "chip", "text": "Dia 10 · Validação" },
+    { "at": "dois dias imersos", "do": "meter", "value": 85, "a": "PESQUISA", "b": "FIGMA", "flash": "24, 36, 48" },
+    { "at": "estava no ar", "do": "glow" },
+    { "at": "corro para o Figma", "do": "punch", "scale": 1.06 },
+    { "at": "nunca", "do": "wiggle" },
+    { "at": "perder dias", "do": "list", "title": "O ERRO COMUM", "icon": "none", "until": "E essa é a grande",
+      "items": [
+        { "at": "perder dias", "text": "Perde dias", "tone": "bad" },
+        { "at": "refazer aquilo", "text": "Refaz de novo e de novo", "tone": "bad" },
+        { "at": "um dia só", "text": "Página em 1 dia", "tone": "best" }
+      ] },
+    { "at": "sempre vai responder", "do": "punch", "scale": 1.06 },
+    { "at": "direciona a IA", "do": "word", "text": "DIREÇÃO" }
+  ],
+  "cta": { "kicker": "VÍDEO COMPLETO", "title": "O processo completo está no meu canal", "image": "capa.jpg", "pill": "Link na bio", "seconds": 5 }
+}

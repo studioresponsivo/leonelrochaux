@@ -27,7 +27,7 @@ Um vídeo = um JSON em `work/<slug>/<nome>.json`. Exemplo validado: `studio/spec
 ## Beats (todos com `at`; opcional `offset` em segundos)
 | do | campos | onde | o que faz (SFX já incluso) |
 |---|---|---|---|
-| `hook` | `text`, `hl:[palavras]`, `hold` (≈3 s), `cards:[{type:"clip",at,label} \| {type:"screen",id,label,zoom} \| {type:"image",src,label}]` | início (`"at":"start"`) | **gancho obrigatório**: copy animada desde o frame 1; com `cards` vira palco (rosto em card + até 3 cards 3D com trechos de outros momentos/print/imagem) e expande para tela cheia |
+| `hook` | `text`, `hl:[palavras]`, `hold` (≈3 s), `cards:[{type:"clip",at,label} \| {type:"clip",src:<seg. do vídeo original>,label} \| {type:"screen",id,label,zoom} \| {type:"image",src,label}]` | início (`"at":"start"`) | **gancho obrigatório**: copy animada desde o frame 1; com `cards` vira palco (rosto em card + até 3 cards 3D com trechos de outros momentos/print/imagem) e expande para tela cheia |
 | `punch` | `scale` (1.05–1.09), `hold`, `sound:false` | rosto | zoom de ênfase |
 | `wiggle` | — | rosto | tremidinha |
 | `word` | `text`, `hold` | rosto | palavra gigante + sublinhado verde + impacto |

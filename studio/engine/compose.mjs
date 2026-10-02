@@ -228,7 +228,7 @@ export function compose(plan) {
         cards.slice(0, 3).forEach((c, i) => {
           const p = POS[i], cid = `${id}c${i}`, ct = at(t + 0.25 + i * 0.22);
           let inner = "";
-          if (c.type === "clip") inner = `<video id="${cid}v" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="${at(t)}" data-duration="${f2(hEnd + 0.6 - t)}" data-media-start="${c.mt}" data-track-index="${8 + i}" style="width:100%;height:100%;object-fit:cover"></video>`;
+          if (c.type === "clip") inner = `<video id="${cid}v" class="clip" src="assets/media/${c.file || "edit.mp4"}" muted playsinline data-start="${at(t)}" data-duration="${f2(hEnd + 0.6 - t)}" data-media-start="${c.file ? 0 : c.mt}" data-track-index="${8 + i}" style="width:100%;height:100%;object-fit:cover"></video>`;
           else if (c.type === "screen") { const sc = screens[c.id]; const cx = ((sc.crop[0] + sc.crop[2]) / 2 / 19.2).toFixed(1), cy = ((sc.crop[1] + sc.crop[3]) / 2 / 10.8).toFixed(1); inner = `<img src="assets/media/${sc.file}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${cx}% ${cy}%;transform:scale(${c.zoom ?? 1.6});transform-origin:${cx}% ${cy}%" />`; }
           else inner = `<img src="assets/media/${c.src}" alt="" style="width:100%;height:100%;object-fit:cover" />`;
           faceExtra += `<div class="hookStage"><div id="${cid}" class="hookCard" style="left:${p.l}px;top:${p.t}px;width:${p.w}px;height:${p.h}px">${inner}${c.label ? `<div class="hookLabel">${esc(c.label)}</div>` : ""}</div></div>`;

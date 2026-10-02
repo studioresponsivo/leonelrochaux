@@ -149,6 +149,12 @@ for (const [id, s] of Object.entries(spec.screens || {})) {
   if (!s.live) sh(`ffmpeg -v error -ss ${still} -i "${src}" -frames:v 1 -vf scale=1920:1080 -y "${P}/assets/media/${file}"`);
   screens[id] = { file, live: !!s.live, crop: s.crop || [0, 0, 1490, 1080], cam: s.cam || [1490, 740, 430, 340] };
 }
+// cards do gancho com "src" (segundos do vídeo original) → clipe próprio, de qualquer ponto do vídeo
+beats.forEach((b, bi) => (b.cards || []).forEach((c, ci) => {
+  if (c.type !== "clip" || c.src == null) return;
+  c.file = `card-${bi}-${ci}.mp4`;
+  sh(`ffmpeg -v error -ss ${c.src} -i "${src}" -t ${(b.hold ?? 3) + 1.5} -an -vf "fps=${FPS},scale=1280:-2" -c:v libx264 -crf 14 -preset fast -pix_fmt yuv420p -y "${P}/assets/media/${c.file}"`);
+}));
 for (const b of spec.beats || []) for (const c of b.cards || []) if (c.type === "image") sh(`cp "${path.join(W, c.src)}" "${P}/assets/media/${c.src}"`);
 if (spec.cta?.image) sh(`cp "${path.join(W, spec.cta.image)}" "${P}/assets/media/${spec.cta.image}"`);
 

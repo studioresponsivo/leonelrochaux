@@ -16,9 +16,7 @@ if [ ! -s "$W/source.mp4" ]; then
 fi
 
 if [ ! -s "$W/transcript.json" ]; then
-  ffmpeg -v error -i "$W/source.mp4" -vn -ac 1 -ar 16000 -y "$W/audio16k.wav"
-  (cd "$W" && npx -y hyperframes transcribe audio16k.wav --engine parakeet --language pt --dir . >/dev/null 2>&1)
-  rm -f "$W/audio16k.wav"
+  python3 "$ROOT/studio/bin/transcribe.py" "$W/source.mp4" "$W" || exit 1
 fi
 
 # transcrição compacta: uma linha por frase com o tempo de início (é o que o Claude lê)
