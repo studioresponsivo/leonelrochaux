@@ -10,6 +10,8 @@ Um vídeo = um JSON em `work/<slug>/<nome>.json`. Exemplo validado: `studio/spec
   "captions": "full",              // full (padrão no vertical) | none (padrão no horizontal)
   "fixes": { "desconfio,": "desconfie," },   // correções da transcrição (só na legenda)
   "keywords": ["ia", "design"],    // palavras em verde na legenda (números com % viram pílula sozinhos)
+  // VÍDEO JÁ CORTADO NO PREMIERE (YouTube longo): "cuts": "all" + trechos de tela opcionais:
+  //   "cuts": "all", "screenRanges": [{ "screen": "dash", "near": 120, "from": "olha esse painel", "to": "ficou pronto" }]
   "cuts": [                        // em ordem de exibição; pode reordenar o vídeo original
     { "near": 0,   "from": "Se alguém te falar", "to": "pelo menos 80%" },
     { "near": 340, "from": "E veja, eu defini",  "to": "fazer na mão", "screen": "dash" }

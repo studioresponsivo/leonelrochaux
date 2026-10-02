@@ -15,6 +15,10 @@ Todos os vídeos (Reels/Shorts/TikTok e YouTube longo) seguem UM estilo, já pro
 5. Ajustar o JSON se precisar → `node studio/bin/make.mjs <slug> <nome>.json` (renderiza; ~4 min por 75 s).
 6. Entregar: `entregas/<slug>/<nome>-previa.mp4` via SendUserFile (o arquivo cheio passa do limite do chat); commit + push de `entregas/<slug>/` e do JSON em `studio/specs/`.
 
+**YouTube longo**: o Leonel entrega o vídeo JÁ CORTADO no Premiere → roteiro com `"format":"horizontal"`, `"cuts":"all"` e só a camada visual (hook, beats, `screenRanges` para trechos de tela). Não cortar nada.
+**Entrega**: arquivo ≤ 95 MB vai para `entregas/<slug>/` (git); maior que isso o make coloca em `entregas/<slug>/grandes/` (fora do git) — avisar o Leonel; para longos, o ideal é renderizar no computador dele (Claude Code desktop).
+**Fonte**: Articulat CF em `studio/assets/fonts-marca/` (não versionar enquanto o repositório for público); sem ela o make avisa "SEM fonte Articulat" e usa Plus Jakarta Sans.
+
 Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição é lida uma vez). Um vídeo longo por sessão.
 
 ## Padrões do Leonel (inegociáveis)
@@ -30,5 +34,5 @@ Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição 
 ## Ambiente
 - Rede precisa liberar: drive.usercontent.google.com, huggingface.co, us.aws.cdn.hf.co, cdn.jsdelivr.net.
 - `studio/bin/setup.sh` instala Chrome do HyperFrames, modelo Parakeet e OpenCV (roda sozinho no início da sessão).
-- Marca: verde #22C55E + escala neutral; fonte provisória Plus Jakarta Sans (oficial: Articulat CF, pendente).
+- Marca: verde #22C55E + escala neutral; fonte Articulat CF (pesos 400/450/500/600/700).
 - Referência visual: estilo uxpeak (fundo claro, UI em 3D, pílulas brancas) — ver `docs/motion/receita-reels-talking-head.md`.

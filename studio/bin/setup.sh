@@ -15,3 +15,5 @@ fi
 
 python3 -c "import cv2; cv2.CascadeClassifier" 2>/dev/null || pip install -q "opencv-python-headless<5" >/dev/null 2>&1
 python3 -c "import cv2; cv2.CascadeClassifier" 2>/dev/null && ok "opencv" || echo "✗ opencv"
+
+[ -s "$(dirname "$0")/../assets/fonts-marca/articulat-700.woff2" ] && ok "fonte Articulat" || echo "✗ fonte Articulat ausente (studio/assets/fonts-marca/) — usando Plus Jakarta Sans"

@@ -38,7 +38,23 @@ function findPhrase(phrase, near, within) {
   return [hits[0], hits[0] + tok.length - 1];
 }
 
-// cortes
+// cortes — "all" = vídeo já editado no Premiere: usa tudo; trechos de tela via screenRanges
+if (spec.cuts === "all") {
+  const dur = +sh(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${path.join(W, "source.mp4")}"`).trim();
+  const rs = (spec.screenRanges || []).map((r, ri) => {
+    let a = r.in, b = r.out;
+    if (r.from != null) {
+      const s0 = findPhrase(r.from, r.near); if (!s0) fail(`screenRange ${ri + 1}: não achei "${r.from}"`);
+      const e0 = findPhrase(r.to, words[s0[0]].start, (i) => i >= s0[0]); if (!e0) fail(`screenRange ${ri + 1}: não achei "${r.to}"`);
+      a = words[s0[0]].start - 0.05; b = words[e0[1]].end + 0.1;
+    }
+    return { in: Math.max(0, a), out: Math.min(dur, b), screen: r.screen };
+  }).sort((x, y) => x.in - y.in);
+  const all = []; let pos = 0;
+  for (const r of rs) { if (r.in - pos > 0.3) all.push({ in: pos, out: r.in }); all.push(r); pos = r.out; }
+  if (dur - pos > 0.05) all.push({ in: pos, out: dur });
+  spec.cuts = all;
+}
 let t = 0;
 const cuts = spec.cuts.map((c, ci) => {
   let a = c.in, b = c.out;
@@ -88,6 +104,8 @@ const beats = (spec.beats || []).map((b, bi) => {
 // ── mídia ───────────────────────────────────────────────────────────────────────
 for (const d of ["assets/media", "assets/fonts", "assets/sfx", "assets/vendor", "assets/brand"]) fs.mkdirSync(path.join(P, d), { recursive: true });
 for (const d of ["fonts", "sfx", "vendor", "brand"]) sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`);
+const brandFont = fs.existsSync(`${ROOT}/studio/assets/fonts-marca/articulat-700.woff2`);
+if (brandFont) { fs.mkdirSync(`${P}/assets/fonts-marca`, { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/fonts-marca/." "${P}/assets/fonts-marca/"`); }
 const src = path.join(W, "source.mp4");
 const cache = path.join(W, "cache"); fs.mkdirSync(cache, { recursive: true });
 // qualidade: resolução e fps da câmera (fps máx. 60), intermediário quase sem perda
@@ -135,11 +153,11 @@ for (const b of spec.beats || []) for (const c of b.cards || []) if (c.type === 
 if (spec.cta?.image) sh(`cp "${path.join(W, spec.cta.image)}" "${P}/assets/media/${spec.cta.image}"`);
 
 // ── composição ──────────────────────────────────────────────────────────────────
-const html = compose({ fmt, cuts, beats, words, faces, screens, spec, endVoice, total });
+const html = compose({ fmt, cuts, beats, words, faces, screens, spec, endVoice, total, brandFont });
 fs.writeFileSync(path.join(P, "index.html"), html);
 if (!fs.existsSync(path.join(P, "hyperframes.json"))) fs.writeFileSync(path.join(P, "hyperframes.json"), JSON.stringify({ paths: { assets: "assets" } }));
 fs.writeFileSync(path.join(P, "plan.json"), JSON.stringify({ cuts, beats: beats.map((b) => ({ do: b.do, t: b.t })), endVoice, total }, null, 1));
-console.log(`• ${name}: ${fmt} ${FPS}fps (fonte ${probe[0]}x${probe[1]}), ${cuts.length} cortes, ${beats.length} beats, voz ${endVoice}s + CTA ${ctaDur}s = ${total}s`);
+console.log(`• ${name}: ${fmt} ${FPS}fps${brandFont ? "" : " (SEM fonte Articulat)"} (fonte ${probe[0]}x${probe[1]}), ${cuts.length} cortes, ${beats.length} beats, voz ${endVoice}s + CTA ${ctaDur}s = ${total}s`);
 
 const lint = sh(`cd "${P}" && npx hyperframes lint . 2>&1 || true`);
 const errs = lint.split("\n").filter((l) => l.includes("✗"));
@@ -157,9 +175,12 @@ if (!flags.includes("--no-render")) {
   const out = path.join(ROOT, "entregas", slug); fs.mkdirSync(out, { recursive: true });
   const t0 = Date.now();
   sh(`cd "${P}" && npx hyperframes render . --fps ${FPS} --crf ${spec.crf ?? 14} -o ./render.mp4`);
-  sh(`ffmpeg -v error -i "${P}/render.mp4" -c copy -movflags +faststart -y "${out}/${name}.mp4"`); // sem recompressão
+  const big = fs.statSync(`${P}/render.mp4`).size > 95e6;
+  const dest = big ? path.join(out, "grandes") : out; fs.mkdirSync(dest, { recursive: true });
+  sh(`ffmpeg -v error -i "${P}/render.mp4" -c copy -movflags +faststart -y "${dest}/${name}.mp4"`); // sem recompressão
+  if (big) console.log(`• arquivo final > 95 MB: fica em entregas/${slug}/grandes/ (fora do GitHub) — renderizar local ou combinar entrega`);
   const pv = fmt === "vertical" ? "720:1280" : "960:540";
   sh(`ffmpeg -v error -i "${P}/render.mp4" -vf scale=${pv} -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k -y "${out}/${name}-previa.mp4"`);
   const mb = (f) => (fs.statSync(f).size / 1e6).toFixed(1) + " MB";
-  console.log(`• render ${((Date.now() - t0) / 60000).toFixed(1)} min → entregas/${slug}/${name}.mp4 (${mb(`${out}/${name}.mp4`)}), prévia ${mb(`${out}/${name}-previa.mp4`)}`);
+  console.log(`• render ${((Date.now() - t0) / 60000).toFixed(1)} min → ${path.relative(ROOT, dest)}/${name}.mp4 (${mb(`${dest}/${name}.mp4`)}), prévia ${mb(`${out}/${name}-previa.mp4`)}`);
 }

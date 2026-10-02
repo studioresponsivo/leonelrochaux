@@ -394,7 +394,7 @@ export function compose(plan) {
       #ctaCardWrap { left: 530px; top: 330px; width: 860px; height: 484px; } #bio { top: 870px; }`;
   const faceTopCss = `left: ${(W - L.meterW) / 2}px; top: ${L.faceTopY}px; width: ${L.meterW}px;`;
 
-  return `<!doctype html>
+  const html = `<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -498,4 +498,12 @@ export function compose(plan) {
   </body>
 </html>
 `;
+  if (!plan.brandFont) return html;
+  // fonte oficial (Articulat CF) com a Jakarta de reserva; 800 usa o Bold
+  const fontFaces = [[400, 400], [450, 450], [500, 500], [600, 600], [700, 700], [800, 700]]
+    .map(([w, f]) => `@font-face { font-family: "Brand"; font-weight: ${w}; src: url(assets/fonts-marca/articulat-${f}.woff2) format("woff2"); }`).join("\n      ");
+  return html
+    .replace(/(font: [^;"]*)"Jakarta"/g, '$1"Brand", "Jakarta"')
+    .replace('font-family: "Jakarta", sans-serif;', 'font-family: "Brand", "Jakarta", sans-serif;')
+    .replace(":root {", fontFaces + "\n      :root {");
 }
