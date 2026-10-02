@@ -4,7 +4,10 @@ Leonel Rocha (Product Designer, Studio Responsivo / Conversão Visual). Responde
 Todos os vídeos (Reels/Shorts/TikTok e YouTube longo) seguem UM estilo, já pronto no motor `studio/`.
 
 ## Fluxo padrão — siga exatamente, sem explorar
-1. `studio/bin/prep.sh <link-do-drive> <slug>` → baixa e transcreve. Saída curta.
+0. Vídeos chegam no Drive (conta hello@studioresponsivo.com.br), pasta **"Claude Code + Hyperframes"** (id `1_khvFisNSGJUU_RWa8MiBhJ2fllkAw-5`), uma subpasta por vídeo com o nome que o Leonel avisar.
+   Achar a subpasta: `search_files` com `parentId = '1_khvFisNSGJUU_RWa8MiBhJ2fllkAw-5' and title contains '<nome>'` (excludeContentSnippets: true);
+   listar arquivos: `parentId = '<id da subpasta>'`. Vídeo → `prep.sh <id do arquivo>`; capa (imagem) → baixar para `work/<slug>/`.
+1. `studio/bin/prep.sh <id-ou-link-do-arquivo> <slug>` → baixa e transcreve. Saída curta.
 2. Ler **só** `work/<slug>/transcript.txt` (uma linha por frase, com tempo).
 3. Escrever o roteiro `work/<slug>/<nome>.json` seguindo `studio/SPEC.md` (ler uma vez) e o exemplo `studio/specs/exemplo-80-20-reels.json`.
    Capa do vídeo (se houver CTA com imagem) → salvar em `work/<slug>/`.
