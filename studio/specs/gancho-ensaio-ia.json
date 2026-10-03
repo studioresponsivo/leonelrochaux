@@ -4,6 +4,7 @@
   "cuts": "all",
   "captions": "none",
   "sfxMax": 6,
+  "crf": 16,
   "hush": ["Esse vídeo é pra você", "ensaio com constância"],
   "opening": {
     "style": "photo-hook", "face": "mas os meus", "take": false, "bg": "dark",
@@ -31,7 +32,7 @@
         "não alterar os traços do rosto, olhos castanhos, cabelo escuro,",
         "fotografia editorial, cores naturais, sem distorções, mesmo rosto,"
       ] },
-    { "at": "não tem nada", "do": "compare", "to": "nas fotos", "vs": "nada", "good": "constância", "bg": "light",
+    { "at": "não tem nada", "do": "compare", "to": "nas fotos", "vs": "ver", "good": "constância", "bg": "light",
       "left": { "title": "Prompt", "lines": ["retrato profissional", "mesmo rosto da referência", "lente 85mm, luz de estúdio", "pele realista, 8k", "manter identidade facial"] },
       "right": { "title": "Constância", "images": ["img/ensaio-02.jpg", "img/ensaio-05.png", "img/ensaio-01.png"] } },
     { "at": "Porque é exatamente", "do": "punch", "scale": 1.15, "dur": 1.6 },
@@ -39,13 +40,13 @@
       "items": [
         { "at": "sequência", "src": "img/ensaio-03.png" },
         { "at": "imagens", "src": "img/ensaio-07.jpg" },
-        { "at": "mesmo", "src": "img/ensaio-04.jpg", "bad": "parecido", "badText": "parecido" },
-        { "at": "rosto", "src": "img/ensaio-06.jpg", "bad": "não era", "badText": "não era igual" }
+        { "at": "mesmo", "bad": "parecido", "badText": "alguém parecido" },
+        { "at": "rosto", "bad": "não era", "badText": "não era igual" }
       ] },
     { "at": "Esse vídeo", "do": "punch", "scale": 1.2, "to": "você" },
     { "at": "já deixa", "do": "ytcta", "until": "porque hoje", "like": "like", "sub": "inscreve", "bell": "notificações" },
     { "at": "constância", "do": "punch", "scale": 1.18, "dur": 1.4 },
-    { "at": "dois projetos", "do": "stack", "until": "vem comigo", "bg": "light",
+    { "at": "dois projetos", "do": "stack", "to": "vem comigo", "out": "none", "bg": "light",
       "cards": [
         { "src": "img/magnific-process-1.png", "label": "PH Academy" },
         { "at": "fiz", "src": "img/magnific-process-2.png", "label": "SC Leonel R" }

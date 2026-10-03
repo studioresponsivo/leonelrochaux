@@ -69,7 +69,7 @@ if (spec.cuts === "all") {
   const all = []; let pos = 0;
   for (const r of rs) { if (r.in - pos > 0.3) all.push({ in: pos, out: r.in }); all.push(r); pos = r.out; }
   if (dur - pos > 0.05) all.push({ in: pos, out: dur });
-  spec.cuts = all;
+  spec.cuts = all; spec.cutsAll = true;
 }
 let t = 0;
 const cuts = (spec.cuts || []).map((c, ci) => {
@@ -132,7 +132,11 @@ if (cuts.length) {
   fs.writeFileSync(path.join(P, "segs.txt"), segs.map((s) => `file '${s}'`).join("\n"));
   sh(`ffmpeg -v error -f concat -safe 0 -i "${P}/segs.txt" -c copy -y "${P}/joined.mov"`);
   sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:v -c copy -y "${P}/assets/media/edit.mp4"`);
-  sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:a -af "highpass=f=70,acompressor=threshold=-20dB:ratio=3:attack=5:release=80,loudnorm=I=-14:TP=-1.5:LRA=7" -ar 48000 -c:a aac -b:a 192k -y "${P}/assets/media/voice.m4a"`);
+  // áudio: vídeo já tratado no Premiere ("cuts":"all") → não mexe (cópia bit a bit quando é um corte só); bruto → limpeza + loudnorm. "audio": "original" | "process" força.
+  const keepAudio = spec.audio === "original" || (spec.audio !== "process" && spec.cutsAll);
+  if (keepAudio && cuts.length === 1 && cuts[0].in < 0.01 && !spec.screenRanges?.length) sh(`ffmpeg -v error -i "${src}" -map 0:a:0 -c:a copy -y "${P}/assets/media/voice.m4a"`);
+  else if (keepAudio) sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:a -ar 48000 -c:a aac -b:a 320k -y "${P}/assets/media/voice.m4a"`);
+  else sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:a -af "highpass=f=70,acompressor=threshold=-20dB:ratio=3:attack=5:release=80,loudnorm=I=-14:TP=-1.5:LRA=7" -ar 48000 -c:a aac -b:a 192k -y "${P}/assets/media/voice.m4a"`);
   fs.rmSync(path.join(P, "joined.mov"));
 }
 
@@ -209,14 +213,14 @@ if (isV1) {
       const d = sh(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${path.join(W, m.src)}"`).trim().split(",");
       m.iw = +d[0] || 1920; m.ih = +d[1] || 1080; continue;
     }
-    if (m.tile) { // grade NxN do próprio vídeo (cena "clones"): cada nível par é a grade 2×2 do nível anterior (barato e estável)
+    if (m.tile) { // grade NxN do próprio vídeo (cena "clones"): cada nível é a grade k×k (k = menor fator) do nível anterior (barato e estável)
       const tileFile = (n) => {
         const key = `tile_${n}_${m.src}_${m.dur}_${FPS}.mp4`, out = path.join(cache, key);
         if (fs.existsSync(out)) return key;
         if (n === 1) sh(`ffmpeg -v error -ss ${m.src} -i "${src}" -t ${m.dur} -an -vf "fps=${FPS},scale=1920:1080:flags=lanczos" -c:v libx264 -crf 10 -preset fast -pix_fmt yuv420p -y "${out}"`);
         else {
           const k = [2, 3, 5, 7].find((d) => n % d === 0) ?? n, base = path.join(cache, tileFile(n / k)), ids = [...Array(k).keys()];
-          const fc = `[0:v]scale=${Math.ceil(1920 / k)}:${Math.ceil(1080 / k)}:flags=lanczos,split=${k}${ids.map((i) => `[a${i}]`).join("")};${ids.map((i) => `[a${i}]`).join("")}hstack=inputs=${k}[r];[r]split=${k}${ids.map((i) => `[b${i}]`).join("")};${ids.map((i) => `[b${i}]`).join("")}vstack=inputs=${k},crop=1920:1080:0:0[v]`;
+          const fc = `[0:v]scale=${Math.ceil(1920 / k)}:${Math.ceil(1080 / k)}:flags=lanczos,split=${k}${ids.map((i) => `[a${i}]`).join("")};${ids.map((i) => `[a${i}]`).join("")}hstack=inputs=${k}[r];[r]split=${k}${ids.map((i) => `[b${i}]`).join("")};${ids.map((i) => `[b${i}]`).join("")}vstack=inputs=${k},crop=1920:1080[v]`;
           sh(`ffmpeg -v error -i "${base}" -an -filter_complex "${fc}" -map "[v]" -c:v libx264 -crf 10 -preset fast -pix_fmt yuv420p -y "${out}"`);
         }
         return key;

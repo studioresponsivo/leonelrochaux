@@ -80,6 +80,7 @@ Automático: push-in contínuo em todo plano; alternância de enquadramento a ca
 - **SFX** automáticos com limitador: máx. 6 audíveis/10 s no vertical, 3/10 s no horizontal, 2 empilhados; legendas não têm som; `hush` silencia frases-chave.
 - Reels/Shorts/TikTok: 45–75 s + CTA 5 s; uma batida a cada ~1–1,5 s; gancho ≤ 3–4 s antes do rosto. Arco: gancho → prova (tela) → virada → erro comum → direção → CTA.
 - YouTube longo: `"format":"horizontal","cuts":"all"`, só camada visual (bridge/swap/kpis/select nos capítulos), legenda `none` ou `phrase`. Exemplo com as cenas novas (gancho com pedidos do cliente): `studio/specs/gancho-ensaio-ia.json`.
+- Áudio: com `"cuts":"all"` (vídeo já tratado no Premiere) a voz NÃO é processada — cópia bit a bit do áudio original (um corte só) ou AAC 320k sem filtros; vídeo bruto recebe limpeza + loudnorm. `"audio": "original" | "process"` força.
 - `sfxMax` sobe o limite de SFX quando o cliente pede mais VFX/SFX (ex.: 6 no horizontal); o `hush` continua valendo.
 - Portfólio: sem rosto; cenas sem `at` encadeiam pela `dur`; `device`/`stack`/`kpis`/`bridge` + `number-hook`/`result-first`; música opcional.
 - Qualidade: resolução/fps da fonte (máx. 60), trechos recortados em lanczos no tamanho final; `crf` (14) e `fps` podem ser forçados.

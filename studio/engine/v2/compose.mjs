@@ -28,6 +28,7 @@ const ICONS = {
   up: '<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fafafa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   thumb: '<svg viewBox="0 0 24 24"><path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3zm0 0 4-8a2.5 2.5 0 0 1 2.5 2.5V9H19a2 2 0 0 1 2 2.3l-1.1 7A2 2 0 0 1 17.9 20H7" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>',
   bell: '<svg viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 1 1 12 0v6l1.5 2h-15L6 17zM10 21h4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="#a3a3a3"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5" fill="#a3a3a3"/></svg>',
   cursor: '<svg viewBox="0 0 24 24"><path d="M5 3l14 9.5-6.3.9 3.6 6.4-2.6 1.4-3.6-6.5L5 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>',
 };
 
@@ -585,7 +586,7 @@ export function composeV2(plan) {
         const v = +s.value, dec = s.decimals ?? 0;
         const fmt = (x) => Number(x).toLocaleString("pt-BR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const col = (t) => (t === "bad" ? "#ef4444" : t === "good" ? "#22c55e" : "#fafafa");
-        const right = String(s.pos ?? "bl").endsWith("r"), mg = V ? 70 : 120, top = V ? 1180 : H - 120 - 190;
+        const right = String(s.pos ?? "bl").endsWith("r"), mg = V ? 70 : 120, top = V ? 1040 : H - 120 - 190;
         inner = `<div id="${id}row" class="hudRow" style="${right ? "right" : "left"}:${mg}px;top:${top}px">
           <div id="${id}card" class="hudCard"><div id="${id}k" class="hudK">${esc(s.label || "")}</div><div id="${id}n" class="hudN" style="color:${col(s.tone)}">${esc(s.prefix || "")}<span id="${id}v">${fmt(v)}</span>${esc(s.suffix || "")}</div></div>
           ${s.logo ? `<div id="${id}logo" class="hudLogo">${s.logo.media ? `<img src="assets/media/${s.logo.media.file}" alt="" />` : ""}${s.logo.text ? `<b>${esc(s.logo.text)}</b>` : ""}</div>` : ""}</div>`;
@@ -621,7 +622,11 @@ export function composeV2(plan) {
           const a = f2(t0 + k * step), fac = m.tile / (k ? lv[k - 1].tile : 1);
           set(`#${id}l${k}`, { autoAlpha: 1 }, a);
           ft(`#${id}l${k}`, { scale: fac }, { scale: 1, duration: f2(step), ease: "power2.inOut" }, a);
-          if (k > 0) set(`#${id}l${k - 1}`, { autoAlpha: 0 }, a + 0.03);
+          if (k > 0) { // o nível anterior (nítido) fica por cima encolhendo em sincronia = tile central; some quando chega ao tamanho
+            js.push(`tl.set(${J(`#${id}l${k - 1}`)},{zIndex:2},${at(a)});`);
+            ft(`#${id}l${k - 1}`, { scale: 1 }, { scale: f2(1 / fac), duration: f2(step), ease: "power2.inOut" }, a);
+            set(`#${id}l${k - 1}`, { autoAlpha: 0 }, a + step);
+          }
           snd(k === 0 ? "whoosh-short" : "click", a + 0.02, k < 3 ? 0.22 : 0.14, k < 2 ? 3 : 1);
         });
         const last = f2(t0 + lv.length * step);
@@ -637,17 +642,17 @@ export function composeV2(plan) {
         let cw = (maxW - gap * (cols - 1)) / cols, ch = cw / ar;
         if (ch * rows + gap * (rows - 1) > maxH) { ch = (maxH - gap * (rows - 1)) / rows; cw = ch * ar; }
         const gw = cols * cw + gap * (cols - 1), gh = rows * ch + gap * (rows - 1), x0 = (W - gw) / 2, y0 = (H - gh) / 2 + (s.label ? 26 : 0);
-        inner = `<div class="spot"></div><div class="persp"><div id="${id}g" class="layer">` + its.map((it, k) => {
-          const r = Math.floor(k / cols), cc = k % cols, inRow = Math.min(cols, n - r * cols), off = ((cols - inRow) * (cw + gap)) / 2;
-          return `<div id="${id}c${k}" class="gcard" style="left:${f2(x0 + off + cc * (cw + gap))}px;top:${f2(y0 + r * (ch + gap))}px;width:${f2(cw)}px;height:${f2(ch)}px">${mediaEl(it.media, it.t - 0.2, t1 - it.t + 0.6)}${it.label ? `<div class="tag in">${esc(it.label)}</div>` : ""}<div id="${id}x${k}" class="gbad"><i>${ICONS.x}</i>${it.badText ? `<u>${esc(it.badText)}</u>` : ""}</div></div>`;
-        }).join("") + `</div></div>`;
+        const slotPos = (k) => { const r = Math.floor(k / cols), cc = k % cols, inRow = Math.min(cols, n - r * cols), off = ((cols - inRow) * (cw + gap)) / 2; return `left:${f2(x0 + off + cc * (cw + gap))}px;top:${f2(y0 + r * (ch + gap))}px;width:${f2(cw)}px;height:${f2(ch)}px`; };
+        inner = `<div class="spot"></div><div class="persp"><div id="${id}g" class="layer">` + its.map((it, k) => `<div class="gslot" style="${slotPos(k)}"></div>`).join("") + its.map((it, k) =>
+          `<div id="${id}c${k}" class="gcard${it.media ? "" : " gph"}" style="${slotPos(k)}">${it.media ? mediaEl(it.media, it.t - 0.2, t1 - it.t + 0.6) : `<i>${ICONS.user}</i>`}${it.label ? `<div class="tag in">${esc(it.label)}</div>` : ""}<div id="${id}x${k}" class="gbad"><i>${ICONS.x}</i>${it.badText ? `<u>${esc(it.badText)}</u>` : ""}</div></div>`
+        ).join("") + `</div></div>`;
         if (s.label) inner += `<div id="${id}l" class="tag" style="top:${V ? 190 : 70}px"><i></i>${esc(s.label)}</div>`;
         its.forEach((it, k) => {
           ft(`#${id}c${k}`, { autoAlpha: 0, y: 90, scale: 0.92, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.36, ease: "power3.out" }, it.t);
           snd("click-soft", it.t + 0.04, 0.16, k < 3 ? 2 : 1);
           if (it.badT != null) {
             ft(`#${id}x${k}`, { autoAlpha: 0, yPercent: 100 }, { autoAlpha: 1, yPercent: 0, duration: 0.3, ease: "power2.out" }, it.badT);
-            ft(`#${id}c${k} video, #${id}c${k} img`, { filter: "grayscale(0)" }, { filter: "grayscale(1)", duration: 0.3 }, it.badT);
+            if (it.media) ft(`#${id}c${k} video, #${id}c${k} img`, { filter: "grayscale(0)" }, { filter: "grayscale(1)", duration: 0.3 }, it.badT);
             ft(`#${id}x${k} i`, { scale: 0 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }, it.badT + 0.15);
             ft(`#${id}c${k}`, { x: 0 }, { x: 6, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, it.badT + 0.1);
             set(`#${id}c${k}`, { x: 0 }, it.badT + 0.4);
@@ -688,15 +693,16 @@ export function composeV2(plan) {
           if (hideAt > e + 0.5) { ft(`#${id}err`, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2 }, hideAt); ft(`#${id}ed`, { boxShadow: shR }, { boxShadow: shN, duration: 0.3 }, hideAt); }
           snd("impact-bass-1", e, 0.24, 3);
         });
-        caps = "dark";
+        caps = V ? "hide" : "dark";
         break;
       }
       case "compare": { // texto (prompt) de um lado ≠ fotos do outro
         bg = s.bg ?? "light";
         const L = s.left || {}, lines = L.lines || [], ims = s.rImgs;
-        const cardW = V ? W - 140 : 720, cardH = V ? 600 : 620, cL = V ? 70 : 150, cT = V ? 240 : (H - cardH) / 2;
+        const lineH = Math.round(px(42) * 1.3 + px(8) * 2 + 1);
+        const cardW = V ? W - 140 : 680, cardH = V ? 600 : Math.max(360, px(44) * 2 + px(28) + px(30) + lines.length * lineH), cL = V ? 70 : 150, cT = V ? 240 : (H - cardH) / 2;
         const ph = V ? 520 : 560, pw = Math.round(ph * 0.75);
-        const fanCx = V ? W / 2 : W * 0.735, fanCy = V ? 1290 : H / 2;
+        const fanCx = V ? W / 2 : W * 0.75, fanCy = V ? 1290 : H / 2;
         const rots = [-10, 0, 10], offs = [-230, 0, 230];
         const fanL = fanCx - pw / 2 - 230 * K;
         inner = `<div id="${id}lc" class="cmpCard" style="left:${cL}px;top:${f2(cT)}px;width:${cardW}px;height:${cardH}px"><div class="cmpT">${esc(L.title || "Prompt")}</div>${lines.map((l, k) => `<div class="cl" id="${id}l${k}">${esc(l)}</div>`).join("")}</div>
@@ -704,7 +710,7 @@ export function composeV2(plan) {
           <div id="${id}fan" class="layer">${ims.map((m, k) => `<div id="${id}p${k}" class="fanPhoto" style="left:${f2(fanCx - pw / 2 + offs[k % 3] * K)}px;top:${f2(fanCy - ph / 2)}px;width:${pw}px;height:${ph}px">${mediaEl(m, t0, dur + 0.5)}</div>`).join("")}</div>
           <div id="${id}vs" class="vs" style="left:${f2(V ? W / 2 - 75 : cL + cardW + (fanL - (cL + cardW)) / 2 - 75)}px;top:${f2(V ? 900 : H / 2 - 75)}px">≠</div>`;
         ft(`#${id}lc`, { autoAlpha: 0, x: -50, filter: "blur(10px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.04);
-        lines.forEach((_, k) => ft(`#${id}l${k}`, { autoAlpha: 0, x: 20, filter: "blur(6px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.22, ease: "power2.out" }, t0 + 0.25 + k * 0.1));
+        lines.forEach((_, k) => ft(`#${id}l${k}`, { autoAlpha: 0, x: 20, filter: "blur(6px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.22, ease: "power2.out" }, t0 + 0.2 + k * 0.08));
         ims.forEach((_, k) => ft(`#${id}p${k}`, { autoAlpha: 0, y: 80, rotation: rots[k % 3] + 6, scale: 0.9, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, rotation: rots[k % 3], scale: 1, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.3 + k * 0.14));
         ft(`#${id}rt`, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.3 }, t0 + 0.7);
         const vT = s.vsT ?? t0 + 1.2, gT = s.goodT ?? vT + 0.5;
@@ -904,6 +910,10 @@ export function composeV2(plan) {
       .hudLogo { display: flex; align-items: center; gap: 16px; padding: ${px(20)}px ${px(30)}px ${px(20)}px ${px(22)}px; border-radius: 24px; background: #fff; box-shadow: 0 30px 70px -30px rgba(0,0,0,.6); opacity: 0; margin-bottom: ${px(10)}px; }
       .hudLogo img { width: ${px(72)}px; height: ${px(72)}px; border-radius: 18px; display: block; } .hudLogo b { font: 600 ${px(44)}px/1 var(--font); color: var(--n900); letter-spacing: -.02em; white-space: nowrap; }
       .gcard { position: absolute; border-radius: 22px; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 40px 90px -30px rgba(0,0,0,.5); opacity: 0; }
+      .gslot { position: absolute; border-radius: 22px; background: rgba(0,0,0,.035); box-shadow: inset 0 0 0 1px rgba(0,0,0,.05); }
+      .bg-dark .gslot { background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+      .gcard.gph { background: #e9e9ec; display: grid; place-items: center; } .gcard.gph > i { width: 42%; height: 42%; display: grid; place-items: center; } .gcard.gph > i svg { width: 100%; height: 100%; }
+      .bg-dark .gcard.gph { background: #1c1c20; }
       .gbad { position: absolute; inset: 0; background: linear-gradient(to top, rgba(220,38,38,.94), rgba(239,68,68,.6)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; opacity: 0; }
       .gbad i { width: ${px(110)}px; height: ${px(110)}px; border-radius: 50%; background: #fff; display: grid; place-items: center; } .gbad i svg { width: 56%; height: 56%; } .gbad i svg path { stroke: #dc2626; }
       .gbad u { text-decoration: none; font: 600 ${px(36)}px/1 var(--font); color: #fff; letter-spacing: -.01em; }

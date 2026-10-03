@@ -55,7 +55,7 @@ export function mediaBox(kind, crop, ctx) {
   if (kind === "card") return V ? fit(960, 1080) : fit(1500, 760);
   if (kind === "browser") return V ? fit(940, 980) : fit(1180, 640);
   if (kind === "phone") return V ? [420, 900] : [300, 640];
-  if (kind === "stack") return V ? fit(900, 980) : fit(1100, 620);
+  if (kind === "stack") return V ? fit(900, 980) : fit(1500, 844);
   return [W, H];
 }
 
@@ -227,6 +227,18 @@ export function buildPlan(spec, ctx) {
       s[k].forEach((it, ii) => { if (it.t == null) it.t = f2(s.stagger != null ? s.t0 + 0.2 + ii * s.stagger : s.t0 + 0.25 + (span * ii) / Math.max(1, n)); });
     }
     if (s.do === "grid" && !(s.items || []).length) fail(`grid em ${s.t0}s: falta "items" [{src}]`);
+    // âncoras aninhadas têm que cair dentro da cena
+    const nested = [];
+    if (s.counter) nested.push(["counter.at", s.counter.t]);
+    if (s.then) nested.push(["then.at", s.then.t]);
+    if (s.logo) nested.push(["logo.at", s.logo.t]);
+    (s.errT || []).forEach((e, k) => nested.push([`errors[${k}]`, e]));
+    if (s.vsT != null) nested.push(["vs", s.vsT]);
+    if (s.goodT != null) nested.push(["good", s.goodT]);
+    for (const k of ["like", "sub", "bell"]) if (s[k + "T"] != null) nested.push([k, s[k + "T"]]);
+    for (const k of ["items", "cards"]) (s[k] || []).forEach((it, ii) => { if (it.t != null) nested.push([`${k}[${ii}].at`, it.t]); if (it.badT != null) nested.push([`${k}[${ii}].bad`, it.badT]); });
+    for (const [k, t] of nested) if (t != null && (t < s.t0 - 0.05 || t > s.t1 + 0.01)) fail(`cena ${s.do} em ${s.t0}s: âncora "${k}" (${t}s) cai fora da cena [${s.t0}–${s.t1}] — confira a palavra ou a ordem`);
+    if (s.counter && s.counter.t + 0.1 + (s.counter.dur ?? 0.95) > s.t1 - 0.1) warns.push(`contador da cena ${s.do} bate no valor final depois do fim da cena (${f2(s.counter.t + 0.1 + (s.counter.dur ?? 0.95))}s > ${s.t1}s) — antecipe counter.at ou atrase face/until`);
     if (s.do === "gallery" && !(s.images || []).length) fail(`gallery em ${s.t0}s: falta "images" [arquivos em work/<slug>/]`);
     if (s.do === "compare" && !(s.right?.images || []).length) fail(`compare em ${s.t0}s: falta "right.images"`);
   });
@@ -253,13 +265,16 @@ export function buildPlan(spec, ctx) {
     if (s.do === "device") { s.media = want(s, s, s.kind === "phone" ? "phone" : "browser", s.t1 - s.t0 + 0.6); if (!s.media) fail(`device em ${s.t0}s: falta "src"`); }
     if (s.do === "stack") (s.cards || []).forEach((c) => { c.media = want(s, c, "stack", s.t1 - c.t + 0.6); if (!c.media) fail(`stack em ${s.t0}s: card sem "src"`); c.t0 = c.t; });
     if (s.do === "gallery") s.gal = s.images.map((f) => want(s, { src: f }, "card", s.t1 - s.t0 + 0.5));
-    if (s.do === "grid") (s.items || []).forEach((it) => { it.media = want(s, it, "card", s.t1 - it.t + 0.6); if (!it.media) fail(`grid em ${s.t0}s: item sem "src"`); });
+    if (s.do === "grid") (s.items || []).forEach((it) => { it.media = it.src != null ? want(s, it, "card", s.t1 - it.t + 0.6) : null; }); // item sem src = card neutro (silhueta)
     if (s.do === "compare") s.rImgs = s.right.images.map((f) => want(s, { src: f }, "card", s.t1 - s.t0 + 0.5));
     if (s.do === "hud" && s.logo?.file) s.logo.media = want(s, { src: s.logo.file }, "card", s.t1 - s.t0 + 0.5);
     if (s.do === "clones") { // grades NxN do próprio vídeo (pré-renderizadas pelo make), do instante da cena
+      if (ctx.V) fail(`clones em ${s.t0}s: por enquanto só no formato horizontal`);
+      const lv = s.levels || [3, 9, 27];
+      lv.forEach((n, k) => { const f = n / (k ? lv[k - 1] : 1); if (!Number.isInteger(f) || f % 2 === 0 || f < 3) fail(`clones: nível ${n} precisa ser múltiplo ÍMPAR (3, 5…) do anterior — ex.: [3, 9, 27]`); });
       const src0 = ctx.toSrc ? ctx.toSrc(s.t0) : s.t0;
       s.tileLead = f2(Math.min(0.3, src0));
-      s.tiles = (s.levels || [3, 9, 27]).map((n) => { const m = want(s, { src: f2(src0 - s.tileLead) }, "full", s.t1 - s.t0 + 0.8); m.tile = n; return m; });
+      s.tiles = lv.map((n) => { const m = want(s, { src: f2(src0 - s.tileLead) }, "full", s.t1 - s.t0 + 0.8); m.tile = n; return m; });
     }
   }
   const end = scenes.length ? Math.max(...scenes.map((s) => s.t1)) : 0;
