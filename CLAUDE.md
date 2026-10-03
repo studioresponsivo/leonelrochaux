@@ -17,9 +17,11 @@ Todos os vídeos (Reels/Shorts/TikTok, YouTube longo e portfólio) seguem o **es
 6. Entregar: `entregas/<slug>/<nome>-previa.mp4` via SendUserFile (o arquivo cheio passa do limite do chat); commit + push de `entregas/<slug>/` e do JSON em `studio/specs/`.
 
 **Formatos**: `vertical` (Reels/Shorts/TikTok, 45–75 s + CTA) · `horizontal` (YouTube longo) · `portfolio` (case de projeto, sem rosto: telas/imagens + música/voz opcional; cenas encadeadas por `dur`).
-**YouTube longo**: o Leonel entrega o vídeo JÁ CORTADO no Premiere → roteiro com `"format":"horizontal"`, `"cuts":"all"` e só a camada visual (opening, cenas de capítulo, `screenRanges` para trechos de tela). Não cortar nada.
+**YouTube**: o Leonel edita os longos sozinho por enquanto; o Claude faz **só o gancho** (30–60 s, já cortado e com áudio ajustado no Premiere) → roteiro com `"format":"horizontal"`, `"cuts":"all"`, `"captions":"none"` (ele legenda depois) e só a camada visual. Não cortar nada, não mexer no som (o make já copia o áudio original quando `cuts` é `all`). A pasta do vídeo costuma trazer um doc **"Pedidos"** com a direção fala a fala: ler primeiro e seguir à risca; o resto é criação dentro do estilo v2. Exemplo: `studio/specs/gancho-ensaio-ia.json`.
+**Fonte da marca**: se a pasta do Drive tiver uma subpasta de fontes (`.woff2` da Articulat CF), baixar para `studio/assets/fonts-marca/` (`articulat-400/450/500/600/700.woff2`) antes do make.
 **Entrega**: master ≤ 95 MB vai para `entregas/<slug>/` (git). Se maior, o make guarda o master em `entregas/<slug>/grandes/` (fora do git) e gera `<nome>-postar.mp4` ≤ 93 MB (~9 Mbps a 80 s), que vai para o git. Para longos, o ideal é renderizar no computador dele (Claude Code desktop).
 **Fonte**: Articulat CF em `studio/assets/fonts-marca/` (não versionar enquanto o repositório for público); sem ela o make avisa "SEM fonte Articulat" e usa Plus Jakarta Sans.
+**Entrega no chat**: o upload do chat aceita até 30 MiB → mandar só a prévia; o arquivo final fica no GitHub (passar o link da branch para `entregas/<slug>/<nome>.mp4`).
 
 Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição é lida uma vez). Um vídeo longo por sessão.
 
