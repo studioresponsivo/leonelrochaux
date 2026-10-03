@@ -3,7 +3,7 @@
 // legendas por frase (Articulat 600), SFX com densidade limitada. Ver docs/motion/estilo-v2.md.
 // plan: { fmt, V, W, H, portfolio, cuts, words, faces, screens, spec, endVoice, total, brandFont,
 //         scenes, punches, focus, phr, hush, voice }
-import { f2, norm } from "./plan.mjs";
+import { f2, norm, OVERLAY } from "./plan.mjs";
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const J = (o) => JSON.stringify(o);
@@ -26,6 +26,9 @@ const ICONS = {
   x: '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#fff"/></svg>',
   up: '<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fafafa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  thumb: '<svg viewBox="0 0 24 24"><path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3zm0 0 4-8a2.5 2.5 0 0 1 2.5 2.5V9H19a2 2 0 0 1 2 2.3l-1.1 7A2 2 0 0 1 17.9 20H7" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  bell: '<svg viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 1 1 12 0v6l1.5 2h-15L6 17zM10 21h4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  cursor: '<svg viewBox="0 0 24 24"><path d="M5 3l14 9.5-6.3.9 3.6 6.4-2.6 1.4-3.6-6.5L5 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>',
 };
 
 export function composeV2(plan) {
@@ -206,7 +209,7 @@ export function composeV2(plan) {
     g.forEach((w, j) => { if (w.kind === "mk") set(`#mk${i}_${j}`, { scaleX: 0 }, 0); });
     g.forEach((w, j) => { if (w.kind === "mk") ft(`#mk${i}_${j}`, { scaleX: 0 }, { scaleX: 1, duration: 0.17, ease: "power2.out" }, w.t); });
   });
-  const covered = (t) => scenes.some((x) => t >= x.t0 - 0.05 && t < x.t1 - 0.05);
+  const covered = (t) => scenes.some((x) => !OVERLAY.has(x.do) && t >= x.t0 - 0.05 && t < x.t1 - 0.05);
   const capsState = (mode, t, fromBase) => { if (fromBase && covered(t)) return; if (capMode === "none") return; if (mode === "hide") set("#caps", { autoAlpha: 0 }, t); else { set("#caps", { autoAlpha: 1 }, t); set("#caps", { attr: { "data-mode": mode } }, t); } };
 
   // ── base: rosto (talk) ou fundo escuro (portfólio) ─────────────────────────
@@ -221,6 +224,8 @@ export function composeV2(plan) {
   let faceVideos = "";
   blocks.forEach((b, i) => { if (b.kind === "face") faceVideos += `<video id="vF${i}" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="${b.in}" data-duration="${f2(b.out - b.in)}" data-media-start="${b.in}" data-track-index="0"></video>\n          `; });
   // câmera que segue o rosto (vertical)
+  const faceXs = Object.values(faces).flat().map((p) => p[1]).sort((a, b) => a - b);
+  const faceCx = faceXs.length ? faceXs[faceXs.length >> 1] : 960;
   let faceOrigin = "50% 38%";
   if (hasFace && V) {
     const panX = (x) => f2(Math.min(0, Math.max(W - vidW, W / 2 - x * VS)));
@@ -315,6 +320,8 @@ export function composeV2(plan) {
   const mediaEl = (m, t0, dur, style = "") => m.image
     ? `<img src="assets/media/${m.file}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;${style}" />`
     : `<video id="mv${track}" class="clip" src="assets/media/${m.file}" muted playsinline data-start="${at(Math.max(0, t0))}" data-duration="${f2(dur)}" data-media-start="${f2(Math.max(0, -t0))}" data-track-index="${nextTrack()}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;${style}"></video>`;
+  const fitBox = (m, mw, mh) => { const ar = (m.iw || 16) / (m.ih || 9); let w = mw, h = w / ar; if (h > mh) { h = mh; w = h * ar; } return [Math.round(w), Math.round(h)]; };
+  const countTo = (elId, a, b, dur, t, ease = "power3.out", dec = 0) => js.push(`(()=>{const o={v:${a}};const el=document.getElementById("${elId}");tl.fromTo(o,{v:${a}},{v:${b},duration:${f2(dur)},ease:${J(ease)},immediateRender:false,onUpdate:()=>{el.textContent=Number(${dec ? "o.v" : "Math.round(o.v)"}).toLocaleString("pt-BR",{minimumFractionDigits:${dec},maximumFractionDigits:${dec}});}},${at(t)});})();`);
   // texto em cascata (T1): spans com tempos
   const cascade = (id, ws, times, hl, base, accent) => {
     ws.forEach((w, i) => {
@@ -329,7 +336,8 @@ export function composeV2(plan) {
     const id = `S${i}`, o = `#${id}`, m = `#${id}m`, c = `#${id}c`, p = `#${id}p`;
     const t0 = s.t0, t1 = s.t1, dur = f2(t1 - t0);
     const prev = scenes[i - 1];
-    const below = s.prevAdj ? `#S${i - 1}m` : "#baseM";
+    const overlay = OVERLAY.has(s.do); // cena sobre o rosto (fundo transparente)
+    const below = overlay ? null : s.prevAdj && !OVERLAY.has(prev?.do) ? `#S${i - 1}m` : "#baseM";
     let bg = "light", inner = "", caps = "dark", extra = "";
     used.patterns.push(s.do);
     const hl = new Set((s.hl || []).map(norm));
@@ -528,16 +536,232 @@ export function composeV2(plan) {
         caps = "hide";
         break;
       }
+      case "gallery": { // fotos passando em pilha (+ contador opcional por cima)
+        bg = s.bg ?? "dark";
+        const ims = s.gal, n = ims.length, cT = s.counter?.t ?? null;
+        const tEnd = cT != null ? cT + 0.1 : t1 - 0.4;
+        const step = Math.max(0.14, (tEnd - t0 - 0.2) / n);
+        const spots = [[-220, -30, -7], [200, 40, 6], [-40, -80, 3], [240, -70, -4], [-260, 70, 5], [110, 90, -3], [-10, 10, 2], [170, -30, -6], [-190, -60, 4], [60, -20, -2]];
+        const mw = V ? 900 : 1000, mh = V ? 900 : 700;
+        inner = `<div class="spot"></div><div id="${id}pile" class="layer">` + ims.map((m, k) => {
+          const [w, h] = fitBox(m, mw, mh), [dx, dy] = spots[k % spots.length];
+          return `<div id="${id}f${k}" class="photo" style="left:${f2((W - w) / 2 + dx * K)}px;top:${f2((H - h) / 2 + dy * K)}px;width:${w}px;height:${h}px">${mediaEl(m, t0, dur + 0.5)}</div>`;
+        }).join("") + `</div>`;
+        if (s.label) inner += `<div id="${id}l" class="tag" style="top:${V ? 190 : 70}px"><i></i>${esc(s.label)}</div>`;
+        ims.forEach((m, k) => {
+          const a = f2(t0 + 0.08 + k * step), rot = spots[k % spots.length][2];
+          ft(`#${id}f${k}`, { autoAlpha: 0, x: 320 * K, y: 140 * K, rotation: rot + 9, scale: 1.1, filter: "blur(12px)" }, { autoAlpha: 1, x: 0, y: 0, rotation: rot, scale: 1, filter: "blur(0px)", duration: 0.3, ease: "power3.out" }, a);
+          if (k > 0) ft(`#${id}f${k - 1}`, { scale: 1 }, { scale: 0.96, duration: 0.3, ease: "power2.out" }, a);
+          if (k < 4) snd(k === 0 ? "whoosh-short" : "click-soft", a + 0.03, k === 0 ? 0.24 : 0.16, k === 0 ? 2 : 1);
+        });
+        ft(`#${id}pile`, { scale: 1 }, { scale: 1.06, duration: dur, ease: "none" }, t0);
+        if (s.label) ft(`#${id}l`, { autoAlpha: 0, y: 16, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.35, ease: "power3.out" }, t0 + 0.3);
+        if (s.counter) {
+          const cn = s.counter, v = +cn.value, a0 = +(cn.from ?? 0), dec = cn.decimals ?? 0;
+          const fmt = (x) => Number(x).toLocaleString("pt-BR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+          const lw = String(cn.label || "").split(/\s+/).filter(Boolean), chl = new Set((cn.hl || []).map(norm));
+          const tone = cn.tone === "bad" ? "#ef4444" : cn.tone === "good" ? "#22c55e" : null;
+          inner += `<div class="numWrap"><div id="${id}n" class="num">${esc(cn.prefix || "")}<span id="${id}v">${fmt(a0)}</span>${esc(cn.suffix || "")}</div><div class="numLabel">${wordsHtml(id, lw, chl)}</div></div>`;
+          const cd = cn.dur ?? 0.95, tc = cT + 0.1, tEndC = f2(tc + cd);
+          ft(`#${id}pile`, { filter: "blur(0px)", opacity: 1 }, { filter: "blur(18px)", opacity: 0.22, duration: 0.45, ease: "power2.out" }, cT);
+          if (s.label) ft(`#${id}l`, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2 }, cT);
+          ft(`#${id}n`, { autoAlpha: 0, scale: 0.86, filter: "blur(12px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, cT + 0.02);
+          countTo(`${id}v`, a0, v, cd, tc, "power2.out", dec);
+          ft(`#${id}n`, { y: 0 }, { y: -6, duration: cd, ease: "power3.out" }, tc);
+          cascade(id, lw, lw.map((_, k) => f2(tc + 0.4 + k * 0.08)), chl, "#a3a3a3", "#4ade80");
+          if (tone) { // bate no valor final e muda de cor (vermelho = caro/errado, verde = certo)
+            ft(`#${id}n`, { color: "#ffffff", textShadow: "0 0 0px rgba(0,0,0,0)" }, { color: tone, textShadow: `0 0 46px ${tone}88`, duration: 0.22, ease: "power2.out" }, tEndC - 0.05);
+            ft(`#${id}n`, { scale: 1 }, { scale: 1.08, duration: 0.09, yoyo: true, repeat: 1, ease: "power2.out" }, tEndC - 0.05);
+            ft(c, { x: 0 }, { x: 6, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, tEndC);
+            set(c, { x: 0 }, tEndC + 0.3);
+            snd(cn.tone === "bad" ? "impact-bass-1" : "ping", tEndC - 0.02, cn.tone === "bad" ? 0.3 : 0.2, 3);
+          } else { ft(`#${id}n`, { textShadow: "0 0 0px rgba(34,197,94,0)" }, { textShadow: "0 0 36px rgba(34,197,94,.45)", duration: 0.5 }, tEndC - 0.1); snd("ping", tEndC, 0.18, 2); }
+        }
+        caps = "dark";
+        break;
+      }
+      case "hud": { // card com número sobre o rosto (continuação do contador) + troca de valor/cor + logo
+        bg = "none";
+        const v = +s.value, dec = s.decimals ?? 0;
+        const fmt = (x) => Number(x).toLocaleString("pt-BR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        const col = (t) => (t === "bad" ? "#ef4444" : t === "good" ? "#22c55e" : "#fafafa");
+        const right = String(s.pos ?? "bl").endsWith("r"), mg = V ? 70 : 120, top = V ? 1180 : H - 120 - 190;
+        inner = `<div id="${id}row" class="hudRow" style="${right ? "right" : "left"}:${mg}px;top:${top}px">
+          <div id="${id}card" class="hudCard"><div id="${id}k" class="hudK">${esc(s.label || "")}</div><div id="${id}n" class="hudN" style="color:${col(s.tone)}">${esc(s.prefix || "")}<span id="${id}v">${fmt(v)}</span>${esc(s.suffix || "")}</div></div>
+          ${s.logo ? `<div id="${id}logo" class="hudLogo">${s.logo.media ? `<img src="assets/media/${s.logo.media.file}" alt="" />` : ""}${s.logo.text ? `<b>${esc(s.logo.text)}</b>` : ""}</div>` : ""}</div>`;
+        const cardCx = right ? W - mg - 220 : mg + 220, fromX = W / 2 - cardCx, fromY = (V ? 740 : 400) - (top + 100);
+        if (s.prevAdj) ft(`#${id}card`, { autoAlpha: 0, x: fromX, y: fromY, scale: 2.2, filter: "blur(10px)" }, { autoAlpha: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)", duration: 0.55, ease: "power3.inOut" }, t0);
+        else ft(`#${id}card`, { autoAlpha: 0, y: 30, scale: 0.9, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0);
+        snd("whoosh-short", t0 + 0.05, 0.22, 2);
+        if (s.then) {
+          const a = s.then.t, v2 = +s.then.value;
+          countTo(`${id}v`, v, v2, 0.45, a, "power3.in", dec);
+          ft(`#${id}n`, { color: col(s.tone) }, { color: col(s.then.tone), duration: 0.3, ease: "power2.out" }, a + 0.3);
+          if (s.then.tone === "good") ft(`#${id}n`, { textShadow: "0 0 0px rgba(34,197,94,0)" }, { textShadow: "0 0 30px rgba(34,197,94,.55)", duration: 0.3 }, a + 0.4);
+          ft(`#${id}card`, { scale: 1 }, { scale: 1.07, duration: 0.12, yoyo: true, repeat: 1, ease: "power2.out" }, a + 0.4);
+          if (s.then.label != null) {
+            ft(`#${id}k`, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -8, duration: 0.15 }, a + 0.2);
+            set(`#${id}k`, { textContent: s.then.label }, a + 0.36);
+            ft(`#${id}k`, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.2 }, a + 0.37);
+          }
+          snd("pop", a + 0.42, 0.26, 3);
+        }
+        if (s.logo) {
+          ft(`#${id}logo`, { autoAlpha: 0, scale: 0.5, x: -30, filter: "blur(8px)" }, { autoAlpha: 1, scale: 1, x: 0, filter: "blur(0px)", duration: 0.42, ease: "back.out(2)" }, s.logo.t);
+          snd("click", s.logo.t + 0.06, 0.22, 3);
+        }
+        caps = "dark";
+        break;
+      }
+      case "clones": { // o rosto se multiplica: zoom-out contínuo por grades NxN (cada nível entra em scale 2 = o nível anterior)
+        bg = "black";
+        const lv = s.tiles, hold = s.hold ?? 0.45, step = Math.max(0.18, (dur - hold) / lv.length);
+        inner = lv.map((m, k) => `<div id="${id}l${k}" class="layer" style="transform-origin:50% 50%;opacity:0;visibility:hidden">${mediaEl(m, t0 - s.tileLead, dur + 0.8)}</div>`).join("");
+        lv.forEach((m, k) => { // grades ímpares (3, 9, 27…): o tile central em scale N/N_anterior é exatamente o nível anterior → zoom-out contínuo com o rosto no centro
+          const a = f2(t0 + k * step), fac = m.tile / (k ? lv[k - 1].tile : 1);
+          set(`#${id}l${k}`, { autoAlpha: 1 }, a);
+          ft(`#${id}l${k}`, { scale: fac }, { scale: 1, duration: f2(step), ease: "power2.inOut" }, a);
+          if (k > 0) set(`#${id}l${k - 1}`, { autoAlpha: 0 }, a + 0.03);
+          snd(k === 0 ? "whoosh-short" : "click", a + 0.02, k < 3 ? 0.22 : 0.14, k < 2 ? 3 : 1);
+        });
+        const last = f2(t0 + lv.length * step);
+        ft(`#${id}l${lv.length - 1}`, { scale: 1 }, { scale: 1.04, duration: f2(Math.max(0.2, t1 - last + 0.1)), ease: "none" }, last);
+        caps = "dark";
+        break;
+      }
+      case "grid": { // cards em grade (thumbs, sequência de fotos); item com "bad" vira vermelho com ✕
+        bg = s.bg ?? "dark";
+        const its = s.items, n = its.length, cols = s.cols ?? (n <= 4 ? n : n <= 6 ? 3 : 4), rows = Math.ceil(n / cols);
+        const [rw, rh] = String(s.ratio ?? "16:9").split(":").map(Number), ar = rw / rh;
+        const gap = V ? 20 : 26, maxW = V ? W - 120 : W - 170, maxH = V ? H - 560 : H - 200;
+        let cw = (maxW - gap * (cols - 1)) / cols, ch = cw / ar;
+        if (ch * rows + gap * (rows - 1) > maxH) { ch = (maxH - gap * (rows - 1)) / rows; cw = ch * ar; }
+        const gw = cols * cw + gap * (cols - 1), gh = rows * ch + gap * (rows - 1), x0 = (W - gw) / 2, y0 = (H - gh) / 2 + (s.label ? 26 : 0);
+        inner = `<div class="spot"></div><div class="persp"><div id="${id}g" class="layer">` + its.map((it, k) => {
+          const r = Math.floor(k / cols), cc = k % cols, inRow = Math.min(cols, n - r * cols), off = ((cols - inRow) * (cw + gap)) / 2;
+          return `<div id="${id}c${k}" class="gcard" style="left:${f2(x0 + off + cc * (cw + gap))}px;top:${f2(y0 + r * (ch + gap))}px;width:${f2(cw)}px;height:${f2(ch)}px">${mediaEl(it.media, it.t - 0.2, t1 - it.t + 0.6)}${it.label ? `<div class="tag in">${esc(it.label)}</div>` : ""}<div id="${id}x${k}" class="gbad"><i>${ICONS.x}</i>${it.badText ? `<u>${esc(it.badText)}</u>` : ""}</div></div>`;
+        }).join("") + `</div></div>`;
+        if (s.label) inner += `<div id="${id}l" class="tag" style="top:${V ? 190 : 70}px"><i></i>${esc(s.label)}</div>`;
+        its.forEach((it, k) => {
+          ft(`#${id}c${k}`, { autoAlpha: 0, y: 90, scale: 0.92, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.36, ease: "power3.out" }, it.t);
+          snd("click-soft", it.t + 0.04, 0.16, k < 3 ? 2 : 1);
+          if (it.badT != null) {
+            ft(`#${id}x${k}`, { autoAlpha: 0, yPercent: 100 }, { autoAlpha: 1, yPercent: 0, duration: 0.3, ease: "power2.out" }, it.badT);
+            ft(`#${id}c${k} video, #${id}c${k} img`, { filter: "grayscale(0)" }, { filter: "grayscale(1)", duration: 0.3 }, it.badT);
+            ft(`#${id}x${k} i`, { scale: 0 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }, it.badT + 0.15);
+            ft(`#${id}c${k}`, { x: 0 }, { x: 6, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, it.badT + 0.1);
+            set(`#${id}c${k}`, { x: 0 }, it.badT + 0.4);
+            snd("impact-bass-1", it.badT + 0.1, 0.22, 3);
+          }
+        });
+        ft(`#${id}g`, { rotationX: 10, y: 40 }, { rotationX: 0, y: 0, duration: 1.0, ease: "power3.out" }, t0);
+        ft(`#${id}g`, { scale: 1 }, { scale: 1.06, duration: dur, ease: "none" }, t0);
+        if (s.label) ft(`#${id}l`, { autoAlpha: 0, y: 16, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.35, ease: "power3.out" }, t0 + 0.2);
+        caps = bg === "dark" ? "dark" : "light";
+        break;
+      }
+      case "split": { // rosto (ao vivo) de um lado + editor com prompt digitando sem parar; erros em vermelho
+        bg = s.bg ?? "dark";
+        const ph = V ? 760 : 840, pw = V ? W - 140 : 880, pt = V ? 180 : (H - ph) / 2, pl = V ? 70 : 80;
+        const sc = (ph / 1080) * 1.18, vw = 1920 * sc, vh = 1080 * sc;
+        const vx = f2(Math.min(0, Math.max(pw - vw, pw / 2 - faceCx * sc))), vy = f2(Math.min(0, Math.max(ph - vh, ph / 2 - 0.42 * vh)));
+        const edL = V ? 70 : pl + pw + 40, edT = V ? pt + ph + 40 : pt, edW = V ? W - 140 : W - edL - 80, edH = V ? 620 : ph;
+        const lines = s.prompt?.length ? s.prompt : ["retrato profissional, mesmo rosto da referência,", "iluminação de estúdio, lente 85mm, pele realista,", "manter identidade, expressão confiante, 8k, ultra detalhado,"];
+        const cps = s.cps ?? 30; let full = ""; for (let k = 0; full.length < (dur + 0.5) * cps; k++) full += lines[k % lines.length] + "\n";
+        const ms = at(Math.max(0, t0 - 0.3));
+        inner = `<div id="${id}face" class="splitFace" style="left:${pl}px;top:${pt}px;width:${pw}px;height:${ph}px"><video id="${id}fv" class="clip" src="assets/media/edit.mp4" muted playsinline data-start="${ms}" data-duration="${f2(dur + 0.6)}" data-media-start="${ms}" data-track-index="${nextTrack()}" style="position:absolute;left:${vx}px;top:${vy}px;width:${f2(vw)}px;height:${f2(vh)}px"></video></div>
+          <div id="${id}ed" class="editor" style="left:${edL}px;top:${edT}px;width:${f2(edW)}px;height:${edH}px"><div class="edBar"><i></i><i></i><i></i><u>${esc(s.file ?? "prompt.txt")}</u></div><pre id="${id}tx" class="edTx"></pre><div id="${id}err" class="edErr"><i>${ICONS.x}</i><span>${esc(s.error ?? "Rosto não corresponde à referência")}</span></div></div>`;
+        ft(`#${id}face`, { autoAlpha: 0, x: -60, filter: "blur(10px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.05);
+        ft(`#${id}ed`, { autoAlpha: 0, x: 80, filter: "blur(10px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.12);
+        ft(`#${id}fv`, { scale: 1 }, { scale: 1.06, duration: dur, ease: "none" }, t0);
+        const tt = t0 + 0.35, rows = s.rows ?? (V ? 9 : 13);
+        js.push(`(()=>{const el=document.getElementById("${id}tx");const s=${J(full)};const o={n:0};tl.fromTo(o,{n:0},{n:s.length,duration:${f2(dur + 0.3)},ease:"none",immediateRender:false,onUpdate:()=>{const t=s.slice(0,Math.round(o.n));const ls=t.split("\\n");el.textContent=ls.slice(-${rows}).join("\\n")+"|";}},${at(tt)});})();`);
+        for (let q = 0; q < Math.floor(dur / 0.8); q++) snd("key-press", tt + 0.1 + q * 0.8, 0.14, 1);
+        const shN = "0 0 0 1px rgba(255,255,255,.08), 0 60px 120px -30px rgba(0,0,0,.85)", shR = "0 0 0 3px #ef4444, 0 0 60px rgba(239,68,68,.35), 0 60px 120px -30px rgba(0,0,0,.85)";
+        const errs = (s.errT || []).filter((e) => e != null);
+        errs.forEach((e, q) => {
+          const hideAt = errs[q + 1] != null ? Math.min(e + 1.4, errs[q + 1] - 0.3) : t1 - 0.4;
+          ft(`#${id}err`, { autoAlpha: 0, y: 24, scale: 0.9, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.26, ease: "back.out(2)" }, e);
+          ft(`#${id}ed`, { boxShadow: shN }, { boxShadow: shR, duration: 0.12 }, e);
+          ft(`#${id}ed`, { x: 0 }, { x: 7, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, e + 0.02);
+          set(`#${id}ed`, { x: 0 }, e + 0.3);
+          if (hideAt > e + 0.5) { ft(`#${id}err`, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2 }, hideAt); ft(`#${id}ed`, { boxShadow: shR }, { boxShadow: shN, duration: 0.3 }, hideAt); }
+          snd("impact-bass-1", e, 0.24, 3);
+        });
+        caps = "dark";
+        break;
+      }
+      case "compare": { // texto (prompt) de um lado ≠ fotos do outro
+        bg = s.bg ?? "light";
+        const L = s.left || {}, lines = L.lines || [], ims = s.rImgs;
+        const cardW = V ? W - 140 : 720, cardH = V ? 600 : 620, cL = V ? 70 : 150, cT = V ? 240 : (H - cardH) / 2;
+        const ph = V ? 520 : 560, pw = Math.round(ph * 0.75);
+        const fanCx = V ? W / 2 : W * 0.735, fanCy = V ? 1290 : H / 2;
+        const rots = [-10, 0, 10], offs = [-230, 0, 230];
+        const fanL = fanCx - pw / 2 - 230 * K;
+        inner = `<div id="${id}lc" class="cmpCard" style="left:${cL}px;top:${f2(cT)}px;width:${cardW}px;height:${cardH}px"><div class="cmpT">${esc(L.title || "Prompt")}</div>${lines.map((l, k) => `<div class="cl" id="${id}l${k}">${esc(l)}</div>`).join("")}</div>
+          <div class="cmpT" id="${id}rt" style="position:absolute;left:${f2(fanCx - 300)}px;width:600px;text-align:center;top:${f2(fanCy - ph / 2 - 70)}px;opacity:0">${esc(s.right?.title || "")}</div>
+          <div id="${id}fan" class="layer">${ims.map((m, k) => `<div id="${id}p${k}" class="fanPhoto" style="left:${f2(fanCx - pw / 2 + offs[k % 3] * K)}px;top:${f2(fanCy - ph / 2)}px;width:${pw}px;height:${ph}px">${mediaEl(m, t0, dur + 0.5)}</div>`).join("")}</div>
+          <div id="${id}vs" class="vs" style="left:${f2(V ? W / 2 - 75 : cL + cardW + (fanL - (cL + cardW)) / 2 - 75)}px;top:${f2(V ? 900 : H / 2 - 75)}px">≠</div>`;
+        ft(`#${id}lc`, { autoAlpha: 0, x: -50, filter: "blur(10px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.04);
+        lines.forEach((_, k) => ft(`#${id}l${k}`, { autoAlpha: 0, x: 20, filter: "blur(6px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.22, ease: "power2.out" }, t0 + 0.25 + k * 0.1));
+        ims.forEach((_, k) => ft(`#${id}p${k}`, { autoAlpha: 0, y: 80, rotation: rots[k % 3] + 6, scale: 0.9, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, rotation: rots[k % 3], scale: 1, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.3 + k * 0.14));
+        ft(`#${id}rt`, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.3 }, t0 + 0.7);
+        const vT = s.vsT ?? t0 + 1.2, gT = s.goodT ?? vT + 0.5;
+        ft(`#${id}vs`, { autoAlpha: 0, scale: 0.3, filter: "blur(8px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.35, ease: "back.out(2.2)" }, vT);
+        ft(`#${id}lc`, { filter: "grayscale(0) blur(0px)", opacity: 1 }, { filter: "grayscale(1) blur(1.5px)", opacity: 0.45, duration: 0.4 }, vT + 0.1);
+        snd("pop", vT + 0.04, 0.24, 3);
+        ims.forEach((_, k) => ft(`#${id}p${k}`, { boxShadow: "0 0 0 0px rgba(34,197,94,0), 0 50px 100px -30px rgba(0,0,0,.4)" }, { boxShadow: "0 0 0 5px #22c55e, 0 50px 100px -30px rgba(0,0,0,.4)", duration: 0.2 }, gT + k * 0.12));
+        snd("click-soft", gT, 0.2, 2);
+        ft(`#${id}fan`, { scale: 1 }, { scale: 1.05, duration: dur, ease: "none" }, t0);
+        caps = bg === "dark" ? "dark" : "light";
+        break;
+      }
+      case "ytcta": { // barra like / inscrever / sino sobre o rosto, com cursor clicando na palavra
+        bg = "none";
+        const bw = [240, 330, 104], gap = 16, tot = bw[0] + bw[1] + bw[2] + 2 * gap, bx = (W - tot) / 2, by = V ? 1500 : H - 170;
+        inner = `<div id="${id}bar" class="ytBar" style="left:${f2(bx)}px;top:${by}px;width:${tot}px">
+          <div id="${id}b0" class="ytBtn" style="width:${bw[0]}px"><i>${ICONS.thumb}</i><b>${esc(s.likeText ?? "Gostei")}</b></div>
+          <div id="${id}b1" class="ytSub" style="width:${bw[1]}px"><span id="${id}subt">${esc(s.subText ?? "Inscrever-se")}</span></div>
+          <div id="${id}b2" class="ytBtn" style="width:${bw[2]}px"><i>${ICONS.bell}</i></div></div>
+          <div id="${id}cur" class="cursor">${ICONS.cursor}</div>`;
+        ft(`#${id}bar`, { autoAlpha: 0, y: 40, scale: 0.94, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t0 + 0.02);
+        const cx = [bx + bw[0] / 2, bx + bw[0] + gap + bw[1] / 2, bx + bw[0] + gap + bw[1] + gap + bw[2] / 2], cy = by + 44;
+        const steps = [["likeT", 0], ["subT", 1], ["bellT", 2]].filter(([k]) => s[k] != null).map(([k, i]) => [s[k], i]).sort((a, b) => a[0] - b[0]);
+        const start = [W / 2 + 300, by + 170];
+        set(`#${id}cur`, { x: start[0], y: start[1] }, 0);
+        if (steps.length) ft(`#${id}cur`, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 }, Math.max(t0 + 0.2, steps[0][0] - 0.5));
+        steps.forEach(([tc, i], q) => {
+          const from = q === 0 ? start : [cx[steps[q - 1][1]] + 12, cy + 14];
+          ft(`#${id}cur`, { x: from[0], y: from[1] }, { x: cx[i] + 12, y: cy + 14, duration: 0.35, ease: "power2.inOut" }, tc - 0.38);
+          ft(`#${id}b${i}`, { scale: 1 }, { scale: 0.9, duration: 0.08, yoyo: true, repeat: 1, ease: "power2.out" }, tc);
+          set(`#${id}b${i}`, { attr: { "data-on": "1" } }, tc + 0.08);
+          if (i === 1) set(`#${id}subt`, { textContent: s.subDone ?? "Inscrito" }, tc + 0.08);
+          if (i === 2) ft(`#${id}b2 i`, { rotation: 0 }, { rotation: 18, duration: 0.07, yoyo: true, repeat: 5, ease: "sine.inOut" }, tc + 0.1);
+          snd(i === 2 ? "ping" : "click", tc + 0.02, 0.24, 3);
+        });
+        ft(`#${id}cur`, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2 }, t1 - 0.4);
+        caps = "dark";
+        break;
+      }
     }
     used.bgs[bg] = (used.bgs[bg] || 0) + dur;
     sceneHtml += `
       <div id="${id}" class="layer scene" style="opacity:0;visibility:hidden"><div id="${id}m" class="layer bg-${bg}"><div id="${id}p" class="layer"><div id="${id}c" class="layer">${inner}</div></div>${extra}</div></div>`;
     // transições
-    if (!s.prevAdj) { trIn(s.in, o, m, t0, below); used.transitions.push(s.in); }
-    else { const d = trIn(s.in, o, m, t0, below); used.transitions.push(s.in); set(`#S${i - 1}`, { autoAlpha: 0 }, t0 + Math.max(0.45, d + 0.1)); }
     const toCta = spec.cta && t1 >= endVoice - 0.05;
-    if (toCta) set(o, { autoAlpha: 0 }, t1 + 0.6);
-    else if (!s.next) { trOut(s.out, o, m, p, t1, "#baseM"); used.transitions.push(s.out); }
+    if (overlay) { // sobre o rosto: entra seco, sai com blur; a cena anterior (se colada) some na hora e o rosto recebe o blur-cut
+      set(o, { autoAlpha: 1 }, t0); used.transitions.push("cut");
+      if (s.prevAdj) { set(`#S${i - 1}`, { autoAlpha: 0 }, t0); ft("#baseM", { filter: "blur(12px)", scale: 1.035 }, { filter: "blur(0px)", scale: 1, duration: 0.16, ease: "power2.out" }, t0); set("#baseM", { filter: "none" }, t0 + 0.17); }
+      if (toCta) set(o, { autoAlpha: 0 }, t1 + 0.6);
+      else if (!s.next) { ft(c, { filter: "blur(0px)", opacity: 1 }, { filter: "blur(10px)", opacity: 0, duration: 0.22, ease: "power2.in" }, t1 - 0.22); set(o, { autoAlpha: 0 }, t1); used.transitions.push("cut"); }
+      else set(o, { autoAlpha: 0 }, t1);
+    } else {
+      if (!s.prevAdj) { trIn(s.in, o, m, t0, below); used.transitions.push(s.in); }
+      else { const d = trIn(s.in, o, m, t0, below); used.transitions.push(s.in); set(`#S${i - 1}`, { autoAlpha: 0 }, t0 + Math.max(0.45, d + 0.1)); }
+      if (toCta) set(o, { autoAlpha: 0 }, t1 + 0.6);
+      else if (!s.next) { trOut(s.out, o, m, p, t1, "#baseM"); used.transitions.push(s.out); }
+    }
     capsState(caps, s.prevAdj ? t0 : t0 - 0.02);
     if (!s.next && !toCta) capsState(screenAt(t1) ? "light" : "dark", t1);
   });
@@ -671,6 +895,38 @@ export function composeV2(plan) {
       .flood { position: absolute; inset: 0; }
       .flood.fr { background: linear-gradient(to top, rgba(220,38,38,.92) 0%, rgba(239,68,68,.85) 45%, rgba(239,68,68,0) 100%); }
       .flood.fg { background: linear-gradient(to top, #15803d 0%, #22c55e 45%, rgba(34,197,94,0) 100%); }
+      .bg-none { background: transparent; }
+      .photo { position: absolute; border-radius: 18px; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 50px 100px -30px rgba(0,0,0,.7); opacity: 0; }
+      .hudRow { position: absolute; display: flex; align-items: flex-end; gap: 18px; }
+      .hudCard { padding: ${px(26)}px ${px(40)}px ${px(30)}px; border-radius: 28px; background: rgba(10,10,12,.78); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 30px 70px -30px rgba(0,0,0,.6); opacity: 0; }
+      .hudK { font: 500 ${px(28)}px/1 var(--font); color: var(--n400); letter-spacing: .04em; text-transform: uppercase; margin-bottom: ${px(14)}px; white-space: nowrap; }
+      .hudN { font: 600 ${px(118)}px/1 var(--font); letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .hudLogo { display: flex; align-items: center; gap: 16px; padding: ${px(20)}px ${px(30)}px ${px(20)}px ${px(22)}px; border-radius: 24px; background: #fff; box-shadow: 0 30px 70px -30px rgba(0,0,0,.6); opacity: 0; margin-bottom: ${px(10)}px; }
+      .hudLogo img { width: ${px(72)}px; height: ${px(72)}px; border-radius: 18px; display: block; } .hudLogo b { font: 600 ${px(44)}px/1 var(--font); color: var(--n900); letter-spacing: -.02em; white-space: nowrap; }
+      .gcard { position: absolute; border-radius: 22px; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 40px 90px -30px rgba(0,0,0,.5); opacity: 0; }
+      .gbad { position: absolute; inset: 0; background: linear-gradient(to top, rgba(220,38,38,.94), rgba(239,68,68,.6)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; opacity: 0; }
+      .gbad i { width: ${px(110)}px; height: ${px(110)}px; border-radius: 50%; background: #fff; display: grid; place-items: center; } .gbad i svg { width: 56%; height: 56%; } .gbad i svg path { stroke: #dc2626; }
+      .gbad u { text-decoration: none; font: 600 ${px(36)}px/1 var(--font); color: #fff; letter-spacing: -.01em; }
+      .splitFace { position: absolute; border-radius: 28px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 60px 120px -30px rgba(0,0,0,.8); opacity: 0; }
+      .splitFace video { transform-origin: 50% 40%; }
+      .editor { position: absolute; border-radius: 28px; overflow: hidden; background: #141417; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 60px 120px -30px rgba(0,0,0,.85); opacity: 0; }
+      .edBar { position: absolute; left: 0; right: 0; top: 0; height: 60px; display: flex; align-items: center; gap: 10px; padding: 0 24px; background: #1b1b1f; } .edBar i { width: 13px; height: 13px; border-radius: 50%; background: #3a3a3f; } .edBar u { margin-left: 16px; font: 500 20px/1 var(--font); color: var(--n400); text-decoration: none; }
+      .edTx { position: absolute; left: 0; right: 0; top: 60px; bottom: 0; padding: 30px 36px; font: 500 ${px(36)}px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #d4d4d8; white-space: pre-wrap; word-break: break-word; overflow: hidden; }
+      .edErr { position: absolute; left: 36px; right: 36px; bottom: 34px; display: flex; align-items: center; gap: 16px; padding: 18px 26px; border-radius: 16px; background: #ef4444; color: #fff; font: 600 ${px(34)}px/1.1 var(--font); opacity: 0; box-shadow: 0 20px 50px -20px rgba(239,68,68,.6); } .edErr i { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.22); display: grid; place-items: center; flex: none; } .edErr i svg { width: 60%; height: 60%; }
+      .cmpCard { position: absolute; border-radius: 30px; background: #fff; padding: ${px(44)}px ${px(52)}px; box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 40px 90px -30px rgba(0,0,0,.25); opacity: 0; overflow: hidden; }
+      .bg-dark .cmpCard { background: #141417; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+      .cmpT { font: 600 ${px(28)}px/1 var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--n400); margin-bottom: ${px(30)}px; }
+      .cl { font: 500 ${px(42)}px/1.3 var(--font); color: var(--n900); letter-spacing: -.01em; opacity: 0; padding: ${px(8)}px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+      .bg-dark .cl { color: #e5e5e5; border-color: rgba(255,255,255,.08); }
+      .fanPhoto { position: absolute; border-radius: 24px; overflow: hidden; background: #111; box-shadow: 0 0 0 0px rgba(34,197,94,0), 0 50px 100px -30px rgba(0,0,0,.4); opacity: 0; }
+      .vs { position: absolute; width: 150px; height: 150px; border-radius: 50%; background: var(--n900); color: #fff; display: grid; place-items: center; font: 600 ${px(92)}px/1 var(--font); opacity: 0; box-shadow: 0 30px 60px -20px rgba(0,0,0,.5); }
+      .ytBar { position: absolute; height: 88px; display: flex; align-items: center; gap: 16px; opacity: 0; }
+      .ytBtn { height: 88px; border-radius: 999px; background: rgba(20,20,22,.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; gap: 14px; color: #fff; font: 600 ${px(34)}px/1 var(--font); }
+      .ytBtn i { width: 40px; height: 40px; display: grid; place-items: center; } .ytBtn i svg { width: 100%; height: 100%; }
+      .ytBtn[data-on] { background: #fff; color: var(--n900); } .ytBtn[data-on] svg path { fill: var(--n900); stroke: var(--n900); }
+      .ytSub { height: 88px; border-radius: 999px; background: #ff0033; display: grid; place-items: center; color: #fff; font: 600 ${px(34)}px/1 var(--font); box-shadow: 0 20px 50px -20px rgba(255,0,51,.6); }
+      .ytSub[data-on] { background: rgba(20,20,22,.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+      .cursor { position: absolute; left: 0; top: 0; width: 46px; height: 46px; opacity: 0; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); } .cursor svg { width: 100%; height: 100%; }
       #veil, #white { position: absolute; inset: 0; background: #fff; }
       #caps { position: absolute; left: 0; right: 0; top: ${capTop}px; height: 200px; }
       .cap { position: absolute; left: ${V ? 70 : 260}px; right: ${V ? 70 : 260}px; top: 0; text-align: center; font: 600 ${capFs}px/1.16 var(--font); letter-spacing: -.012em; color: #fff; opacity: 0; visibility: hidden; }
@@ -737,6 +993,6 @@ export function composeV2(plan) {
   </body>
 </html>
 `;
-  const chapterBg = Object.entries(used.bgs).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const chapterBg = Object.entries(used.bgs).filter(([k]) => k !== "none").sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
   return { html, log, used: { ...used, chapterBg } };
 }

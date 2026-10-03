@@ -16,6 +16,7 @@ export const OPENINGS = {
   "face-to-face-cut": "rosto fechado (take A) → take B aberto na 2ª frase → insert de tela",
   "problem-flood": "o jeito errado (trecho dessaturado) inundado de vermelho → rosto com a solução",
   "selection-hook": "frase na tela, palavra-chave selecionada estilo iOS + punch-in → corte",
+  "photo-hook": "fotos passando em pilha com a voz por baixo → contador (R$) sobe e fica vermelho/verde → corte para o rosto",
 };
 const SCENE_DEF = {
   cutaway: { in: "zoom", out: "blur", dur: 2.4 },
@@ -29,7 +30,15 @@ const SCENE_DEF = {
   stack: { in: "push-up", out: "blur" },
   swap: { in: "push-up", out: "blur" },
   icons: { in: "whip-up", out: "cut" },
+  gallery: { in: "none", out: "cut", dur: 3 },
+  hud: { in: "cut", out: "blur", dur: 3, overlay: true },
+  clones: { in: "none", out: "blur", dur: 2 },
+  grid: { in: "push-up", out: "blur", dur: 4 },
+  split: { in: "whip", out: "whip", dur: 4 },
+  compare: { in: "cut", out: "blur", dur: 4 },
+  ytcta: { in: "cut", out: "cut", dur: 3.5, overlay: true },
 };
+export const OVERLAY = new Set(Object.keys(SCENE_DEF).filter((k) => SCENE_DEF[k].overlay)); // cenas que ficam SOBRE o rosto (fundo transparente)
 export const SCENES = Object.keys(SCENE_DEF);
 export const MODS = ["punch", "focus"];
 export const TRANS_IN = ["none", "cut", "blur", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "push-up", "curtain", "zoom", "whiteout"];
@@ -143,6 +152,12 @@ export function buildPlan(spec, ctx) {
       case "selection-hook": need("text"); need("word");
         scenes.push({ do: "select", t0: 0, t1: faceT, text: o.text, word: o.word, in: "none", out: o.out ?? "cut", origin: "opening" });
         takeA(faceT); break;
+      case "photo-hook": {
+        need("images");
+        const counter = o.counter ? { ...o.counter, t: o.counter.at != null ? at(o.counter.at, "opening.counter.at", 0) : f2(faceT * 0.55) } : null;
+        scenes.push({ do: "gallery", t0: 0, t1: faceT, images: o.images, label: o.label, bg: o.bg ?? "dark", counter, in: "none", out: o.out ?? "cut", origin: "opening" });
+        takeA(faceT); break;
+      }
     }
   } else if (!ctx.portfolio) warns.push("sem \"opening\": o vídeo abre direto no rosto (o estilo v2 pede abertura de cinema)");
 
@@ -164,7 +179,16 @@ export function buildPlan(spec, ctx) {
       : b.dur != null ? f2(t0 + b.dur) : null;
     const s = { ...b, t0, t1, in: b.in ?? (b.fx === "zoom-through" ? "zoom" : def.in), out: b.out ?? def.out };
     if (s.fx === "zoom-through") s.fx = "push";
-    for (const k of ["items", "cards"]) if (b[k]) s[k] = b[k].map((it, ii) => ({ ...it, t: it.at != null ? at(it.at, `${label} ${k}[${ii}]`, t0) : null }));
+    for (const k of ["items", "cards"]) if (b[k]) s[k] = b[k].map((it, ii) => ({ ...it, t: it.at != null ? at(it.at, `${label} ${k}[${ii}]`, t0) : null, badT: it.bad != null ? at(it.bad, `${label} ${k}[${ii}].bad`, t0) : null }));
+    // âncoras aninhadas (sempre depois do início da cena)
+    const rt = (v, k) => (v == null ? null : f2(at(v, `${label}.${k}`, t0)));
+    if (b.counter) s.counter = { ...b.counter, t: rt(b.counter.at, "counter.at") ?? f2(t0 + 1) };
+    if (b.then) s.then = { ...b.then, t: rt(b.then.at, "then.at") ?? f2(t0 + 1.2) };
+    if (b.logo) s.logo = { ...b.logo, t: rt(b.logo.at, "logo.at") ?? f2(t0 + 2) };
+    if (b.errors) s.errT = b.errors.map((e, k) => rt(e, `errors[${k}]`));
+    if (b.vs != null) s.vsT = rt(b.vs, "vs");
+    if (b.good != null) s.goodT = rt(b.good, "good");
+    for (const k of ["like", "sub", "bell"]) if (b[k] != null) s[k + "T"] = rt(b[k], k);
     scenes.push(s);
     lastEnd = t1 ?? t0 + 2;
   });
@@ -195,13 +219,16 @@ export function buildPlan(spec, ctx) {
     if (prev) {
       if (s.t0 < prev.t1 - 0.15) fail(`cena ${s.do} (${s.t0}s) começa antes de ${prev.do} terminar (${prev.t1}s). Ajuste "at"/"dur"/"to".`);
       if (s.t0 - prev.t1 <= 0.15) { s.t0 = prev.t1; prev.next = true; s.prevAdj = true; }
-      else if (s.t0 - prev.t1 < 0.8) warns.push(`rosto aparece só ${f2(s.t0 - prev.t1)} s entre ${prev.do} e ${s.do} (pisca) — junte as cenas ou afaste`);
+      else if (s.t0 - prev.t1 < 0.8 && !OVERLAY.has(prev.do) && !OVERLAY.has(s.do)) warns.push(`rosto aparece só ${f2(s.t0 - prev.t1)} s entre ${prev.do} e ${s.do} (pisca) — junte as cenas ou afaste`);
     }
-    // itens sem âncora: distribui na duração
+    // itens sem âncora: "stagger" (intervalo fixo) ou distribui na duração
     for (const k of ["items", "cards"]) if (s[k]) {
       const n = s[k].length, span = s.t1 - s.t0 - 0.6;
-      s[k].forEach((it, ii) => { if (it.t == null) it.t = f2(s.t0 + 0.25 + (span * ii) / Math.max(1, n)); });
+      s[k].forEach((it, ii) => { if (it.t == null) it.t = f2(s.stagger != null ? s.t0 + 0.2 + ii * s.stagger : s.t0 + 0.25 + (span * ii) / Math.max(1, n)); });
     }
+    if (s.do === "grid" && !(s.items || []).length) fail(`grid em ${s.t0}s: falta "items" [{src}]`);
+    if (s.do === "gallery" && !(s.images || []).length) fail(`gallery em ${s.t0}s: falta "images" [arquivos em work/<slug>/]`);
+    if (s.do === "compare" && !(s.right?.images || []).length) fail(`compare em ${s.t0}s: falta "right.images"`);
   });
   if (ctx.portfolio && !scenes.length) fail("portfólio sem cenas: adicione beats (device, stack, cutaway, bridge…) com \"dur\"");
 
@@ -225,6 +252,15 @@ export function buildPlan(spec, ctx) {
     }
     if (s.do === "device") { s.media = want(s, s, s.kind === "phone" ? "phone" : "browser", s.t1 - s.t0 + 0.6); if (!s.media) fail(`device em ${s.t0}s: falta "src"`); }
     if (s.do === "stack") (s.cards || []).forEach((c) => { c.media = want(s, c, "stack", s.t1 - c.t + 0.6); if (!c.media) fail(`stack em ${s.t0}s: card sem "src"`); c.t0 = c.t; });
+    if (s.do === "gallery") s.gal = s.images.map((f) => want(s, { src: f }, "card", s.t1 - s.t0 + 0.5));
+    if (s.do === "grid") (s.items || []).forEach((it) => { it.media = want(s, it, "card", s.t1 - it.t + 0.6); if (!it.media) fail(`grid em ${s.t0}s: item sem "src"`); });
+    if (s.do === "compare") s.rImgs = s.right.images.map((f) => want(s, { src: f }, "card", s.t1 - s.t0 + 0.5));
+    if (s.do === "hud" && s.logo?.file) s.logo.media = want(s, { src: s.logo.file }, "card", s.t1 - s.t0 + 0.5);
+    if (s.do === "clones") { // grades NxN do próprio vídeo (pré-renderizadas pelo make), do instante da cena
+      const src0 = ctx.toSrc ? ctx.toSrc(s.t0) : s.t0;
+      s.tileLead = f2(Math.min(0.3, src0));
+      s.tiles = (s.levels || [3, 9, 27]).map((n) => { const m = want(s, { src: f2(src0 - s.tileLead) }, "full", s.t1 - s.t0 + 0.8); m.tile = n; return m; });
+    }
   }
   const end = scenes.length ? Math.max(...scenes.map((s) => s.t1)) : 0;
   return { scenes, punches, focus, opening, faceT, media, warns, phr, end };

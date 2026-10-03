@@ -194,6 +194,7 @@ if (isV1) {
     V, W: V ? 1080 : 1920, H: V ? 1920 : 1080, portfolio, tw, endVoice, fail, srcW: +probe[0], srcH: +probe[1],
     anchor: (v, label, after) => { const x = anchor(v, label, after); lastT = x; return x; },
     span: (v, label, after) => spanOf(v, label, after),
+    toSrc: (t) => { const c = cuts.find((c) => t >= c.t0 - 0.001 && t <= c.t0 + c.dur + 0.001); return c ? f2(c.in + (t - c.t0)) : t; }, // timeline → segundos da fonte
   };
   const plan = buildPlan(spec, ctx);
   warns.push(...plan.warns);
@@ -203,7 +204,25 @@ if (isV1) {
   // mídia das cenas (trechos do vídeo original ou arquivos em work/<slug>/), cortada/escalada no tamanho final
   for (const m of plan.media) {
     const [bw, bh] = m.box, [x1, y1, x2, y2] = m.crop;
-    if (m.image) { copyIn(m.src); m.file = path.basename(m.src); continue; }
+    if (m.image) { // imagem: copia e lê o tamanho (o compose encaixa pela proporção real)
+      copyIn(m.src); m.file = path.basename(m.src);
+      const d = sh(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${path.join(W, m.src)}"`).trim().split(",");
+      m.iw = +d[0] || 1920; m.ih = +d[1] || 1080; continue;
+    }
+    if (m.tile) { // grade NxN do próprio vídeo (cena "clones"): cada nível par é a grade 2×2 do nível anterior (barato e estável)
+      const tileFile = (n) => {
+        const key = `tile_${n}_${m.src}_${m.dur}_${FPS}.mp4`, out = path.join(cache, key);
+        if (fs.existsSync(out)) return key;
+        if (n === 1) sh(`ffmpeg -v error -ss ${m.src} -i "${src}" -t ${m.dur} -an -vf "fps=${FPS},scale=1920:1080:flags=lanczos" -c:v libx264 -crf 10 -preset fast -pix_fmt yuv420p -y "${out}"`);
+        else {
+          const k = [2, 3, 5, 7].find((d) => n % d === 0) ?? n, base = path.join(cache, tileFile(n / k)), ids = [...Array(k).keys()];
+          const fc = `[0:v]scale=${Math.ceil(1920 / k)}:${Math.ceil(1080 / k)}:flags=lanczos,split=${k}${ids.map((i) => `[a${i}]`).join("")};${ids.map((i) => `[a${i}]`).join("")}hstack=inputs=${k}[r];[r]split=${k}${ids.map((i) => `[b${i}]`).join("")};${ids.map((i) => `[b${i}]`).join("")}vstack=inputs=${k},crop=1920:1080:0:0[v]`;
+          sh(`ffmpeg -v error -i "${base}" -an -filter_complex "${fc}" -map "[v]" -c:v libx264 -crf 10 -preset fast -pix_fmt yuv420p -y "${out}"`);
+        }
+        return key;
+      };
+      m.file = tileFile(m.tile); fs.copyFileSync(path.join(cache, m.file), path.join(P, "assets/media", m.file)); continue;
+    }
     const fromFile = typeof m.src === "string";
     const input = fromFile ? path.join(W, m.src) : src;
     if (!fs.existsSync(input)) fail(`mídia não encontrada: ${fromFile ? `work/${slug}/${m.src}` : "source.mp4"}`);

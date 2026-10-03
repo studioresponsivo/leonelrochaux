@@ -1,0 +1,54 @@
+{
+  "name": "gancho-ensaio-ia",
+  "format": "horizontal",
+  "cuts": "all",
+  "captions": "none",
+  "sfxMax": 6,
+  "hush": ["Esse vídeo é pra você", "ensaio com constância"],
+  "opening": {
+    "style": "photo-hook", "face": "mas os meus", "take": false, "bg": "dark",
+    "images": ["img/ensaio-01.png", "img/ensaio-02.jpg", "img/ensaio-03.png", "img/ensaio-04.jpg", "img/ensaio-05.png", "img/ensaio-06.jpg", "img/ensaio-07.jpg"],
+    "counter": { "at": "custar", "from": 0, "value": 1000, "prefix": "R$ ", "tone": "bad", "label": "por um ensaio profissional", "hl": ["profissional"] }
+  },
+  "beats": [
+    { "at": "mas os meus", "do": "punch", "scale": 1.15, "to": "artificial" },
+    { "at": "mas os meus", "do": "hud", "until": "e os rostos", "prefix": "R$ ", "value": 1000, "tone": "bad", "label": "Ensaio profissional",
+      "then": { "at": "graça", "value": 0, "tone": "good", "label": "Meu ensaio com IA" },
+      "logo": { "at": "inteligência", "file": "img/magnific-logo.png", "text": "Magnific" } },
+    { "at": "rostos", "do": "clones", "until": "Exatamente" },
+    { "at": "Exatamente", "do": "punch", "scale": 1.25, "to": "aqui" },
+    { "at": "entrar no meu canal", "do": "grid", "until": "Mas não é", "cols": 4, "ratio": "16:9", "stagger": 0.14, "label": "Meu canal no YouTube", "bg": "light",
+      "items": [
+        { "src": "img/thumb-01.png" }, { "src": "img/thumb-02.png" }, { "src": "img/thumb-03.png" }, { "src": "img/thumb-04.png" },
+        { "src": "img/thumb-05.png" }, { "src": "img/thumb-06.png" }, { "src": "img/thumb-07.png" }
+      ] },
+    { "at": "Mas não é", "do": "split", "until": "não tem nada", "errors": ["prompt bom", "que o prompt"], "error": "Rosto não corresponde à referência", "file": "prompt.txt", "cps": 55,
+      "prompt": [
+        "Retrato profissional de um homem, 30 anos, barba curta, óculos redondos,",
+        "mesmo rosto da imagem de referência, manter identidade facial,",
+        "iluminação de estúdio suave, lente 85mm f/1.8, pele realista,",
+        "expressão confiante, fundo neutro, alta resolução, 8k, ultra detalhado,",
+        "não alterar os traços do rosto, olhos castanhos, cabelo escuro,",
+        "fotografia editorial, cores naturais, sem distorções, mesmo rosto,"
+      ] },
+    { "at": "não tem nada", "do": "compare", "to": "nas fotos", "vs": "nada", "good": "constância", "bg": "light",
+      "left": { "title": "Prompt", "lines": ["retrato profissional", "mesmo rosto da referência", "lente 85mm, luz de estúdio", "pele realista, 8k", "manter identidade facial"] },
+      "right": { "title": "Constância", "images": ["img/ensaio-02.jpg", "img/ensaio-05.png", "img/ensaio-01.png"] } },
+    { "at": "Porque é exatamente", "do": "punch", "scale": 1.15, "dur": 1.6 },
+    { "at": "uma sequência", "do": "grid", "until": "Esse vídeo", "cols": 4, "ratio": "3:4", "bg": "light",
+      "items": [
+        { "at": "sequência", "src": "img/ensaio-03.png" },
+        { "at": "imagens", "src": "img/ensaio-07.jpg" },
+        { "at": "mesmo", "src": "img/ensaio-04.jpg", "bad": "parecido", "badText": "parecido" },
+        { "at": "rosto", "src": "img/ensaio-06.jpg", "bad": "não era", "badText": "não era igual" }
+      ] },
+    { "at": "Esse vídeo", "do": "punch", "scale": 1.2, "to": "você" },
+    { "at": "já deixa", "do": "ytcta", "until": "porque hoje", "like": "like", "sub": "inscreve", "bell": "notificações" },
+    { "at": "constância", "do": "punch", "scale": 1.18, "dur": 1.4 },
+    { "at": "dois projetos", "do": "stack", "until": "vem comigo", "bg": "light",
+      "cards": [
+        { "src": "img/magnific-process-1.png", "label": "PH Academy" },
+        { "at": "fiz", "src": "img/magnific-process-2.png", "label": "SC Leonel R" }
+      ] }
+  ]
+}

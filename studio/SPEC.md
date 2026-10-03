@@ -1,6 +1,6 @@
 # Roteiro (spec) v2 — referência
 
-Um vídeo = um JSON em `work/<slug>/<nome>.json`. Exemplos validados: `studio/specs/pagina-24h-v2.json` (Reels), `studio/specs/yt-teste-v2.json` (YouTube longo), `studio/specs/case-portfolio-v2.json` (portfólio).
+Um vídeo = um JSON em `work/<slug>/<nome>.json`. Exemplos validados: `studio/specs/pagina-24h-v2.json` (Reels), `studio/specs/yt-teste-v2.json` (YouTube longo), `studio/specs/case-portfolio-v2.json` (portfólio), `studio/specs/gancho-ensaio-ia.json` (gancho de YouTube com HUD, clones, grid, split, compare, ytcta).
 Guia visual completo: `docs/motion/estilo-v2.md` (só ler se precisar de efeito novo).
 **Âncoras**: `at`/`to`/`until` aceitam um trecho do texto da transcrição (o motor acha a palavra exata) ou um número (segundos do vídeo original; no portfólio sem voz = segundos da timeline). `near` = segundos aproximados para desambiguar cortes.
 Roteiros antigos (com beat `"hook"`) continuam rodando no motor v1 (`"engine":"v1"` força).
@@ -40,6 +40,7 @@ Roteiros antigos (com beat `"hook"`) continuam rodando no motor v1 (`"engine":"v
 | `face-to-face-cut` | `src`, `insertAt`, `dur` | rosto take A → take B → insert de tela (whip) |
 | `problem-flood` | `src`, `crop`, `label`, `color` | jeito errado dessaturado + inundação vermelha (T11) → rosto |
 | `selection-hook` | `text`, `word` | frase com a palavra selecionada estilo iOS + punch-in |
+| `photo-hook` | `images:[arquivos]`, `label`, `counter:{at,from,value,prefix,suffix,tone,label,hl}` | fotos passando em pilha com a voz por baixo → a pilha desfoca e sobe um contador; `tone` "bad" = bate no valor e fica vermelho (caro/errado), "good" = verde → corte para o rosto |
 
 ## Cenas (beats que cobrem a tela com a voz por baixo — J/L-cut)
 Todas: `at` (início), fim por `to` (texto falado) / `until` (âncora) / `dur` (s); `in`/`out` trocam a transição padrão.
@@ -58,6 +59,15 @@ Texto de `bridge`/`ticker`/`select`/`icons` que bate com a fala é sincronizado 
 | `stack` | `cards:[{at,src,crop,label}]` | push-up → blur | prova empilhada (antes/depois, prints) |
 | `swap` | `title`, `items:[{at,text,tone:good/bad}]` | push-up → blur | lista 2–4 itens trocando no card |
 | `icons` | `before`, `after`, `icons:[figma,framer,ia,claude,code,web]` | whip-up → cut | frase com ícone de ferramenta trocando (slot) |
+| `gallery` | `images:[arquivos]`, `label`, `bg`, `counter` (igual ao photo-hook) | none → cut | fotos chegando em pilha (uma a cada ~0,25 s); opcional contador por cima |
+| `hud` ★ | `value`, `prefix`, `suffix`, `tone` good/bad, `label`, `pos` bl/br, `then:{at,value,tone,label}`, `logo:{at,file,text}` | cut → blur | card com número **sobre o rosto** (continua o contador da abertura); `then` rola para outro valor e troca a cor; `logo` faz um tile branco com logo+nome surgir ao lado |
+| `clones` | `levels` (padrão [3,9,27]), `hold` | none → blur | o rosto se multiplica: zoom-out contínuo pelo centro em grades 3×3 → 9×9 → 27×27 do próprio vídeo (o make pré-renderiza as grades) |
+| `grid` | `items:[{src,at,label,bad,badText}]`, `cols`, `ratio` "16:9"/"3:4", `stagger`, `label`, `bg` | push-up → blur | cards em grade (thumbs, sequência de fotos); item com `bad` (âncora) fica vermelho com ✕ e texto |
+| `split` | `prompt:[linhas]`, `errors:[âncoras]`, `error` (texto), `file`, `cps`, `rows` | whip → whip | rosto ao vivo à esquerda + editor à direita digitando o prompt sem parar; em cada `errors` sobe um aviso vermelho com shake |
+| `compare` | `left:{title,lines}`, `right:{title,images}`, `vs` (âncora do ≠), `good` (âncora: fotos ganham borda verde), `bg` | cut → blur | texto de um lado ≠ fotos do outro; no `vs` o card de texto apaga (cinza) |
+| `ytcta` ★ | `like`, `sub`, `bell` (âncoras), `likeText`, `subText`, `subDone` | cut → cut | barra Gostei / Inscrever-se / sino **sobre o rosto**; um cursor clica em cada botão na palavra falada |
+
+★ = **overlay**: fica sobre o rosto com fundo transparente (não conta como capítulo, não "pisca", a cena anterior colada some na hora). Âncoras aninhadas (`counter.at`, `then.at`, `logo.at`, `errors[]`, `vs`, `good`, `like/sub/bell`, `items[].bad`) aceitam texto ou segundos e são procuradas depois do início da cena.
 
 **Modificadores (sobre o rosto/tela)**: `punch` (`scale` 1.15–1.25, `to`/`dur`) = corte seco para enquadramento fechado (2ª câmera); `focus` (`x`,`y`,`z`,`dur`) = câmera dentro do bloco de tela.
 Automático: push-in contínuo em todo plano; alternância de enquadramento a cada corte e no meio de planos > 6,5 s (`"autoFrame": false` desliga).
@@ -69,7 +79,8 @@ Automático: push-in contínuo em todo plano; alternância de enquadramento a ca
 - Nenhuma transição especial (whip, zoom, push-up…) mais de 3× por vídeo; 4–6 tipos de cena por vídeo curto; rosto nunca "pisca" (< 0,8 s) entre cenas.
 - **SFX** automáticos com limitador: máx. 6 audíveis/10 s no vertical, 3/10 s no horizontal, 2 empilhados; legendas não têm som; `hush` silencia frases-chave.
 - Reels/Shorts/TikTok: 45–75 s + CTA 5 s; uma batida a cada ~1–1,5 s; gancho ≤ 3–4 s antes do rosto. Arco: gancho → prova (tela) → virada → erro comum → direção → CTA.
-- YouTube longo: `"format":"horizontal","cuts":"all"`, só camada visual (bridge/swap/kpis/select nos capítulos), legenda `none` ou `phrase`.
+- YouTube longo: `"format":"horizontal","cuts":"all"`, só camada visual (bridge/swap/kpis/select nos capítulos), legenda `none` ou `phrase`. Exemplo com as cenas novas (gancho com pedidos do cliente): `studio/specs/gancho-ensaio-ia.json`.
+- `sfxMax` sobe o limite de SFX quando o cliente pede mais VFX/SFX (ex.: 6 no horizontal); o `hush` continua valendo.
 - Portfólio: sem rosto; cenas sem `at` encadeiam pela `dur`; `device`/`stack`/`kpis`/`bridge` + `number-hook`/`result-first`; música opcional.
 - Qualidade: resolução/fps da fonte (máx. 60), trechos recortados em lanczos no tamanho final; `crf` (14) e `fps` podem ser forçados.
 - Coordenadas: `crop` em pixels do vídeo original. Para tela cheia no vertical use recorte ~608×1080 (9:16); recorte 16:9 vira card. Pegar 1 frame só quando precisar (`ffmpeg -ss T -i source.mp4 -frames:v 1 x.png`).

@@ -78,5 +78,40 @@
   ],
   "chapterBg": "dark",
   "date": "2026-10-02"
+ },
+ {
+  "name": "gancho-ensaio-ia",
+  "slug": "gancho-49",
+  "format": "horizontal",
+  "opening": "photo-hook",
+  "patterns": [
+   "hud",
+   "clones",
+   "grid",
+   "split",
+   "compare",
+   "grid",
+   "ytcta",
+   "stack"
+  ],
+  "transitions": [
+   "none",
+   "cut",
+   "cut",
+   "none",
+   "blur",
+   "push-up",
+   "whip",
+   "cut",
+   "blur",
+   "push-up",
+   "blur",
+   "cut",
+   "cut",
+   "push-up",
+   "blur"
+  ],
+  "chapterBg": "light",
+  "date": "2026-10-03"
  }
 ]
