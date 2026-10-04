@@ -3,6 +3,8 @@
 // tweet, placar, TV retrô, carimbo, chaveamento, inscreva-se, câmera (push lento + punch-ins). Uma timeline GSAP pausada (seek-safe).
 // Áudio: o bin mixa a voz original (ganho 1) + SFX de biblioteca abaixo da voz → assets/media/mix.m4a.
 
+import { cssVars, SCALES } from "./tokens.mjs";
+
 const f2 = (n) => +(+n).toFixed(3);
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -83,9 +85,14 @@ export function composeGancho(spec, ctx = {}) {
     // tweet branco (centro-base)
     tweet(e) {
       const id = nid("tw");
-      const ic = `<svg viewBox="0 0 24 24" width="22" height="22"><path fill="#1D9BF0" d="M22.5 12.3l-2-2.2.3-3-2.9-.7-1.5-2.6L13.6 5 12 3.5 10.4 5 7.6 3.8 6.1 6.4l-2.9.7.3 3-2 2.2 2 2.2-.3 3 2.9.7 1.5 2.6 2.8-1.2 1.6 1.5 1.6-1.5 2.8 1.2 1.5-2.6 2.9-.7-.3-3zM10.3 16.3l-3.4-3.4 1.4-1.4 2 2 5.3-5.3 1.4 1.4z"/></svg>`;
-      html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="tweet"><div class="twh"><div class="twav">${e.avatar ? crest(e.avatar, 64) : ""}</div><div class="twn"><b>${esc(e.name)} ${ic}</b><span>${esc(e.handle)}</span></div><svg class="twx" viewBox="0 0 24 24"><path fill="#111" d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.4L6.3 22H3.2l7.3-8.3L3 2h6.4l4.4 5.8zm-1.1 18.2h1.7L8.3 3.7H6.5z"/></svg></div>
-        <p>${esc(e.text)}</p><div class="twm"><span>💬 ${esc(e.replies || "84")}</span><span>↻ ${esc(e.reposts || "312")}</span><span>♥ ${esc(e.likes || "2,1 mil")}</span></div></div></div>`);
+      const ic = `<svg class="twv" viewBox="0 0 24 24"><path fill="#1D9BF0" d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg>`;
+      const mi = {
+        reply: `<svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+        repost: `<svg viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>`,
+        like: `<svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+      };
+      html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="tweet"><div class="twh"><div class="twav">${e.avatar ? crest(e.avatar, 64) : ""}</div><div class="twn"><b>${esc(e.name)} ${ic}</b><span>${esc(e.handle)}</span></div><svg class="twx" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <p>${esc(e.text)}</p><div class="twm"><span>${mi.reply}${esc(e.replies || "84")}</span><span>${mi.repost}${esc(e.reposts || "312")}</span><span class="twlike">${mi.like}${esc(e.likes || "2,1 mil")}</span></div></div></div>`);
       show(id, e.at, e.dur); slideUp(id, e.at); pushIn(`${id}z`, e.at, e.dur, 1, 1.03);
       sfx("notification", e.at, 0.26); proof.push(e.at + 0.5);
     },
@@ -110,7 +117,7 @@ export function composeGancho(spec, ctx = {}) {
       html.push(`<div id="${id}" class="scene"><div class="fill blurbg"><img src="${img.azteca}" alt=""></div><div class="dark"></div>
         <div id="${id}z" class="fill"><div id="${id}l" class="foh fol"><div class="fostripes"></div><div class="foin">${crest("ame", 300)}<b>${esc(e.home || "AME")}</b></div></div>
         <div id="${id}r" class="foh for"><div class="fostripes"></div><div class="foin">${crest("cru", 300)}<b>${esc(e.away || "CRU")}</b>${e.badge ? `<div id="${id}b" class="fobadge hid">${esc(e.badge)}</div>` : ""}</div></div>
-        <div class="fomid"><span>${esc(e.mid || "LIGUILLA")}</span></div></div></div>`);
+        <div class="foseam"></div><div class="fomid"><span>${esc(e.mid || "LIGUILLA")}</span></div></div></div>`);
       show(id, e.at, e.dur); whipIn(`${id}z`, e.at, 0.28);
       js.push(`tl.fromTo("#${id}l .foin, #${id}r .foin", { scale: 1 }, { scale: 1.06, duration: ${f2(e.dur)}, ease: "none" }, ${f2(e.at)});`);
       if (e.badge && e.badgeAt) { show(`${id}b`, e.badgeAt); pop(`${id}b`, e.badgeAt); sfx("pop", e.badgeAt, 0.3); }
@@ -206,9 +213,9 @@ export function composeGancho(spec, ctx = {}) {
     subscribe(e) {
       const id = nid("sb");
       const icons = {
-        like: `<svg viewBox="0 0 24 24"><path fill="#fff" d="M2 10h4v11H2zM22 11c0-1.1-.9-2-2-2h-5.3l.9-4.3v-.3c0-.4-.2-.8-.4-1.1L14.2 2 7.6 8.6c-.4.4-.6.9-.6 1.4v9c0 1.1.9 2 2 2h7.5c.8 0 1.5-.5 1.8-1.2l2.6-6.1c.1-.2.1-.5.1-.7z"/></svg>`,
-        sub: `<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0033"/><path fill="#fff" d="M10 9v6l5-3z"/></svg>`,
-        bell: `<svg viewBox="0 0 24 24"><path fill="#fff" d="M12 22a2.5 2.5 0 0 0 2.4-2h-4.8A2.5 2.5 0 0 0 12 22zm7-6v-5c0-3.1-1.7-5.6-4.5-6.3V4a2.5 2.5 0 0 0-5 0v.7C6.7 5.4 5 7.9 5 11v5l-2 2v1h18v-1z"/></svg>`,
+        like: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>`,
+        sub: `<svg viewBox="0 0 24 24"><path fill="#FF0033" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z"/><path fill="#fff" d="M9.6 15.6V8.4l6.2 3.6z"/></svg>`,
+        bell: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`,
       };
       const labels = { like: "LIKE", sub: "INSCREVA-SE", bell: "ATIVE O SINO" };
       html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="subs">${(e.items || []).map((it, i) => `<div id="${id}i${i}" class="subi hid"><div class="subic">${icons[it.kind]}</div><b>${esc(it.label || labels[it.kind])}</b></div>`).join("")}</div></div>`);
@@ -256,10 +263,12 @@ export function composeGancho(spec, ctx = {}) {
   const weights = { Thin: 100, ExtraLight: 200, Light: 300, Regular: 400, Normal: 450, Medium: 500, DemiBold: 600, Bold: 700, ExtraBold: 800, Heavy: 900 };
   const fonts = Object.entries(weights).map(([n, w]) => `@font-face { font-family: "Articulat"; font-weight: ${w}; src: url(assets/fonts/${n}.otf) format("opentype"); }`).join("\n      ");
   const css = `
-      :root { --y: ${C.yellow}; --navy: ${C.navy}; --ink: ${C.ink}; --cream: ${C.cream}; --cru: ${C.cru}; --red: ${C.red}; }
+      :root { ${cssVars()}
+        --y: var(--y-400); --navy: var(--n-900); --ink: var(--n-950); --cru: var(--c-700); --red: var(--r-600); --cream: #F4EFE2; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #000; }
-      #stage { position: relative; width: ${W}px; height: ${H}px; overflow: hidden; background: #000; font-family: "Articulat", sans-serif; color: #fff; }
+      #stage { position: relative; width: ${W}px; height: ${H}px; overflow: hidden; background: #000; font-family: "Articulat", sans-serif; color: #fff; font-feature-settings: "tnum"; }
+      b, strong { font-weight: inherit; }
       .fill { position: absolute; inset: 0; transform-origin: 50% 50%; }
       .fill > video, .fill > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       #cam { position: absolute; inset: 0; transform-origin: 50% 42%; }
@@ -267,114 +276,134 @@ export function composeGancho(spec, ctx = {}) {
       .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
       .ov { position: absolute; inset: 0; pointer-events: none; }
       .hid { opacity: 0; visibility: hidden; }
-      .vig { position: absolute; inset: -2px; background: radial-gradient(ellipse 72% 66% at 50% 50%, rgba(0,0,0,0) 50%, rgba(0,0,0,.45) 100%); }
-      .dark { position: absolute; inset: 0; background: rgba(4,10,24,.62); }
-      .blurbg img { filter: blur(28px) brightness(.7); transform: scale(1.15); }
-      .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(-14deg, rgba(249,214,22,.07) 0 2px, transparent 2px 30px); }
-      .lt { position: absolute; left: 90px; bottom: 90px; display: flex; align-items: stretch; gap: 18px; }
-      .lt i { width: 10px; background: var(--y); border-radius: 3px; }
-      .lt b { font: 800 44px/1.1 "Articulat"; letter-spacing: .06em; text-transform: uppercase; color: #fff; text-shadow: 0 4px 24px rgba(0,0,0,.6); padding: 6px 0; }
+      .vig { position: absolute; inset: -2px; background: radial-gradient(ellipse 72% 66% at 50% 50%, rgba(0,18,60,0) 50%, rgba(0,18,60,.5) 100%); }
+      .dark { position: absolute; inset: 0; background: rgba(0,18,60,.64); }
+      .blurbg img { filter: blur(32px) brightness(.72); transform: scale(1.15); }
+      .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(-14deg, rgba(249,214,22,.06) 0 2px, transparent 2px 32px); }
+      /* lower-third / rótulo */
+      .lt { position: absolute; left: var(--safe); bottom: var(--safe); display: flex; align-items: stretch; gap: var(--s2); }
+      .lt i { width: var(--s1); border-radius: 4px; background: var(--y-400); }
+      .lt b { font: 800 var(--t-h5)/1.2 "Articulat"; letter-spacing: .06em; text-transform: uppercase; color: #fff; text-shadow: var(--sh-text); padding: var(--s1) 0; }
+      /* photoCard */
       .pcw { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: 50% 50%; }
-      .pcard { width: 1240px; height: 700px; border-radius: 18px; overflow: hidden; background: #111; box-shadow: 0 50px 120px rgba(0,0,0,.6), 0 0 0 6px rgba(255,255,255,.9); transform-origin: 50% 50%; }
+      .pcard { width: 1248px; height: 704px; border-radius: var(--r-lg); overflow: hidden; background: var(--n-950); box-shadow: 0 0 0 4px #fff, var(--sh-float); transform-origin: 50% 50%; }
       .pcard img { width: 100%; height: 100%; object-fit: cover; }
-      .plcard { position: absolute; left: 70px; bottom: 80px; width: 920px; height: 300px; border-radius: 18px; background: linear-gradient(135deg, #10306a 0%, var(--navy) 55%, var(--ink) 100%); box-shadow: 0 30px 70px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.08); display: flex; align-items: center; gap: 26px; padding: 0 36px 0 0; overflow: hidden; transform-origin: 50% 50%; }
-      .plbar { width: 14px; height: 100%; background: var(--y); }
-      .plph { width: 200px; height: 200px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 5px var(--y); background: #222; }
+      /* playerCard */
+      .plcard { position: absolute; left: var(--safe); bottom: var(--safe); width: 928px; height: 304px; border-radius: var(--r-md); background: linear-gradient(135deg, var(--n-800) 0%, var(--n-900) 50%, var(--n-950) 100%); box-shadow: inset 0 0 0 1px var(--n-700), var(--sh-card); display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s4) 0 0; overflow: hidden; transform-origin: 50% 50%; }
+      .plbar { width: var(--s2); height: 100%; background: var(--y-400); flex: none; }
+      .plph { width: 192px; height: 192px; border-radius: 50%; overflow: hidden; flex: none; box-shadow: 0 0 0 4px var(--y-400), 0 0 0 8px var(--n-950); background: var(--n-800); margin-left: var(--s2); }
       .plph img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
-      .plnum { display: flex; flex-direction: column; align-items: center; line-height: 1; margin-right: 10px; }
-      .plnum b { font: 900 150px/1 "Articulat"; color: var(--y); letter-spacing: -.03em; }
-      .plnum span { font: 700 30px/1 "Articulat"; letter-spacing: .3em; color: #fff; margin-top: 2px; }
-      .plname { display: flex; flex-direction: column; gap: 10px; }
-      .plname { min-width: 0; }
-      .plname b { font: 900 50px/1 "Articulat"; text-transform: uppercase; letter-spacing: .01em; color: #fff; white-space: nowrap; }
-      .plname span { font: 500 24px/1 "Articulat"; letter-spacing: .14em; color: rgba(244,239,226,.75); text-transform: uppercase; white-space: nowrap; }
-      .ctr { position: absolute; left: 120px; top: 150px; display: flex; align-items: center; gap: 30px; padding: 30px 56px 30px 36px; border-radius: 22px; background: rgba(6,16,31,.86); box-shadow: 0 30px 70px rgba(0,0,0,.5), inset 0 0 0 2px rgba(249,214,22,.5); transform-origin: 50% 50%; }
-      .ctr b { display: block; font: 900 190px/1 "Articulat"; color: var(--y); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-      .ctr span { display: block; font: 700 34px/1 "Articulat"; letter-spacing: .28em; color: #fff; margin-top: 6px; }
-      .tweet { position: absolute; left: 50%; bottom: 80px; width: 980px; margin-left: -490px; padding: 26px 32px 22px; border-radius: 22px; background: #fff; color: #0f1419; box-shadow: 0 30px 70px rgba(0,0,0,.45); transform-origin: 50% 100%; }
-      .twh { display: flex; align-items: center; gap: 16px; }
-      .twav { width: 68px; height: 68px; border-radius: 50%; overflow: hidden; background: #e6ecf0; display: grid; place-items: center; flex: none; }
-      .twn { display: flex; flex-direction: column; flex: 1; }
-      .twn b { display: flex; align-items: center; gap: 8px; font: 700 30px/1.1 "Articulat"; }
-      .twn span { font: 400 26px/1.2 "Articulat"; color: #536471; margin-top: 4px; }
-      .twx { width: 34px; height: 34px; }
-      .tweet p { font: 400 34px/1.3 "Articulat"; margin: 16px 0 14px; color: #0f1419; }
-      .twm { display: flex; gap: 40px; font: 500 24px/1 "Articulat"; color: #536471; }
+      .plnum { display: flex; flex-direction: column; align-items: center; line-height: 1; padding: 0 var(--s2); border-right: 1px solid var(--n-700); }
+      .plnum b { font: 900 160px/1 "Articulat"; color: var(--y-400); letter-spacing: -.03em; }
+      .plnum span { font: 700 var(--t-label)/1 "Articulat"; letter-spacing: .3em; color: var(--g-200); margin-top: var(--s1); padding-left: .3em; }
+      .plname { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
+      .plname b { font: 900 var(--t-h4)/1 "Articulat"; text-transform: uppercase; letter-spacing: .01em; color: #fff; white-space: nowrap; }
+      .plname span { font: 500 var(--t-label)/1 "Articulat"; letter-spacing: .16em; color: var(--g-300); text-transform: uppercase; white-space: nowrap; }
+      /* counter */
+      .ctr { position: absolute; left: var(--safe); top: 160px; display: flex; align-items: center; gap: var(--s4); padding: var(--s4) var(--s6) var(--s4) var(--s4); border-radius: var(--r-lg); background: rgba(0,18,60,.9); box-shadow: inset 0 0 0 1px var(--n-700), var(--sh-card); transform-origin: 50% 50%; }
+      .ctr b { display: block; font: 900 var(--t-display)/1 "Articulat"; color: var(--y-400); letter-spacing: -.03em; }
+      .ctr span { display: block; font: 700 var(--t-body)/1 "Articulat"; letter-spacing: .28em; color: var(--g-100); margin-top: var(--s1); text-transform: uppercase; }
+      /* tweet */
+      .tweet { position: absolute; left: 50%; bottom: var(--safe); width: 960px; margin-left: -480px; padding: var(--s4); border-radius: var(--r-lg); background: #fff; color: var(--g-900); box-shadow: inset 0 0 0 1px var(--g-100), var(--sh-float); transform-origin: 50% 100%; }
+      .twh { display: flex; align-items: center; gap: var(--s2); }
+      .twav { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: var(--g-100); display: grid; place-items: center; flex: none; }
+      .twn { display: flex; flex-direction: column; flex: 1; gap: 4px; }
+      .twn b { display: flex; align-items: center; gap: var(--s1); font: 700 var(--t-body)/1.1 "Articulat"; color: var(--g-900); }
+      .twv { width: 28px; height: 28px; }
+      .twn span { font: 400 var(--t-label)/1.2 "Articulat"; color: var(--g-500); }
+      .twx { width: 32px; height: 32px; fill: var(--g-900); }
+      .tweet p { font: 400 var(--t-body)/1.35 "Articulat"; margin: var(--s2) 0; color: var(--g-900); }
+      .twm { display: flex; gap: var(--s6); font: 500 var(--t-label)/1 "Articulat"; color: var(--g-500); }
+      .twm span { display: flex; align-items: center; gap: var(--s1); }
+      .twm svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .twlike { color: var(--r-500); }
+      /* fixture */
       .fxw { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: 50% 50%; }
-      .fxcard { width: 1360px; border-radius: 26px; background: var(--navy); box-shadow: 0 0 0 3px rgba(255,255,255,.18), 0 0 60px 10px rgba(255,255,255,.14), 0 50px 120px rgba(0,0,0,.6); overflow: hidden; }
-      .fxh { background: var(--y); color: var(--navy); font: 800 34px/1 "Articulat"; letter-spacing: .22em; text-transform: uppercase; padding: 26px 40px; text-align: center; }
-      .fxrow { display: flex; align-items: center; justify-content: space-around; padding: 44px 60px 54px; }
-      .fxt { display: flex; flex-direction: column; align-items: center; gap: 22px; }
-      .fxt b { font: 900 96px/1 "Articulat"; letter-spacing: .04em; color: #fff; }
-      .fxvs { font: 800 60px/1 "Articulat"; color: var(--y); letter-spacing: .1em; }
-      .fxq { width: 230px; height: 230px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: var(--y); font: 900 150px/1 "Articulat"; box-shadow: inset 0 0 0 8px var(--y); }
+      .fxcard { width: 1360px; border-radius: var(--r-lg); background: var(--n-900); box-shadow: inset 0 0 0 1px var(--n-600), 0 0 0 1px rgba(255,255,255,.12), 0 0 64px 8px rgba(255,255,255,.12), var(--sh-float); overflow: hidden; }
+      .fxh { background: var(--y-400); color: var(--n-950); font: 800 var(--t-body)/1 "Articulat"; letter-spacing: .2em; text-transform: uppercase; padding: var(--s3) var(--s5); text-align: center; }
+      .fxrow { display: flex; align-items: center; justify-content: space-around; padding: var(--s6) var(--s8) var(--s7); }
+      .fxt { display: flex; flex-direction: column; align-items: center; gap: var(--s3); }
+      .fxt b { font: 900 var(--t-h2)/1 "Articulat"; letter-spacing: .04em; color: #fff; }
+      .fxvs { font: 800 var(--t-h3)/1 "Articulat"; color: var(--y-400); letter-spacing: .1em; }
+      .fxq { width: 224px; height: 224px; border-radius: 50%; display: grid; place-items: center; background: var(--n-800); color: var(--y-400); font: 900 152px/1 "Articulat"; box-shadow: inset 0 0 0 8px var(--y-400); }
+      /* faceoff */
       .foh { position: absolute; top: 0; bottom: 0; width: 56%; overflow: hidden; }
-      .fol { left: 0; background: var(--y); clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%); }
-      .for { right: 0; background: var(--cru); clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%); }
-      .fostripes { position: absolute; inset: 0; background: repeating-linear-gradient(-14deg, rgba(0,0,0,.08) 0 24px, transparent 24px 60px); }
-      .foin { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; transform-origin: 50% 50%; }
+      .fol { left: 0; background: var(--y-400); clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%); }
+      .for { right: 0; background: var(--c-700); clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%); }
+      .fostripes { position: absolute; inset: 0; background: repeating-linear-gradient(-14deg, rgba(0,0,0,.07) 0 24px, transparent 24px 64px); }
+      .foseam { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0), #fff 40%, #fff 60%, rgba(255,255,255,0)); clip-path: polygon(${f2(0.56 * W + 0.12 * 0.56 * W - 0.12 * 0.56 * W - 14)}px 0, ${f2(0.44 * W + 0.12 * 0.56 * W + 14)}px 0, ${f2(0.44 * W + 14)}px 100%, ${f2(0.44 * W - 14)}px 100%); filter: drop-shadow(0 0 24px rgba(0,18,60,.5)); }
+      .foin { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s3); transform-origin: 50% 50%; }
       .fol .foin { padding-right: 160px; } .for .foin { padding-left: 160px; }
-      .foin b { font: 900 300px/1 "Articulat"; letter-spacing: .02em; }
-      .fol .foin b { color: var(--navy); } .for .foin b { color: #fff; }
-      .fobadge { padding: 16px 34px; border-radius: 999px; background: var(--red); color: #fff; font: 800 36px/1 "Articulat"; letter-spacing: .2em; text-transform: uppercase; box-shadow: 0 16px 40px rgba(0,0,0,.4); }
+      .foin b { font: 900 304px/1 "Articulat"; letter-spacing: .02em; }
+      .fol .foin b { color: var(--n-950); } .for .foin b { color: #fff; }
+      .fobadge { padding: var(--s2) var(--s4); border-radius: var(--r-pill); background: var(--r-600); color: #fff; font: 800 var(--t-body)/1 "Articulat"; letter-spacing: .2em; text-transform: uppercase; box-shadow: var(--sh-card); }
       .fomid { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-      .fomid span { display: inline-block; padding: 18px 40px; border-radius: 999px; background: #fff; color: var(--navy); font: 800 34px/1 "Articulat"; letter-spacing: .26em; box-shadow: 0 20px 50px rgba(0,0,0,.45); }
-      .h2h { position: absolute; left: 70px; bottom: 80px; width: 860px; border-radius: 18px; overflow: hidden; background: #fff; color: #222; box-shadow: 0 30px 70px rgba(0,0,0,.5); transform-origin: 50% 100%; }
-      .h2hh { background: linear-gradient(90deg, var(--y), #e2c231); color: var(--navy); font: 800 28px/1 "Articulat"; letter-spacing: .2em; text-transform: uppercase; padding: 18px 28px; }
-      .h2hb { display: flex; align-items: center; justify-content: center; gap: 28px; padding: 22px 28px; }
-      .h2hb b { font: 900 76px/1 "Articulat"; color: #222; letter-spacing: .03em; }
-      .h2hb span { font: 700 56px/1 "Articulat"; color: #999; }
+      .fomid span { display: inline-block; padding: var(--s2) var(--s5); border-radius: var(--r-pill); background: #fff; color: var(--n-950); font: 800 var(--t-body)/1 "Articulat"; letter-spacing: .24em; box-shadow: var(--sh-float); }
+      /* h2h */
+      .h2h { position: absolute; left: var(--safe); bottom: var(--safe); width: 864px; border-radius: var(--r-md); overflow: hidden; background: #fff; color: var(--g-900); box-shadow: inset 0 0 0 1px var(--g-100), var(--sh-float); transform-origin: 50% 100%; }
+      .h2hh { background: linear-gradient(90deg, var(--y-300), var(--y-500)); color: var(--n-950); font: 800 var(--t-label)/1 "Articulat"; letter-spacing: .2em; text-transform: uppercase; padding: var(--s2) var(--s4); }
+      .h2hb { display: flex; align-items: center; justify-content: center; gap: var(--s4); padding: var(--s3) var(--s4); }
+      .h2hb b { font: 900 72px/1 "Articulat"; color: var(--g-900); letter-spacing: .03em; }
+      .h2hb span { font: 700 var(--t-h4)/1 "Articulat"; color: var(--g-300); }
+      /* tvRetro */
       .tvroom { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 70% at 60% 55%, #3F1232 0%, #1b0e2c 45%, #0b0716 100%); }
-      .tvyear { position: absolute; left: 80px; top: 50%; transform: translateY(-50%); font: 900 330px/1 "Articulat"; letter-spacing: -.02em; color: #fff; text-shadow: 0 0 60px rgba(255,120,200,.45), 0 20px 60px rgba(0,0,0,.6); transform-origin: 0 50%; }
-      .tvw { position: absolute; right: 110px; top: 50%; width: 980px; height: 780px; margin-top: -390px; transform-origin: 50% 50%; }
-      .tvset { position: absolute; inset: 0; border-radius: 38px; background: linear-gradient(180deg, #3a3a42, #1a1a20 60%, #101014); box-shadow: 0 60px 120px rgba(0,0,0,.7), inset 0 0 0 3px rgba(255,255,255,.07), inset 0 -8px 0 rgba(0,0,0,.5), 0 0 90px rgba(255,80,180,.2); padding: 54px 54px 150px; }
-      .tvset::after { content: ""; position: absolute; left: 54px; right: 54px; bottom: 44px; height: 70px; border-radius: 12px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 4px, transparent 4px 12px); box-shadow: inset 0 0 0 2px rgba(0,0,0,.4); }
-      .tvset::before { content: ""; position: absolute; right: 84px; bottom: 54px; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #555, #151518); box-shadow: -70px 0 0 0 #1b1b20, -70px 0 0 2px rgba(255,255,255,.08), 0 0 0 2px rgba(255,255,255,.08); z-index: 2; }
-      .tvscreen { position: relative; width: 100%; height: 100%; border-radius: 48px / 60px; overflow: hidden; background: #000; box-shadow: inset 0 0 90px rgba(0,0,0,.95), inset 0 0 0 10px #0a0a0c; }
+      .tvyear { position: absolute; left: var(--safe); top: 50%; transform: translateY(-50%); font: 900 var(--t-giant)/1 "Articulat"; letter-spacing: -.02em; color: #fff; text-shadow: 0 0 64px rgba(255,120,200,.45), var(--sh-text); transform-origin: 0 50%; }
+      .tvw { position: absolute; right: 112px; top: 50%; width: 976px; height: 784px; margin-top: -392px; transform-origin: 50% 50%; }
+      .tvset { position: absolute; inset: 0; border-radius: var(--r-xl); background: linear-gradient(180deg, var(--g-700), var(--g-900) 60%, var(--g-950)); box-shadow: var(--sh-float), inset 0 0 0 2px rgba(255,255,255,.07), inset 0 -8px 0 rgba(0,0,0,.5), 0 0 96px rgba(255,80,180,.2); padding: var(--s7) var(--s7) 152px; }
+      .tvset::after { content: ""; position: absolute; left: var(--s7); right: var(--s7); bottom: var(--s6); height: 64px; border-radius: var(--r-sm); background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 4px, transparent 4px 12px); box-shadow: inset 0 0 0 2px rgba(0,0,0,.4); }
+      .tvset::before { content: ""; position: absolute; right: 88px; bottom: 56px; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, var(--g-500), var(--g-950)); box-shadow: -72px 0 0 0 var(--g-900), -72px 0 0 2px rgba(255,255,255,.08), 0 0 0 2px rgba(255,255,255,.08); z-index: 2; }
+      .tvscreen { position: relative; width: 100%; height: 100%; border-radius: 48px / 64px; overflow: hidden; background: #000; box-shadow: inset 0 0 96px rgba(0,0,0,.95), inset 0 0 0 8px #0a0a0c; }
       .tvscreen .fill { transform-origin: 50% 50%; }
       .scan { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(0,0,0,.22) 0 2px, transparent 2px 5px); mix-blend-mode: multiply; }
       .glass { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%); }
-      .tvfoot { position: absolute; left: 50%; bottom: 22px; width: 300px; height: 34px; margin-left: -150px; border-radius: 10px; background: #0d0d10; box-shadow: inset 0 0 0 2px rgba(255,255,255,.05); }
-      .score { position: absolute; left: 50%; bottom: 84px; margin-left: -400px; width: 800px; height: 128px; border-radius: 16px; overflow: visible; background: #fff; box-shadow: 0 30px 70px rgba(0,0,0,.5); display: flex; align-items: stretch; transform-origin: 50% 100%; }
-      .sce { flex: 1; display: flex; align-items: center; justify-content: center; gap: 16px; font: 900 56px/1 "Articulat"; letter-spacing: .04em; }
-      .scl { background: var(--cru); color: #fff; border-radius: 16px 0 0 16px; } .scr { background: var(--y); color: var(--navy); border-radius: 0 16px 16px 0; }
-      .scc { width: 300px; display: flex; align-items: center; justify-content: center; gap: 18px; color: #111; }
-      .scc i { font: 900 70px/1 "Articulat"; color: #888; font-style: normal; }
-      .scn { position: relative; width: 90px; height: 100px; overflow: hidden; }
-      .scn b { position: absolute; inset: 0; display: grid; place-items: center; font: 900 96px/1 "Articulat"; color: #111; }
-      .sctag { position: absolute; left: 50%; top: -58px; transform: translateX(-50%); padding: 12px 26px; border-radius: 999px; background: var(--red); color: #fff; font: 800 28px/1 "Articulat"; letter-spacing: .22em; white-space: nowrap; box-shadow: 0 14px 30px rgba(0,0,0,.4); }
-      .bigtxt { position: absolute; inset: 0; display: grid; place-items: center; font: 900 190px/1 "Articulat"; letter-spacing: .04em; color: #fff; text-shadow: 0 0 40px rgba(255,255,255,.5), 0 20px 60px rgba(0,0,0,.6); transform-origin: 50% 50%; }
+      .tvfoot { display: none; }
+      /* scoreline */
+      .score { position: absolute; left: 50%; bottom: var(--safe); margin-left: -400px; width: 800px; height: 128px; border-radius: var(--r-md); overflow: visible; background: #fff; box-shadow: inset 0 0 0 1px var(--g-100), var(--sh-float); display: flex; align-items: stretch; transform-origin: 50% 100%; }
+      .sce { flex: 1; display: flex; align-items: center; justify-content: center; gap: var(--s2); font: 900 var(--t-h4)/1 "Articulat"; letter-spacing: .04em; }
+      .scl { background: var(--c-700); color: #fff; border-radius: var(--r-md) 0 0 var(--r-md); } .scr { background: var(--y-400); color: var(--n-950); border-radius: 0 var(--r-md) var(--r-md) 0; }
+      .scc { width: 304px; display: flex; align-items: center; justify-content: center; gap: var(--s2); color: var(--g-900); }
+      .scc i { font: 900 var(--t-h3)/1 "Articulat"; color: var(--g-300); font-style: normal; }
+      .scn { position: relative; width: 88px; height: 104px; overflow: hidden; }
+      .scn b { position: absolute; inset: 0; display: grid; place-items: center; font: 900 var(--t-h2)/1 "Articulat"; color: var(--g-900); }
+      .sctag { position: absolute; left: 50%; top: -56px; transform: translateX(-50%); padding: var(--s1) var(--s3); border-radius: var(--r-pill); background: var(--r-600); color: #fff; font: 800 var(--t-label)/1.2 "Articulat"; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; box-shadow: var(--sh-card); }
+      /* bigText */
+      .bigtxt { position: absolute; inset: 0; display: grid; place-items: center; font: 900 var(--t-display)/1 "Articulat"; letter-spacing: .04em; color: #fff; text-shadow: 0 0 48px rgba(249,214,22,.45), var(--sh-text); transform-origin: 50% 50%; }
+      /* zoomCapture */
       .zcw { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: 50% 50%; }
-      .zcframe { width: 1240px; height: 900px; border-radius: 20px; overflow: hidden; background: #fff; box-shadow: 0 50px 120px rgba(0,0,0,.6); }
-      .zcbar { height: 64px; background: #e9e9ec; display: flex; align-items: center; gap: 12px; padding: 0 24px; }
-      .zcbar i { width: 16px; height: 16px; border-radius: 50%; background: #c9c9ce; } .zcbar i:nth-child(1) { background: #ff5f57; } .zcbar i:nth-child(2) { background: #febc2e; } .zcbar i:nth-child(3) { background: #28c840; }
-      .zcbar u { margin-left: 20px; flex: 1; max-width: 60%; height: 36px; border-radius: 999px; background: #fff; text-decoration: none; font: 500 22px/36px "Articulat"; color: #666; padding-left: 18px; }
+      .zcframe { width: 1248px; height: 896px; border-radius: var(--r-md); overflow: hidden; background: #fff; box-shadow: inset 0 0 0 1px var(--g-200), var(--sh-float); }
+      .zcbar { height: 64px; background: var(--g-100); display: flex; align-items: center; gap: var(--s1); padding: 0 var(--s3); }
+      .zcbar i { width: 16px; height: 16px; border-radius: 50%; } .zcbar i:nth-child(1) { background: var(--r-400); } .zcbar i:nth-child(2) { background: var(--y-400); } .zcbar i:nth-child(3) { background: #34C759; }
+      .zcbar u { margin-left: var(--s2); flex: 1; max-width: 60%; height: 40px; border-radius: var(--r-pill); background: #fff; text-decoration: none; font: 500 var(--t-label)/40px "Articulat"; color: var(--g-500); padding-left: var(--s2); }
       .zcbody { position: relative; width: 100%; height: calc(100% - 64px); overflow: hidden; }
       .zcimg { position: absolute; inset: 0; }
       .zcimg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
-      .marker { position: absolute; background: rgba(249,214,22,.55); mix-blend-mode: multiply; transform-origin: 0 50%; border-radius: 6px; }
+      .marker { position: absolute; background: var(--y-300); opacity: .6; mix-blend-mode: multiply; transform-origin: 0 50%; border-radius: var(--r-sm); }
+      /* stamp */
       .stbg img { filter: blur(2px); }
-      .stcrest { position: absolute; left: 150px; top: 50%; transform: translateY(-50%); filter: drop-shadow(0 30px 60px rgba(0,0,0,.6)); transform-origin: 50% 50%; }
-      .stamp { position: absolute; left: 0; right: 0; top: 140px; text-align: center; font: 900 220px/1 "Articulat"; letter-spacing: .02em; color: var(--red); text-transform: uppercase; filter: url(#rough) drop-shadow(0 20px 50px rgba(0,0,0,.6)); transform: rotate(-4deg); transform-origin: 50% 50%; }
-      .brbg { background: radial-gradient(ellipse 70% 80% at 50% 40%, #11295a 0%, var(--navy) 45%, var(--ink) 100%); }
-      .brw { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; transform-origin: 50% 50%; }
-      .brtitle { font: 700 34px/1 "Articulat"; letter-spacing: .34em; color: rgba(255,255,255,.75); text-transform: uppercase; }
-      .brbig { display: flex; align-items: baseline; gap: 22px; }
-      .brbig b { font: 900 240px/1 "Articulat"; color: var(--y); letter-spacing: -.03em; }
-      .brbig span { font: 800 64px/1 "Articulat"; letter-spacing: .2em; color: #fff; }
-      .brrow { display: flex; gap: 40px; margin-top: 10px; }
-      .brstep { width: 440px; padding: 34px 20px; border-radius: 22px; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 2px rgba(249,214,22,.6); display: flex; flex-direction: column; align-items: center; gap: 16px; transform-origin: 50% 50%; }
-      .brstep b { font: 900 54px/1 "Articulat"; letter-spacing: .04em; color: #fff; }
-      .brstep span { font: 700 24px/1 "Articulat"; letter-spacing: .3em; color: var(--navy); background: var(--y); padding: 10px 18px; border-radius: 999px; }
-      .subs { position: absolute; left: 50%; bottom: 80px; transform: translateX(-50%); display: flex; gap: 22px; transform-origin: 50% 100%; }
-      .subi { display: flex; align-items: center; gap: 16px; padding: 18px 30px 18px 20px; border-radius: 999px; background: rgba(6,16,31,.86); box-shadow: inset 0 0 0 2px rgba(249,214,22,.55), 0 20px 50px rgba(0,0,0,.45); transform-origin: 50% 50%; }
-      .subic { width: 54px; height: 54px; border-radius: 50%; background: var(--navy); display: grid; place-items: center; }
-      .subic svg { width: 34px; height: 34px; }
-      .subi b { font: 800 30px/1 "Articulat"; letter-spacing: .16em; color: #fff; white-space: nowrap; }
-      .lt3 { position: absolute; left: 90px; bottom: 90px; display: flex; align-items: stretch; gap: 20px; transform-origin: 0 100%; }
-      .lt3 i { width: 12px; background: var(--y); border-radius: 4px; }
-      .lt3 b { display: block; font: 900 64px/1 "Articulat"; letter-spacing: .03em; text-transform: uppercase; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
-      .lt3 span { display: block; margin-top: 10px; font: 600 28px/1 "Articulat"; letter-spacing: .28em; color: var(--y); text-transform: uppercase; }`;
+      .stcrest { position: absolute; left: 152px; top: 50%; transform: translateY(-50%); filter: drop-shadow(0 32px 64px rgba(0,18,60,.6)); transform-origin: 50% 50%; }
+      .stamp { position: absolute; left: 0; right: 0; top: 144px; text-align: center; font: 900 224px/1 "Articulat"; letter-spacing: .02em; color: var(--r-600); text-transform: uppercase; filter: url(#rough) drop-shadow(0 24px 48px rgba(0,18,60,.6)); transform: rotate(-4deg); transform-origin: 50% 50%; }
+      /* bracket */
+      .brbg { background: radial-gradient(ellipse 70% 80% at 50% 40%, var(--n-800) 0%, var(--n-900) 45%, var(--n-950) 100%); }
+      .brw { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s4); transform-origin: 50% 50%; }
+      .brtitle { font: 700 var(--t-body)/1 "Articulat"; letter-spacing: .32em; color: var(--g-300); text-transform: uppercase; }
+      .brbig { display: flex; align-items: baseline; gap: var(--s3); }
+      .brbig b { font: 900 240px/1 "Articulat"; color: var(--y-400); letter-spacing: -.03em; }
+      .brbig span { font: 800 var(--t-h3)/1 "Articulat"; letter-spacing: .2em; color: #fff; }
+      .brrow { display: flex; gap: var(--s5); margin-top: var(--s1); }
+      .brstep { width: 448px; padding: var(--s4) var(--s3); border-radius: var(--r-lg); background: var(--n-800); box-shadow: inset 0 0 0 1px var(--n-600), var(--sh-card); display: flex; flex-direction: column; align-items: center; gap: var(--s2); transform-origin: 50% 50%; }
+      .brstep b { font: 900 var(--t-h4)/1 "Articulat"; letter-spacing: .04em; color: #fff; }
+      .brstep span { font: 700 var(--t-label)/1 "Articulat"; letter-spacing: .28em; color: var(--n-950); background: var(--y-400); padding: var(--s1) var(--s2); border-radius: var(--r-pill); padding-left: calc(var(--s2) + .28em); }
+      /* subscribe */
+      .subs { position: absolute; left: 50%; bottom: var(--safe); transform: translateX(-50%); display: flex; gap: var(--s2); transform-origin: 50% 100%; }
+      .subi { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s4) var(--s2) var(--s2); border-radius: var(--r-pill); background: rgba(0,18,60,.9); box-shadow: inset 0 0 0 1px var(--n-600), var(--sh-card); transform-origin: 50% 50%; }
+      .subic { width: 56px; height: 56px; border-radius: 50%; background: var(--n-700); display: grid; place-items: center; color: #fff; }
+      .subic svg { width: 32px; height: 32px; }
+      .subi b { font: 800 var(--t-body)/1 "Articulat"; letter-spacing: .12em; color: #fff; white-space: nowrap; }
+      /* lowerThird */
+      .lt3 { position: absolute; left: var(--safe); bottom: var(--safe); display: flex; align-items: stretch; gap: var(--s3); transform-origin: 0 100%; }
+      .lt3 i { width: var(--s1); background: var(--y-400); border-radius: 4px; }
+      .lt3 b { display: block; font: 900 var(--t-h3)/1 "Articulat"; letter-spacing: .02em; text-transform: uppercase; text-shadow: var(--sh-text); }
+      .lt3 span { display: block; margin-top: var(--s1); font: 600 var(--t-label)/1 "Articulat"; letter-spacing: .28em; color: var(--y-300); text-transform: uppercase; }`;
 
   const page = `<!doctype html>
 <html lang="pt-BR">

@@ -13,16 +13,39 @@ Nada deste guia se aplica ao Studio Responsivo. É outro canal, outra linguagem.
 
 **Conceito**: documentário de cinema esportivo. Dramático, escuro, serifado, com textura. Pensar "trailer de série de futebol", não "vídeo de gamer".
 
-### Paleta
-| Papel | Hex | Uso |
-|---|---|---|
-| Amarelo América | `#F9D616` | acento único: barras, regras, itálico do nome, raios de luz, fenda de luz |
-| Azul-marinho América | `#0A1F44` | sombras do grade, fundo do título, duotone |
-| Tinta (preto azulado) | `#06101F` | preto de verdade (nunca `#000` puro em fundo de cena) |
-| Creme | `#F4EFE2` | branco quente para texto grande |
-| Cromado/champanhe | gradiente `#fff → #fbf7e8 → #cdb46a → #fff` | título principal (efeito metal da referência "Totti") |
+### Paleta — escalas 50–950 (`eafc/engine/tokens.mjs`)
+Geradas em OKLCH a partir da cor da marca (★ = cor-base ancorada no passo esperado), matiz fixo, croma caindo nas pontas. Entram no CSS como `--y-400`, `--n-900`, `--c-700`, `--r-600`, `--g-500`…
 
-Regra: **um acento por cena** (amarelo). Vermelho/rosa só se vier do jogo (uniforme adversário).
+| Escala | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Amarelo América** `--y-*` | `#FDF7DF` | `#FAF0C0` | `#FBE893` | `#FCDF5B` | `#F9D616` ★ | `#D0B200` | `#AB8E00` | `#836D00` | `#5F4E00` | `#3D3000` | `#1E1500` |
+| **Marinho América** `--n-*` | `#E9F8FF` | `#C1DDFF` | `#99C3FF` | `#6DA7FF` | `#3E88FF` | `#246EEF` | `#0D56CD` | `#003FA7` | `#002B7F` | `#0A1F44` ★ | `#00123C` |
+| **Azul Cruz Azul** `--c-*` | `#EBF8FF` | `#C4DCFF` | `#99C1FF` | `#6EA4FF` | `#4988F4` | `#306DD7` | `#1B54B6` | `#0A3D91` ★ | `#052E72` | `#032054` | `#021336` |
+| **Vermelho** `--r-*` | `#FFEEE9` | `#FFCEC5` | `#FFADA1` | `#FF8779` | `#FF5A4F` | `#F52E2C` | `#D7141A` ★ | `#AE0006` | `#850000` | `#5D0000` | `#370000` |
+| **Neutro frio** `--g-*` | `#F4F7FB` | `#D6DBE3` | `#B8C1CD` | `#9BA6B7` | `#808DA0` | `#64748B` ★ | `#545F70` | `#424C5A` | `#313945` | `#212730` | `#12161C` |
+
+**Como usar (regras)**
+| Papel | Token |
+|---|---|
+| Acento único | `--y-400` (brand); `--y-300` em texto secundário sobre marinho; `--y-500` para gradiente/hover |
+| Fundo de card escuro | `--n-900` (brand) ou gradiente `--n-800 → --n-950`; borda interna 1 px `--n-700` / `--n-600` |
+| Preto de cena | `--n-950`; escurecimento de foto = `rgba(0,18,60,.64)` (marinho, nunca preto puro) |
+| Texto sobre escuro | branco · secundário `--g-200/300` · terciário `--g-400` |
+| Texto sobre claro | `--g-900` · secundário `--g-500` · divisores `--g-100/200` |
+| Rival (Cruz Azul) | `--c-700` (brand) · `--c-800` sombra |
+| Alerta / badge | `--r-600` (brand) · `--r-500` em texto sobre claro |
+| Sombras | `--sh-card` (card apoiado) · `--sh-float` (card flutuante) · `--sh-text` (texto sobre foto) — sempre marinho 950 com alfa |
+
+### Grid de 8 px (espaço, raio, tipo)
+| Token | Valores |
+|---|---|
+| Espaço `--s1…--s16` | 8 · 16 · 24 · 32 · 40 · 48 · 56 · 64 · 80 · 96 · 112 · 128 px |
+| Raio `--r-sm/md/lg/xl/pill` | 8 · 16 · 24 · 32 · 999 px |
+| Traço | 1 (borda interna) · 2 (ícone) · 8 (barra) · 16 (barra forte) px |
+| Tipo `--t-*` (Articulat CF) | label 24 · body 32 · h5 40 · h4 48 · h3 64 · h2 96 · h1 128 · display 192 · hero 256 · giant 320 px |
+| Margem segura `--safe` | 80 px em todos os lados (lower-thirds, cards de canto) |
+| Tamanhos de card | sempre múltiplos de 8: player 928×304 · placar 800×128 · tweet 960 · fixture 1360 · photoCard 1248×704 · bracket step 448 |
+| Ícones | 24 (métricas) · 32 (pills) · 64 (avatar) · escudos 72/80/112/224/288 |
 
 ### Tipografia (fontes em `eafc/assets/fonts/`)
 | Papel | Fonte | Specs |
