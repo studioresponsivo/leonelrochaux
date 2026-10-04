@@ -73,3 +73,49 @@ Automático: push-in contínuo em todo plano; alternância de enquadramento a ca
 - Portfólio: sem rosto; cenas sem `at` encadeiam pela `dur`; `device`/`stack`/`kpis`/`bridge` + `number-hook`/`result-first`; música opcional.
 - Qualidade: resolução/fps da fonte (máx. 60), trechos recortados em lanczos no tamanho final; `crf` (14) e `fps` podem ser forçados.
 - Coordenadas: `crop` em pixels do vídeo original. Para tela cheia no vertical use recorte ~608×1080 (9:16); recorte 16:9 vira card. Pegar 1 frame só quando precisar (`ffmpeg -ss T -i source.mp4 -frames:v 1 x.png`).
+
+---
+
+# Estilo EA FC (canal 2) — `"style": "eafc"`
+
+Motor `studio/engine/eafc/` (guia: `docs/motion/estilo-eafc.md`). Sempre `"format":"horizontal"`, `"cuts":"all"` (vídeo já cortado), 1920×1080 na fps da fonte (60). Imagens em `work/<slug>/img/` (escudos recortados `logo-<time>.png`, fotos `.jpg`). Exemplo validado: `studio/specs/gancho-ep06-eafc.json`.
+
+```jsonc
+{
+  "name": "gancho-ep06", "style": "eafc", "format": "horizontal", "cuts": "all",
+  "team": "leicester", "accent": "#FDBE11",          // time do canal (cores/escudo padrão) e cor de destaque
+  "captions": "phrase",                               // phrase | none — legendas pequenas embaixo
+  "fixes": { "Lester": "Leicester" }, "keywords": ["Arsenal"],
+  "music": { "file": "trilha-tensao.wav", "at": "start", "volume": 0.16, "fade": 2.5 },  // gerar com studio/bin/trilha.py
+  "sfxMax": 7, "hush": [], "limiter": true,                // limitador -1 dBTP na masterização (false desliga)
+  "beats": [ /* cenas cheias, overlays e modificadores — tabelas abaixo */ ]
+}
+```
+Âncoras iguais ao v2 (`at`/`to`/`until` = trecho da fala ou segundos; `dur`; `offset`). `punchGap` (padrão 2,4 s) controla a alternância automática 1,0 ↔ 1,14 do rosto; `"autoFrame": false` desliga.
+
+**Cenas cheias** (cobrem o rosto; `in`: none cut flash glitch whip* zoom blur impact · `out`: none cut flash glitch whip* zoom blur)
+
+| do | campos | padrão in → out | visual |
+|---|---|---|---|
+| `number` | `value`, `from`, `suffix`, `label`, `count` (s), `stamp` (texto digitado embaixo), `color`, `font` serif | cut → cut | número gigante (Anton) contando com glow |
+| `crest` | `teams:[1–2]`, `label`, `sub`, `labels` (duelo), `comp` (badge no meio), `vs` ("×"), `bg` (foto `img/…` desfocada) , `size` | impact → blur | 1 escudo batendo na tela com glow / duelo com × |
+| `split` | `teams:[2]`, `labels` (abreviações), `comp`, `sub` | whip → blur | metades na cor dos times (LEI \| ARS) |
+| `photo` | `src`, `label`, `sub`, `stamp`, `fx` push/pan/out, `tone` red/blue/mono, `grain`, `color` | zoom → blur | foto tela cheia com Ken Burns e rótulo |
+| `score` | `home`, `away`, `score` "1-0", `meta`, `flip:{at, score, tag, color}` | whip → blur | placar broadcast; `flip` rola os dígitos + carimbo "VIRADA" |
+| `record` | `team`, `items:[{value,label}]`, `title`, `sub` | impact → glitch | ficha J-V-E-D com dígitos enormes |
+| `ladder` | `team`, `rows:[{text,at,tag}]`, `fromRow`, `toRow`, `title` | cut → blur | escudo despencando divisão por divisão |
+| `fixtures` | `title`, `comp`, `rows:[{tag,team,vs,text,sub,at}]`, `color` | whip → blur | card de jogos (ida/volta) linha a linha |
+| `title` | `title`, `hl`, `sub`, `kicker`, `image`, `color` | flash → cut | cartela serifada sobre textura grunge |
+| `montage` | `items:[{src,label,tone,at}]`, `step` (s) | flash → cut | 1 foto por `step`, flash + impacto a cada corte |
+
+**Overlays** (sobre o rosto; podem coexistir)
+
+| do | campos | visual |
+|---|---|---|
+| `word` | `text`, `font` serif/display/brand, `size`, `color` (#hex / accent / team), `pos` center/top/bottom/left/right/tl…, `behind` (matte), `hl`, `glow`, `tail`, `silent` | palavras gigantes sincronizadas à fala; `behind:true` recorta o rosto (lento: ~1 min por 1,3 s) |
+| `stamp` | `text`, `pos` tl/tr/bl/br/bottom, `speed`; `style:"rubber"` + `color`, `rot` | texto digitado (data/lugar) ou carimbo vermelho batendo |
+| `tweet` | `name`, `handle`, `time`, `text`, `hl`, `theme` light/dark, `pos` bl/br/tl/tr/center, `avatar` (imagem) ou `initials`+`avatarColor(2)`, `replies`, `reposts`, `likes`, `likesAfter`, `views`, `verified` | card de X deslizando com motion blur; coração anima em `likeDelay` |
+| `badge` | `team`, `pos` left/right/tl/tr, `size` | escudo pequeno pulando ao lado do rosto |
+
+**Modificadores**: `punch` (`scale`, `to`/`dur`) · `shake` (`amp`, `dur`) · `lights` (apaga a luz do rosto até `to`) · `flash` (`color`, `dur`) · `sfx` (`name`, `vol`).
+SFX (`studio/assets/sfx-eafc/`): impact-bass-1/2, whoosh, whoosh-short, whoosh-cinematic, riser, glitch-1/2/3, notification, typing, pop, click, click-soft, key-press, ping, sparkle, error, chime.

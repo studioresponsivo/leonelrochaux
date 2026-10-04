@@ -40,3 +40,8 @@ Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição 
 - `studio/bin/setup.sh` instala Chrome do HyperFrames, modelo Parakeet e OpenCV (roda sozinho no início da sessão).
 - Marca: verde #22C55E + escala neutral; fonte Articulat CF (pesos 400/450/500/600/700).
 - Referência visual: estilo v2 (motion de UI tipo editverse adaptado a rosto + tela) — `docs/motion/estilo-v2.md`.
+
+## Canal 2 — EA FC (modo carreira, Leicester) — estilo `eafc`
+Pasta no Drive: **"Claude Code + Hyperframes"** › "Assets para os videos" (referências S2G/Neto) e uma subpasta por gancho (vídeo já cortado + roteiro + Simbolos/Estadios/Titulos/Campeonatos/Tipografia).
+Fluxo igual ao padrão, mas: roteiro com `"style":"eafc"`, `"format":"horizontal"`, `"cuts":"all"` (não cortar nada, não tratar áudio); imagens recortadas em `work/<slug>/img/` (escudos `logo-<time>.png` com transparência aparada, fotos `.jpg`); cama de tensão com `studio/bin/trilha.py`; texto atrás do rosto (`"behind": true`) custa ~1 min por 1,3 s de matte — 2–3 por vídeo. Guia: `docs/motion/estilo-eafc.md`; cenas: `studio/SPEC.md` › EA FC; exemplo: `studio/specs/gancho-ep06-eafc.json`; histórico próprio em `studio/specs/historico-eafc.json`.
+Entrega: 1080p60 em `entregas/<slug>/` + upload do master na subpasta do Drive com link.

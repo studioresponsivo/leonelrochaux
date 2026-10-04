@@ -9,6 +9,8 @@ import { execSync } from "node:child_process";
 import { compose } from "../engine/compose.mjs";
 import { composeV2 } from "../engine/v2/compose.mjs";
 import { buildPlan, variety } from "../engine/v2/plan.mjs";
+import { buildPlanEafc } from "../engine/eafc/plan.mjs";
+import { composeEafc } from "../engine/eafc/compose.mjs";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
 const [slug, specArg, ...flags] = process.argv.slice(2);
@@ -30,6 +32,7 @@ const portfolio = fmtIn === "portfolio";
 const V = fmtIn === "vertical" || (portfolio && spec.aspect === "vertical");
 const fmt = V ? "vertical" : "horizontal";
 const isV1 = spec.engine === "v1" || (spec.beats || []).some((b) => b.do === "hook");
+const isEafc = spec.style === "eafc" || spec.engine === "eafc"; // canal 2 (EA FC): studio/engine/eafc
 const P = path.join(W, name);
 const src = path.join(W, "source.mp4");
 const hasSrc = fs.existsSync(src);
@@ -116,6 +119,7 @@ const anchor = (v, label, after) => spanOf(v, label, after)[0];
 // ── mídia base ──────────────────────────────────────────────────────────────────
 for (const d of ["assets/media", "assets/fonts", "assets/sfx", "assets/vendor", "assets/brand"]) fs.mkdirSync(path.join(P, d), { recursive: true });
 for (const d of ["fonts", "sfx", "vendor", "brand"]) sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`);
+if (isEafc) for (const d of ["fonts-eafc", "sfx-eafc"]) { fs.mkdirSync(path.join(P, "assets", d), { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`); }
 const brandFont = fs.existsSync(`${ROOT}/studio/assets/fonts-marca/articulat-700.woff2`);
 if (brandFont) { fs.mkdirSync(`${P}/assets/fonts-marca`, { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/fonts-marca/." "${P}/assets/fonts-marca/"`); }
 const cache = path.join(W, "cache"); fs.mkdirSync(cache, { recursive: true });
@@ -132,7 +136,8 @@ if (cuts.length) {
   fs.writeFileSync(path.join(P, "segs.txt"), segs.map((s) => `file '${s}'`).join("\n"));
   sh(`ffmpeg -v error -f concat -safe 0 -i "${P}/segs.txt" -c copy -y "${P}/joined.mov"`);
   sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:v -c copy -y "${P}/assets/media/edit.mp4"`);
-  sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:a -af "highpass=f=70,acompressor=threshold=-20dB:ratio=3:attack=5:release=80,loudnorm=I=-14:TP=-1.5:LRA=7" -ar 48000 -c:a aac -b:a 192k -y "${P}/assets/media/voice.m4a"`);
+  const voiceAf = isEafc || spec.audio === "raw" ? "alimiter=limit=0.95:level=false" : "highpass=f=70,acompressor=threshold=-20dB:ratio=3:attack=5:release=80,loudnorm=I=-14:TP=-1.5:LRA=7";
+  sh(`ffmpeg -v error -i "${P}/joined.mov" -map 0:a -af "${voiceAf}" -ar 48000 -c:a aac -b:a ${isEafc ? 256 : 192}k -y "${P}/assets/media/voice.m4a"`);
   fs.rmSync(path.join(P, "joined.mov"));
 }
 
@@ -185,6 +190,56 @@ if (isV1) {
   html = compose({ fmt, cuts, beats, words, faces, screens, spec, endVoice, total, brandFont });
   summary = `${cuts.length} cortes, ${beats.length} beats (motor v1)`;
   proofTimes = [0.6, ...cuts.map((c) => f2(c.t0 + c.dur / 2)), ...beats.map((b) => f2(b.t + 0.6)), ctaDur ? f2(endVoice + 2) : null];
+} else if (isEafc) {
+  // ── EA FC (canal 2) ─────────────────────────────────────────────────────────
+  if (!cuts.length) fail(`estilo eafc precisa de "cuts" (use "cuts":"all" para o vídeo já cortado)`);
+  const tw = [];
+  for (const c of cuts) for (const w of words) if (w.start >= c.in - 0.02 && w.start < c.out - 0.05) tw.push({ t: f2(c.t0 + Math.max(w.start, c.in) - c.in), e: f2(c.t0 + Math.min(w.end, c.out) - c.in), txt: w.text });
+  const warns = [];
+  const ctx = { W: 1920, H: 1080, tw, endVoice, fail, srcW: +probe[0], srcH: +probe[1],
+    anchor: (v, label, after) => { const x = anchor(v, label, after); lastT = x; return x; }, span: (v, label, after) => spanOf(v, label, after) };
+  const plan = buildPlanEafc(spec, ctx);
+  warns.push(...plan.warns);
+  total = f2(endVoice);
+  for (const m of plan.media) { copyIn(m.src); m.file = path.basename(m.src); }
+  // matte do rosto (texto atrás): recorta trechos do vídeo cortado e remove o fundo (cache por trecho)
+  const mattes = plan.mattes.map(([a, b]) => {
+    const key = `matte_${a}_${b}_${FPS}.webm`, out = path.join(cache, key);
+    if (!fs.existsSync(out)) {
+      const seg = path.join(cache, `mseg_${a}_${b}.mp4`);
+      sh(`ffmpeg -v error -ss ${a} -i "${P}/assets/media/edit.mp4" -t ${f2(b - a)} -an -vf "fps=${FPS}" -c:v libx264 -crf 10 -preset fast -pix_fmt yuv420p -y "${seg}"`);
+      console.log(`• recortando rosto ${a}–${b}s (${Math.round((b - a) * FPS)} quadros, ~${Math.ceil((b - a) * FPS * 0.8 / 60)} min)…`);
+      sh(`cd "${cache}" && npx hyperframes remove-background "${seg}" -o "${out}" --device cpu --quality best --json`);
+      fs.rmSync(seg, { force: true });
+    }
+    fs.copyFileSync(out, path.join(P, "assets/media", key));
+    return { in: a, out: b, file: key };
+  });
+  let music = null;
+  if (spec.music) {
+    const mf = spec.music.file ?? spec.music, src = path.join(W, mf);
+    if (!fs.existsSync(src)) fail(`música não encontrada: work/${slug}/${mf}`);
+    const mAt = spec.music.at != null ? anchor(spec.music.at, "music.at", 0) : 0, fade = spec.music.fade ?? 1.2;
+    sh(`ffmpeg -v error -i "${src}" -af "afade=t=in:d=${fade},atrim=0:${f2(total - mAt + 0.5)}" -ar 48000 -c:a aac -b:a 192k -y "${P}/assets/media/music.m4a"`);
+    music = { file: "music.m4a", at: f2(mAt), volume: spec.music.volume ?? 0.12 };
+  }
+  const hush = (spec.hush || []).map((h, i) => { const [a, b] = spanOf(h, `hush ${i + 1}`, 0); return [f2(a - 0.2), f2(b + 0.2)]; });
+  const out = composeEafc({ W: 1920, H: 1080, cuts, words, faces, spec, endVoice, total, brandFont, srcW: +probe[0], scenes: plan.scenes, mods: plan.mods, mattes, phr: plan.phr, hush, voice: true, music });
+  html = out.html;
+  const histPath = path.join(ROOT, "studio/specs/historico-eafc.json");
+  const hist = fs.existsSync(histPath) ? JSON.parse(fs.readFileSync(histPath, "utf8")) : [];
+  const entry = { name, slug, format: "eafc", opening: plan.scenes[0]?.do ?? null, patterns: plan.scenes.map((s) => s.do), transitions: out.used.transitions, chapterBg: null, date: new Date().toISOString().slice(0, 10) };
+  warns.push(...variety(entry, hist).filter((w) => !w.startsWith("fundo de capítulo")));
+  const idx = hist.findIndex((h) => h.name === entry.name);
+  if (idx >= 0) hist.splice(idx, 1);
+  hist.push(entry);
+  fs.writeFileSync(histPath, JSON.stringify(hist, null, 1) + "\n");
+  summary = `eafc, ${plan.scenes.length} cenas [${[...new Set(entry.patterns)].join(", ")}], ${plan.mods.length} mods, ${mattes.length} matte(s), ${out.log.join("; ")}`;
+  for (const w of warns) console.log(`⚠ ${w}`);
+  const pt = [0.4];
+  for (const s of plan.scenes) { pt.push(s.t0 + Math.min(0.7, (s.t1 - s.t0) * 0.45)); if (s.t1 - s.t0 > 2.4) pt.push(s.t1 - 0.5); }
+  for (const m of plan.mods) if (m.do === "punch" || m.do === "lights") pt.push(m.t0 + 0.3);
+  proofTimes = pt;
 } else {
   // ── v2 ────────────────────────────────────────────────────────────────────────
   const tw = [];
@@ -263,6 +318,8 @@ if (!flags.includes("--no-render")) {
   const out = path.join(ROOT, "entregas", slug); fs.mkdirSync(out, { recursive: true });
   const t0 = Date.now();
   sh(`cd "${P}" && npx hyperframes render . --fps ${FPS} --crf ${spec.crf ?? 14} -o ./render.mp4`);
+  // masterização do áudio (eafc): limitador a -1 dBTP — voz + impactos + trilha somados passam de 0 dBFS
+  if (isEafc && spec.limiter !== false) { sh(`ffmpeg -v error -i "${P}/render.mp4" -c:v copy -af "alimiter=limit=0.891:attack=4:release=60:level=false" -c:a aac -b:a 256k -y "${P}/render-lim.mp4" && mv "${P}/render-lim.mp4" "${P}/render.mp4"`); }
   const big = fs.statSync(`${P}/render.mp4`).size > 95e6;
   const dest = big ? path.join(out, "grandes") : out; fs.mkdirSync(dest, { recursive: true });
   sh(`ffmpeg -v error -i "${P}/render.mp4" -c copy -movflags +faststart -y "${dest}/${name}.mp4"`); // sem recompressão
