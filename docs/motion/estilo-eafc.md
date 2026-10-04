@@ -1,0 +1,156 @@
+# Estilo EA FC — guia do canal Théo Torres (Modo Carreira)
+
+Base: dois vídeos de referência enviados pelo Leonel em `Assets para os videos/` (Drive "EA FC"):
+- **`estilo visual.mp4`** (80 s, 1080p60; vídeo "Figlio di Roma", Modo Carreira com Totti) → **direção de arte**: abertura, tipografia, cor, texturas, cutaways.
+- **`Estilo de edição.mp4`** (16 min, 1080p60; carreira com Man United, criador inglês) → **gramática de edição** de vídeo longo: PiP, cards, cutaways, transições, ritmo.
+Análise: folhas de contato (`work/eafc/ref/frames/`), detecção de cortes e análise de áudio (`work/eafc/ref/analise/`). Propagandas e player do YouTube foram ignorados.
+
+Nada deste guia se aplica ao Studio Responsivo. É outro canal, outra linguagem.
+
+---
+
+## 1. Identidade visual
+
+**Conceito**: documentário de cinema esportivo. Dramático, escuro, serifado, com textura. Pensar "trailer de série de futebol", não "vídeo de gamer".
+
+### Paleta
+| Papel | Hex | Uso |
+|---|---|---|
+| Amarelo América | `#F9D616` | acento único: barras, regras, itálico do nome, raios de luz, fenda de luz |
+| Azul-marinho América | `#0A1F44` | sombras do grade, fundo do título, duotone |
+| Tinta (preto azulado) | `#06101F` | preto de verdade (nunca `#000` puro em fundo de cena) |
+| Creme | `#F4EFE2` | branco quente para texto grande |
+| Cromado/champanhe | gradiente `#fff → #fbf7e8 → #cdb46a → #fff` | título principal (efeito metal da referência "Totti") |
+
+Regra: **um acento por cena** (amarelo). Vermelho/rosa só se vier do jogo (uniforme adversário).
+
+### Tipografia (fontes em `eafc/assets/fonts/`)
+| Papel | Fonte | Specs |
+|---|---|---|
+| Título / nome / palavra cinética | **Playfair Display 900** (serifa Didone, alto contraste, como "Figlio"/"Totti"/"VOCÊS" da referência) | caixa alta, 240–300 px no título, 500–640 px em carimbo numérico; tracking +.015em; cromado ou creme |
+| Contraponto do título | **Playfair Display 400 itálico** | "Théo", "di Roma": 110–130 px, amarelo |
+| Rótulos, kickers, sub | **Barlow Condensed 600/700** (sans condensada, como "MODO CARREIRA TREINADOR") | caixa alta, 26–44 px, tracking .3–.42em, branco 70–100 % |
+| Números de HUD, placares, OVR | **Bebas Neue** / **Oswald 700** | caixa alta, tabular; cards de jogo (estilo de edição) |
+| Alternativa Didone mais pesada | **Bodoni Moda 900** | quando Playfair ficar leve demais em tamanhos grandes |
+
+Nunca: Plus Jakarta, Articulat (isso é Studio Responsivo), fontes "gamer" (Orbitron etc.), Impact com contorno.
+
+### Texturas e tratamento
+- **Grão** fino em tudo (SVG `feTurbulence`, overlay, opacidade .18–.22, salta 12×/s). Dá "filme".
+- **Duotone**: imagem em P&B → multiply amarelo-ouro (.6) → lighten azul-marinho. Sombras viram marinho, luzes viram ouro. Para fotos/renders de cutaway e fundo de título.
+- **Grade de gameplay**: lighten marinho (.55) + multiply preto (.18): sombras azuladas, uniforme amarelo intacto. Nunca duotone completo em gameplay (perde o jogo).
+- **Vinheta** radial forte (bordas a 55–78 % de preto azulado).
+- **Raios de luz** (`repeating-conic-gradient` amarelo, screen, máscara radial) girando ±3° lentamente.
+- **Vazamento de luz** quente (radial amarelo/laranja, screen) em cantos durante celebrações.
+- **Borda áspera** em carimbos (`feDisplacementMap` com turbulência): número/palavra parece impresso.
+- **Pena/splash** (referência): respingo vermelho/preto atrás de títulos. Nossa versão: raios + grão + vinheta; splash só se o Leonel mandar o PNG.
+
+---
+
+## 2. Vinheta / abertura — anatomia (7 s, 1080p60)
+
+Implementada em `eafc/engine/vinheta.mjs` (spec `eafc/specs/vinheta-theo-torres.json`). Estrutura que a referência usa: **beats curtos (0,25–0,8 s) → título segurado (≥ 1,5 s) → corte**.
+
+| t (s) | Beat | Visual | Áudio |
+|---|---|---|---|
+| 0,00–0,40 | Preto + **fenda de luz** | linha amarela cresce no centro e abre verticalmente revelando a cena | riser sobe desde 0; whoosh cinematográfico |
+| 0,40–1,60 | **Túnel** (render "entrando em campo") | push-in 1,00→1,09; raios; rótulo "MODO CARREIRA / Club América · Estádio Azteca" com barra amarela e máscara | drone grave cresce |
+| 1,60 | **Corte seco + flash branco** (2–8 frames) + aberração cromática (±16 px → 0 em 0,14 s) | gameplay: chute (gol-01 3,10–4,10 s, 1×) | impacto grave + sub-boom; torcida entra |
+| 1,74–2,38 | **Carimbo "14"** | Playfair 900, 640 px, borda áspera, entra de 1,9× com blur, pulso amarelo (screen) | — |
+| 2,40 | **Whip** (blur direcional 30 px + deslocamento 260 px) | bola na rede em **câmera lenta 0,4×** (interpolada a 60 fps), zoom 1,04→1,12, vazamento amarelo no canto | whoosh curto; torcida cresce |
+| 3,60 | **Glitch** (5 frames: 7 fatias com offsets ±60 px entre o último frame da rede e o primeiro da comemoração + canais R/B deslocados) | comemoração close 0,6×, vazamento quente | glitch curto (0,5 s) |
+| 4,60 | **Corte para o título** (1 frame preto) | fundo marinho + raios (burst 0→.9→.55) + retrato duotone à direita (push 1,06→1,14) | impacto grave + sub-boom (o maior do vídeo); riser termina aqui |
+| 4,64–5,30 | **Lockup** | escudo (back.out) → "Théo" itálico amarelo sobe de máscara → "TORRES" cromado sobe de máscara → régua amarela desenha → kicker "MODO CARREIRA · CLUB AMÉRICA" assenta (scaleX 1,14→1) | — |
+| 5,60–6,30 | **Brilho** varre "TORRES" (banda branca, screen, clip no texto) | zoom lento 1,00→1,035 | sparkle |
+| 6,75–7,00 | **Flash branco → preto** | fim em preto (o vídeo do Leonel entra em seguida) | impacto curto; corte de áudio com fade de 60 ms |
+
+Mix: integrado ≈ −12 LUFS, pico −1 dBFS. Camadas: drone sintetizado (55 + 82 Hz + ruído marrom filtrado), riser, torcida limpa (gol-01 tem áudio sem narração), impactos, sub-boom sintetizado.
+
+**Variações para as próximas** (não repetir a mesma vinheta sempre; `eafc/specs/historico.json` guarda o que já foi usado): trocar o túnel por "Azteca" aéreo; trocar o carimbo "14" por uma palavra ("ÁGUIA", "AZTECA"); abrir com o retrato e fechar com gameplay; versão curta de 4 s para capítulos.
+
+---
+
+## 3. Gramática de edição em vídeo longo (`Estilo de edição.mp4`)
+
+Serve para "gancho inicial" e "edição inteira". O Leonel entrega o vídeo cortado; esta é a **camada visual**.
+
+### 3.1 Rosto em PiP sobre gameplay
+- Posição padrão **canto superior direito**, retângulo de cantos arredondados (~16 px), ~ 300×170 px (16:9) com sombra suave; sem borda grossa.
+- Desce para o **canto inferior direito** quando o menu do jogo usa o topo (tabela, calendário, negociação).
+- Rosto em tela cheia só em reações fortes ("Bro's in love" — rosto + legenda estilizada), 2–4 s.
+- Na gravação do Leonel o PiP já vem queimado no OBS (ver gols). Em edições nossas: se o bruto tiver o PiP, recortar (crop `1640×922 @ 0,158`) e recolocar o rosto com o nosso frame; se vier separado, melhor ainda.
+
+### 3.2 Catálogo de overlays (o que existe na referência e vamos construir)
+| Componente | O que é | Specs de partida |
+|---|---|---|
+| **Tabela de classificação** `TEAM / PTS` | card roxo/escuro, 2–3 linhas com escudo, sigla e pontos; entra com slide + fade | fundo `#0A1F44` 92 %, cantos 18 px, Bebas 52 px, escudo 56 px; 3–4 s |
+| **Card de jogador** `OVR · POS · IDADE · NOME` | canto inferior esquerdo, foto/escudo, OVR grande | Bebas 64 px p/ OVR, Barlow 28 px p/ meta; 3 s |
+| **Placar / HEAD TO HEAD** | dois escudos + números, fundo escuro, borda fina | centro-inferior; 2–3 s |
+| **Confronto** `MUN × BOU` | tela cheia dividida nas cores dos clubes, siglas gigantes | Playfair 900 ou Bebas 300 px; 1–1,5 s; entra com whip |
+| **Carimbo de headline** `114 CHARGES` | palavra gigante em caixa alta, vermelho "carimbo", sobre foto/escudo | Bebas/Oswald 220 px, leve rotação −3°, borda áspera; 1,5 s |
+| **FULL TIME / GOL** | texto 3D branco com extrusão sobre gameplay | Bebas 180 px + sombra longa; 1 s |
+| **Stats W-D-L / GOALS·GAMES** | números grandes + rótulo; fundo nas cores do clube | Bebas 120 px; 3 s |
+| **Tweet / post** | card branco com avatar, nome, texto; entra de baixo com escala | 900 px largura, cantos 24 px; 4–6 s |
+| **Jornal / manchete** | foto da capa com leve Ken Burns e vinheta | 3–4 s |
+| **Laptop / TV retrô** | mockup com conteúdo dentro (lista, ano "2013" em chunky) | só com asset do Leonel |
+| **Calendário / DEADLINE DAY** | tela do jogo com zoom + destaque | reaproveitar tela gravada |
+| **Palavras cinéticas** (ref. visual) | 1 palavra por vez, serifa, sobre foto duotone + raios; cromado em 1 de cada 4 | Playfair 900 160–220 px; 0,4–0,7 s por palavra |
+| **Card de foto "polaroid"** (ref. visual) | foto em moldura branca sobre fundo branco, leve rotação; sequência rápida de 3–8 fotos a 0,25 s | 2 s total |
+| **Inscreva-se** | lower-third pequeno com avatar, @ e botão | 4 s, uma vez por vídeo |
+
+### 3.3 Cutaways
+- **Fotos de arquivo** em rajada: 6–8 fotos a 0,25 s cada, com pequeno zoom e grão. (ref. visual 46–48 s)
+- **Telas do jogo** (tabela, calendário, negociação): zoom 1,15× no trecho relevante + PiP realocado.
+- **Gameplay como B-roll**: gol/jogada com speed ramp (1× → 0,4× no toque → 1×) e grade.
+- Cutaway nunca fica > 6 s sem voltar ao rosto/gameplay principal.
+
+### 3.4 Transições (frequência medida na referência de edição; use a mesma proporção)
+| Tipo | Quando | Specs |
+|---|---|---|
+| **Corte seco** | padrão (≈ 85 % dos cortes) | 0 frames |
+| **Whip + motion blur** | entre dois gráficos/telas; 1 a cada 30–60 s | 10–14 frames, blur 24–34 px |
+| **Flash preto** (1–2 frames) | antes de carimbo/headline | — |
+| **Flash branco** | antes de gameplay forte | 2 frames a .9 → 0 em 8 frames |
+| **Glitch RGB** | 1–2 por vídeo, em viradas de assunto | 4–6 frames |
+| **Zoom-blur / rack focus** | tela → rosto | 4–6 frames |
+| **Estática VHS** (ref. visual) | 1 por vídeo, antes de "modo jogo" | 6–8 frames |
+
+### 3.5 Ritmo (medido)
+- Gameplay: planos de 4–10 s; algo novo na tela (card, placar, PiP) a cada ~6–8 s.
+- Menus do jogo: 2–5 s por tela, sempre com zoom ou destaque (nunca tela parada).
+- Rosto: inserts a cada 3–5 s no gancho; no corpo pode segurar mais.
+- Gancho (0–25 s): densidade máxima — card/headline/cutaway a cada 1,5–3 s, speed ramp, 1 carimbo.
+
+---
+
+## 4. Áudio
+- **Vinheta**: música/drone + impactos + torcida. Mix alto (−12 LUFS) porque é o momento "cinema".
+- **Vídeo longo**: a fala do Leonel já vem tratada no Premiere — não mexer. Nossa camada só adiciona: whoosh em whip/card (≤ 1 a cada 8 s), impacto grave em carimbo/headline (≤ 3 por vídeo), glitch no glitch. Volume dos SFX −14 a −18 dB abaixo da voz.
+- **Hush**: silêncio de SFX durante punchlines e reações.
+- Biblioteca: `eafc/assets/sfx/` (riser 10 s, impact-bass-1/2, whoosh, whoosh-cinematic, glitch-1/2/3, sparkle; Pixabay, uso comercial livre).
+
+---
+
+## 5. Componentes a construir no motor (roadmap)
+1. `vinheta.mjs` ✅ (fenda → túnel → carimbo → whip → glitch → título → flash).
+2. `gancho.mjs`: abertura de 5–15 s sobre o começo do vídeo cortado (usa os mesmos blocos + rajada de fotos + palavras cinéticas sincronizadas à transcrição).
+3. `cards.mjs`: tabela, card de jogador, placar, confronto, stats, carimbo de headline, FULL TIME/GOL, tweet, inscreva-se — cada um como função que recebe `{at, dur, dados}`.
+4. `pip.mjs`: detectar/recortar o PiP do bruto e recolocar com moldura própria; mover para baixo em menus (lista de `screenRanges`).
+5. `edicao.mjs`: spec de vídeo inteiro (`"cuts":"all"` + lista de eventos com âncoras na transcrição, igual ao fluxo do Studio mas com estes componentes).
+6. Limitador de SFX e de transições (mesma ideia do v2, parâmetros deste canal).
+
+## 6. Anti-padrões (o que faz parecer amador)
+- Rosto gigante com borda colorida e sombra dura; PiP mudando de tamanho a cada corte.
+- Mais de um acento de cor; gradientes arco-íris; neon.
+- Texto sem hierarquia (tudo Bebas gigante) ou com contorno grosso estilo "cortes de podcast".
+- Transição de template (cubo, luz vazando toda hora, zoom com estrela), SFX em todo corte.
+- Gameplay crua sem grade, sem vinheta, com HUD e PiP do OBS aparecendo em cutaway.
+- Tela de menu parada por 5 s sem zoom nem destaque.
+- Repetir a mesma vinheta/gancho em todos os vídeos (ver `historico.json`).
+
+## 7. Checklist de entrega
+- [ ] 1920×1080, 60 fps, CRF ≤ 14, áudio AAC 320 k; master em `entregas/eafc/<slug>/`.
+- [ ] Nenhum PiP/HUD do OBS visível em cutaway.
+- [ ] Um acento de cor; grão e vinheta presentes; tipografia do guia.
+- [ ] SFX dentro do limite; pico ≤ −1 dBFS.
+- [ ] Vinheta/gancho diferente do anterior (`eafc/specs/historico.json`).

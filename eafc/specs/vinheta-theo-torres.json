@@ -1,0 +1,25 @@
+{
+  "name": "vinheta-theo-torres",
+  "duration": 7.0,
+  "fps": 60,
+  "label": "Modo Carreira",
+  "labelSub": "Club América · Estádio Azteca",
+  "number": "14",
+  "title": { "first": "Théo", "last": "Torres" },
+  "subtitle": "Modo Carreira · Club América",
+  "crest": "eafc/assets/brand/club-america.png",
+  "images": {
+    "tunnel": "eafc/assets/theo/entrando-em-campo.jpg",
+    "portrait": "eafc/assets/theo/em-campo.jpg"
+  },
+  "crop": [1640, 922, 0, 158],
+  "clips": {
+    "shot":  { "src": "work/eafc/vinheta/assets/gol-01.mp4", "in": 3.10, "dur": 1.00, "speed": 1 },
+    "net":   { "src": "work/eafc/vinheta/assets/gol-01.mp4", "in": 4.90, "dur": 0.80, "speed": 0.4 },
+    "celeb": { "src": "work/eafc/vinheta/assets/gol-01.mp4", "in": 7.65, "dur": 0.70, "speed": 0.6 }
+  },
+  "crowd": { "src": "work/eafc/vinheta/assets/gol-01.mp4", "in": 2.6, "dur": 7.1 },
+  "beats": { "tunnel": 0.40, "shot": 1.60, "net": 2.40, "celeb": 3.60, "title": 4.60, "out": 6.75 },
+  "grain": 0.2,
+  "crf": 12
+}

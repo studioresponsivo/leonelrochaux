@@ -1,7 +1,10 @@
 # Studio Responsivo — edição de vídeo de baixo custo
 
 Leonel Rocha (Product Designer, Studio Responsivo / Conversão Visual). Responder em PT-BR, direto.
-Todos os vídeos (Reels/Shorts/TikTok, YouTube longo e portfólio) seguem o **estilo v2** (`docs/motion/estilo-v2.md`), pronto no motor `studio/` (`studio/engine/v2/`).
+
+## Dois canais — rotear antes de qualquer coisa
+- **Canal EA FC (Théo Torres, Modo Carreira)**: pedido que cite EA FC, Théo Torres, Modo Carreira, Club América, vinheta/gancho/edição "do canal de EA FC" → ler **só** `eafc/README.md` e `docs/motion/estilo-eafc.md`. Motor, assets, specs e histórico próprios em `eafc/`; temporários em `work/eafc/`; finais em `entregas/eafc/`. Drive: pasta **"EA FC"** `1w2yRyZQsR0DYiUd_1qRMpKuHvp7jzpai`. Não usar nada do estilo v2 nem de `studio/` (nem vice-versa).
+- **Studio Responsivo** (Reels/Shorts/TikTok, YouTube longo, portfólio): tudo abaixo. Estilo v2 (`docs/motion/estilo-v2.md`), motor `studio/` (`studio/engine/v2/`).
 
 ## Fluxo padrão — siga exatamente, sem explorar
 0. Vídeos chegam no Drive (conta hello@studioresponsivo.com.br), pasta **"Claude Code + Hyperframes"** (id `1_khvFisNSGJUU_RWa8MiBhJ2fllkAw-5`), uma subpasta por vídeo com o nome que o Leonel avisar.

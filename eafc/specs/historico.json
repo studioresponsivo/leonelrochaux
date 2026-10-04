@@ -1,0 +1,21 @@
+[
+ {
+  "name": "vinheta-theo-torres",
+  "slug": "vinheta",
+  "type": "vinheta",
+  "duration": 7,
+  "beats": {
+   "tunnel": 0.4,
+   "shot": 1.6,
+   "net": 2.4,
+   "celeb": 3.6,
+   "title": 4.6,
+   "out": 6.75
+  },
+  "title": {
+   "first": "Théo",
+   "last": "Torres"
+  },
+  "date": "2026-10-04"
+ }
+]
