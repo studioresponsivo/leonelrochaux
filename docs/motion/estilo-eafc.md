@@ -49,26 +49,28 @@ Nunca: Plus Jakarta, Articulat (isso é Studio Responsivo), fontes "gamer" (Orbi
 
 ## 2. Vinheta / abertura — anatomia (7 s, 1080p60)
 
-Implementada em `eafc/engine/vinheta.mjs` (spec `eafc/specs/vinheta-theo-torres.json`). Estrutura que a referência usa: **beats curtos (0,25–0,8 s) → título segurado (≥ 1,5 s) → corte**.
+Implementada em `eafc/engine/vinheta.mjs` (spec `eafc/specs/vinheta-theo-torres.json`). Decisão do Leonel (v2): **motion design puro** — escudo do América, o Théo em recortes (sem fundo) e só o nome "Théo". Sem gameplay, sem áudio da gravação dele. Fundos alternam marinho → amarelo → marinho → amarelo → marinho (ritmo por inversão de cor).
 
 | t (s) | Beat | Visual | Áudio |
 |---|---|---|---|
-| 0,00–0,40 | Preto + **fenda de luz** | linha amarela cresce no centro e abre verticalmente revelando a cena | riser sobe desde 0; whoosh cinematográfico |
-| 0,40–1,60 | **Túnel** (render "entrando em campo") | push-in 1,00→1,09; raios; rótulo "MODO CARREIRA / Club América · Estádio Azteca" com barra amarela e máscara | drone grave cresce |
-| 1,60 | **Corte seco + flash branco** (2–8 frames) + aberração cromática (±16 px → 0 em 0,14 s) | gameplay: chute (gol-01 3,10–4,10 s, 1×) | impacto grave + sub-boom; torcida entra |
-| 1,74–2,38 | **Carimbo "14"** | Playfair 900, 640 px, borda áspera, entra de 1,9× com blur, pulso amarelo (screen) | — |
-| 2,40 | **Whip** (blur direcional 30 px + deslocamento 260 px) | bola na rede em **câmera lenta 0,4×** (interpolada a 60 fps), zoom 1,04→1,12, vazamento amarelo no canto | whoosh curto; torcida cresce |
-| 3,60 | **Glitch** (5 frames: 7 fatias com offsets ±60 px entre o último frame da rede e o primeiro da comemoração + canais R/B deslocados) | comemoração close 0,6×, vazamento quente | glitch curto (0,5 s) |
-| 4,60 | **Corte para o título** (1 frame preto) | fundo marinho + raios (burst 0→.9→.55) + retrato duotone à direita (push 1,06→1,14) | impacto grave + sub-boom (o maior do vídeo); riser termina aqui |
-| 4,64–5,30 | **Lockup** | escudo (back.out) → "Théo" itálico amarelo sobe de máscara → "TORRES" cromado sobe de máscara → régua amarela desenha → kicker "MODO CARREIRA · CLUB AMÉRICA" assenta (scaleX 1,14→1) | — |
-| 5,60–6,30 | **Brilho** varre "TORRES" (banda branca, screen, clip no texto) | zoom lento 1,00→1,035 | sparkle |
-| 6,75–7,00 | **Flash branco → preto** | fim em preto (o vídeo do Leonel entra em seguida) | impacto curto; corte de áudio com fade de 60 ms |
+| 0,00–0,75 | **Ponto → barra → amarelo** | ponto amarelo (back.out) vira pílula de 1920 px (scaleX, power4.inOut) e a pílula se expande na vertical (scaleY, power3.in) até tomar a tela | whoosh cinematográfico (pico na expansão); drone começa |
+| 0,77–1,10 | **Anel se desenha** | anel marinho (SVG, stroke-dashoffset) fecha em 0,42 s | — |
+| 1,10 | **Escudo entra** | placa marinha (back.out) + escudo (scale .35→1, rotação −28→0, back.out) + burst branco; anel explode (scale 2,3, some) | impacto grave + sub-boom |
+| 1,85–2,25 | **Painel diagonal** (−14°) marinho com faixa amarela 3 frames atrás | escudo encolhe a 0 enquanto o painel passa | whoosh curto |
+| 2,05–2,95 | **Théo de corpo inteiro** | círculo amarelo (back.out) + silhueta chapada (tinta) chegando 3 frames antes do recorte colorido (parallax); 3 barras amarelas à esquerda, deslizam com stagger de 4 frames; drift lento do grupo | impacto leve |
+| 2,93–3,31 | **Íris** | círculo amarelo cresce do peito do Théo (clip-path circle) e revela a cena amarela | whoosh curto |
+| 3,00–4,15 | **Rosto em duotone** | disco marinho com o rosto (P&B → multiply ouro → lighten marinho), fade no ombro; anel tracejado grosso gira +110°, anel pontilhado fino gira −90°; 3 barras marinhas à direita; escudo pequeno (back.out) | sparkle discreto |
+| 4,15–4,41 | **Persianas** | duas metades marinhas fecham (power4.inOut) | whoosh curto |
+| 4,40 | **Lockup** | escudo (scale 1,5→1, rotação −14→0, power4.out) + burst amarelo (screen) + anel que expande; raios amarelos atrás (0→.5) | impacto grave + sub-boom (o maior); riser termina aqui |
+| 4,56–5,30 | **"Théo"** | Playfair 700 itálico 320 px, gradiente creme→amarelo, desliza de trás do escudo (máscara); régua amarela desenha (power3.inOut); 10 pontos orbitam o escudo | — |
+| 5,35–6,05 | **Brilho** varre o nome (banda branca, screen) | zoom lento 1,00→1,035; escudo gira +3° | sparkle |
+| 6,40–6,75 | **Saída** | painel amarelo diagonal, painel preto 4 frames atrás → preto | whoosh + impacto curto |
 
-Mix: integrado ≈ −12 LUFS, pico −1 dBFS. Camadas: drone sintetizado (55 + 82 Hz + ruído marrom filtrado), riser, torcida limpa (gol-01 tem áudio sem narração), impactos, sub-boom sintetizado.
+Mix: integrado ≈ −13 LUFS, pico −1 dBFS. Camadas: drone sintetizado (55 + 82 Hz + ruído marrom filtrado), riser (3,6 s antes do lockup), impactos, sub-boom, whooshes, sparkle. Tudo de biblioteca livre ou sintetizado — nunca áudio da gravação do Leonel.
 
-**Variações para as próximas** (não repetir a mesma vinheta sempre; `eafc/specs/historico.json` guarda o que já foi usado): trocar o túnel por "Azteca" aéreo; trocar o carimbo "14" por uma palavra ("ÁGUIA", "AZTECA"); abrir com o retrato e fechar com gameplay; versão curta de 4 s para capítulos.
+**Regras que a vinheta fixa para o canal**: cada mudança de cena inverte o fundo (marinho ↔ amarelo); todo elemento entra com overshoot (`back.out`) ou `power4.out`; transições só por painel diagonal (−14°), íris ou persiana; silhueta chapada atrás do recorte; um único texto.
 
----
+**Variações para as próximas** (`eafc/specs/historico.json`): abrir pelo rosto e terminar no corpo inteiro; painéis a +14°; íris saindo do escudo; versão curta de 4 s para capítulos (só persiana → lockup → saída).
 
 ## 3. Gramática de edição em vídeo longo (`Estilo de edição.mp4`)
 

@@ -64,7 +64,7 @@ for (const [k, c] of Object.entries(spec.clips || {})) {
 const T = spec.duration || 7;
 const M = path.join(P, "assets/media");
 if (!fs.existsSync(path.join(M, "drone.wav"))) {
-  const tHit = spec.beats?.title ?? 4.6;
+  const tHit = spec.beats?.lockup ?? spec.beats?.title ?? 4.6;
   sh(`ffmpeg -v error -y -f lavfi -i "sine=frequency=55:duration=${T + 0.2}" -f lavfi -i "sine=frequency=82.41:duration=${T + 0.2}" -f lavfi -i "anoisesrc=color=brown:duration=${T + 0.2}:amplitude=0.6:seed=7" -filter_complex "[0]volume=0.5[a];[1]volume=0.22[b];[2]lowpass=f=180,volume=0.9[c];[a][b][c]amix=inputs=3:normalize=0,tremolo=f=0.6:d=0.25,lowpass=f=240,volume='if(lt(t,${tHit}),0.25+0.55*t/${tHit},if(lt(t,${T - 0.2}),0.8,0.8*(${T}-t)/0.2))':eval=frame,afade=t=in:d=0.4,aresample=48000" -ac 2 -c:a pcm_s16le "${M}/drone.wav"`);
   sh(`ffmpeg -v error -y -f lavfi -i "aevalsrc=0.9*sin(2*PI*(28+62*exp(-t*6))*t)*exp(-t*3.2):d=1.4:s=48000" -af "lowpass=f=160,aresample=48000" -ac 2 -c:a pcm_s16le "${M}/boom.wav"`);
 }

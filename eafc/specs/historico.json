@@ -5,16 +5,14 @@
   "type": "vinheta",
   "duration": 7,
   "beats": {
-   "tunnel": 0.4,
-   "shot": 1.6,
-   "net": 2.4,
-   "celeb": 3.6,
-   "title": 4.6,
-   "out": 6.75
-  },
-  "title": {
-   "first": "Théo",
-   "last": "Torres"
+   "wipe1": 0.75,
+   "crest": 1.1,
+   "wipe2": 1.9,
+   "player": 2.05,
+   "iris": 2.95,
+   "close": 4.15,
+   "lockup": 4.4,
+   "out": 6.4
   },
   "date": "2026-10-04"
  }
