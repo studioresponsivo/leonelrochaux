@@ -133,13 +133,11 @@ Serve para "gancho inicial" e "edição inteira". O Leonel entrega o vídeo cort
 
 ---
 
-## 5. Componentes a construir no motor (roadmap)
-1. `vinheta.mjs` ✅ (fenda → túnel → carimbo → whip → glitch → título → flash).
-2. `gancho.mjs`: abertura de 5–15 s sobre o começo do vídeo cortado (usa os mesmos blocos + rajada de fotos + palavras cinéticas sincronizadas à transcrição).
-3. `cards.mjs`: tabela, card de jogador, placar, confronto, stats, carimbo de headline, FULL TIME/GOL, tweet, inscreva-se — cada um como função que recebe `{at, dur, dados}`.
-4. `pip.mjs`: detectar/recortar o PiP do bruto e recolocar com moldura própria; mover para baixo em menus (lista de `screenRanges`).
-5. `edicao.mjs`: spec de vídeo inteiro (`"cuts":"all"` + lista de eventos com âncoras na transcrição, igual ao fluxo do Studio mas com estes componentes).
-6. Limitador de SFX e de transições (mesma ideia do v2, parâmetros deste canal).
+## 5. Componentes do motor
+1. `vinheta.mjs` ✅ motion design (ponto → barra → escudo → painel → Théo → íris → rosto → lockup).
+2. `gancho.mjs` ✅ camada visual sobre o vídeo cortado, eventos ancorados nas palavras: cutaway, photoCard, playerCard, counter, tweet, fixture, faceoff, h2h, tvRetro, scoreline, bigText, zoomCapture, stamp, bracket, subscribe, lowerThird + câmera (push lento + punch-in). Primeiro uso: `eafc/specs/gancho-ep03.json`.
+3. A construir: PiP do rosto com regras S2G (394×370 topo-direito em gameplay, 580×326 sangrando nos menus, some em cutscene), tabela TEAM/PTS com badges, card de confronto full-screen por partida, memes com legenda arredondada. Tudo entra como novos `type` no `gancho.mjs`.
+4. Regras de SFX já no motor: voz intocada; bus de SFX −5 dB + limiter; nenhum SFX acima da voz; ~1 whoosh a cada 3–4 s, impacto só em carimbo/faceoff/título.
 
 ## 6. Anti-padrões (o que faz parecer amador)
 - Rosto gigante com borda colorida e sombra dura; PiP mudando de tamanho a cada corte.

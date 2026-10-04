@@ -15,5 +15,30 @@
    "out": 6.4
   },
   "date": "2026-10-04"
+ },
+ {
+  "name": "gancho-ep03",
+  "slug": "ep03",
+  "type": "gancho",
+  "duration": 56.767,
+  "components": [
+   "cutaway",
+   "playerCard",
+   "photoCard",
+   "counter",
+   "tweet",
+   "fixture",
+   "faceoff",
+   "h2h",
+   "tvRetro",
+   "scoreline",
+   "bigText",
+   "zoomCapture",
+   "stamp",
+   "bracket",
+   "subscribe",
+   "lowerThird"
+  ],
+  "date": "2026-10-04"
  }
 ]
