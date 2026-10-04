@@ -33,6 +33,8 @@ export function composeGancho(spec, ctx = {}) {
   const whipIn = (id, at, d = 0.26) => js.push(`tl.fromTo("#${id}", { scale: 1.22, opacity: 0, filter: "blur(22px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: ${d}, ease: "power3.out" }, ${f2(at)});`);
   const fadeIn = (id, at, d = 0.3) => js.push(`tl.fromTo("#${id}", { opacity: 0 }, { opacity: 1, duration: ${d}, ease: "power2.out" }, ${f2(at)});`);
   const fadeOut = (id, at, d = 0.3) => js.push(`tl.to("#${id}", { opacity: 0, duration: ${d}, ease: "power2.in" }, ${f2(at)});`);
+  const half = (e, inner) => (e.pos ? `<div class="half half-${e.pos === "left" ? "l" : "r"}">${inner}</div>` : inner);
+  const rel = (e) => (e.pos ? " rel" : "");
   const crest = (key, size, extra = "") => `<img src="${img[key] || ""}" alt="" style="width:${size}px;height:${size}px;object-fit:contain;${extra}">`;
 
   const covers = []; // trechos em que o rosto está coberto (para a câmera)
@@ -91,8 +93,8 @@ export function composeGancho(spec, ctx = {}) {
         repost: `<svg viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>`,
         like: `<svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
       };
-      html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="tweet"><div class="twh"><div class="twav">${e.avatar ? crest(e.avatar, 64) : ""}</div><div class="twn"><b>${esc(e.name)} ${ic}</b><span>${esc(e.handle)}</span></div><svg class="twx" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
-        <p>${esc(e.text)}</p><div class="twm"><span>${mi.reply}${esc(e.replies || "84")}</span><span>${mi.repost}${esc(e.reposts || "312")}</span><span class="twlike">${mi.like}${esc(e.likes || "2,1 mil")}</span></div></div></div>`);
+      html.push(`<div id="${id}" class="ov hid">${half(e, `<div id="${id}z" class="tweet${rel(e)}"><div class="twh"><div class="twav">${e.avatar ? crest(e.avatar, 64) : ""}</div><div class="twn"><b>${esc(e.name)} ${ic}</b><span>${esc(e.handle)}</span></div><svg class="twx" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <p>${esc(e.text)}</p><div class="twm"><span>${mi.reply}${esc(e.replies || "84")}</span><span>${mi.repost}${esc(e.reposts || "312")}</span><span class="twlike">${mi.like}${esc(e.likes || "2,1 mil")}</span></div></div>`)}</div>`);
       show(id, e.at, e.dur); slideUp(id, e.at); pushIn(`${id}z`, e.at, e.dur, 1, 1.03);
       sfx("notification", e.at, 0.26); proof.push(e.at + 0.5);
     },
@@ -121,14 +123,14 @@ export function composeGancho(spec, ctx = {}) {
       show(id, e.at, e.dur); whipIn(`${id}z`, e.at, 0.28);
       js.push(`tl.fromTo("#${id}l .foin, #${id}r .foin", { scale: 1 }, { scale: 1.06, duration: ${f2(e.dur)}, ease: "none" }, ${f2(e.at)});`);
       if (e.badge && e.badgeAt) { show(`${id}b`, e.badgeAt); pop(`${id}b`, e.badgeAt); sfx("pop", e.badgeAt, 0.3); }
-      if (door) { js.push(`tl.to("#${id}l", { xPercent: -106, duration: 0.42, ease: "power3.inOut" }, ${f2(e.at + e.dur - 0.42)}); tl.to("#${id}r", { xPercent: 106, duration: 0.42, ease: "power3.inOut" }, ${f2(e.at + e.dur - 0.42)}); tl.to("#${id} .fomid", { opacity: 0, duration: 0.15 }, ${f2(e.at + e.dur - 0.42)}); tl.to("#${id} .dark, #${id} .blurbg", { opacity: 0, duration: 0.3 }, ${f2(e.at + e.dur - 0.35)});`); sfx("whoosh-short", e.at + e.dur - 0.45, 0.3); }
+      if (door) { js.push(`tl.to("#${id}l", { xPercent: -106, duration: 0.42, ease: "power3.inOut" }, ${f2(e.at + e.dur - 0.42)}); tl.to("#${id}r", { xPercent: 106, duration: 0.42, ease: "power3.inOut" }, ${f2(e.at + e.dur - 0.42)}); tl.to("#${id} .fomid, #${id} .foseam", { opacity: 0, duration: 0.1 }, ${f2(e.at + e.dur - 0.42)}); tl.to("#${id} .dark, #${id} .blurbg", { opacity: 0, duration: 0.3 }, ${f2(e.at + e.dur - 0.35)});`); sfx("whoosh-short", e.at + e.dur - 0.45, 0.3); }
       sfx("impact-bass-2", e.at, 0.42); sfx("whoosh-short", e.at - 0.05, 0.35);
       covers.push([e.at, e.at + e.dur - (door ? 0.3 : 0)]); proof.push(e.at + 0.35, e.badgeAt ? e.badgeAt + 0.3 : e.at + 1, e.at + e.dur - 0.2);
     },
     // head-to-head (canto inferior esquerdo)
     h2h(e) {
       const id = nid("hh");
-      html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="h2h"><div class="h2hh">${esc(e.title)}</div><div class="h2hb">${crest("ame", 76)}<b>${esc(e.home || "AME")}</b><span>×</span><b>${esc(e.away || "CRU")}</b>${crest("cru", 76)}</div></div></div>`);
+      html.push(`<div id="${id}" class="ov hid">${half(e, `<div id="${id}z" class="h2h${rel(e)}"><div class="h2hh">${esc(e.title)}</div><div class="h2hb">${crest("ame", 80)}<b>${esc(e.home || "AME")}</b><span>×</span><b>${esc(e.away || "CRU")}</b>${crest("cru", 80)}</div></div>`)}</div>`);
       show(id, e.at, e.dur); pop(id, e.at); pushIn(`${id}z`, e.at, e.dur, 1, 1.04); sfx("pop", e.at, 0.3); proof.push(e.at + 0.5);
     },
     // TV retrô com imagem dentro e ano gigante atrás
@@ -152,8 +154,8 @@ export function composeGancho(spec, ctx = {}) {
     scoreline(e) {
       const id = nid("sc"); const ups = e.updates || [];
       const num = (k, v) => `<div class="scn"><b id="${id}${k}a">${v}</b><b id="${id}${k}b" class="scnb"></b></div>`;
-      html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="score"><div class="sce scl">${crest("cru", 70)}<b>${esc(e.home)}</b></div><div class="scc">${num("h", e.h)}<i>–</i>${num("a", e.a)}</div><div class="sce scr"><b>${esc(e.away)}</b>${crest("ame", 70)}</div>
-        <div id="${id}t" class="sctag hid"></div></div></div>`);
+      html.push(`<div id="${id}" class="ov hid">${half(e, `<div id="${id}z" class="score${rel(e)}"><div class="sce scl">${crest("cru", 72)}<b>${esc(e.home)}</b></div><div class="scc">${num("h", e.h)}<i>–</i>${num("a", e.a)}</div><div class="sce scr"><b>${esc(e.away)}</b>${crest("ame", 72)}</div>
+        <div id="${id}t" class="sctag hid"></div></div>`)}</div>`);
       show(id, e.at, e.dur); slideUp(id, e.at); pushIn(`${id}z`, e.at, e.dur, 1, 1.03); sfx("pop", e.at, 0.3);
       let cur = { h: e.h, a: e.a };
       ups.forEach((u) => {
@@ -218,7 +220,7 @@ export function composeGancho(spec, ctx = {}) {
         bell: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`,
       };
       const labels = { like: "LIKE", sub: "INSCREVA-SE", bell: "ATIVE O SINO" };
-      html.push(`<div id="${id}" class="ov hid"><div id="${id}z" class="subs">${(e.items || []).map((it, i) => `<div id="${id}i${i}" class="subi hid"><div class="subic">${icons[it.kind]}</div><b>${esc(it.label || labels[it.kind])}</b></div>`).join("")}</div></div>`);
+      html.push(`<div id="${id}" class="ov hid">${half(e, `<div id="${id}z" class="subs${rel(e)}">${(e.items || []).map((it, i) => `<div id="${id}i${i}" class="subi hid"><div class="subic">${icons[it.kind]}</div><b>${esc(it.label || labels[it.kind])}</b></div>`).join("")}</div>`)}</div>`);
       show(id, e.at, e.dur); slideUp(id, e.at); pushIn(`${id}z`, e.at, e.dur, 1, 1.02);
       (e.items || []).forEach((it, i) => { show(`${id}i${i}`, it.at); pop(`${id}i${i}`, it.at); sfx("pop", it.at, 0.3); });
       proof.push((e.items?.[e.items.length - 1]?.at ?? e.at) + 0.4);
@@ -258,6 +260,20 @@ export function composeGancho(spec, ctx = {}) {
   }
   js.push(...camJs);
   for (const [a] of segs) if (a > 0.1) proof.push(a + 0.3);
+  // tela dividida: o vídeo recua para um painel (880×495) de um lado; o outro lado recebe o gráfico (pos: "left"|"right")
+  const PW = 960, PS = f2(PW / W), PY = Math.round((H - H * (PW / W)) / 2 / 8) * 8;
+  for (const sp of spec.splits || []) {
+    const X = sp.side === "right" ? W - 80 - PW : 80, t0 = f2(sp.at), t1 = f2(sp.at + sp.dur);
+    js.push(`tl.set("#splitBg", { autoAlpha: 1 }, ${t0}); tl.fromTo("#splitBg", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, ${t0});
+  tl.fromTo("#splitBg .stripes", { x: 0 }, { x: 64, duration: ${f2(sp.dur + 0.4)}, ease: "none" }, ${t0});
+  tl.to("#camWrap", { scale: ${PS}, x: ${X}, y: ${PY}, duration: 0.45, ease: "power3.inOut" }, ${t0});
+  tl.to("#camClip", { clipPath: "inset(0px round 48px)", duration: 0.45, ease: "power3.inOut" }, ${t0});
+  tl.to("#camWrap", { scale: 1, x: 0, y: 0, duration: 0.4, ease: "power3.inOut" }, ${t1});
+  tl.to("#camClip", { clipPath: "inset(0px round 0.01px)", duration: 0.4, ease: "power3.inOut" }, ${t1});
+  tl.to("#splitBg", { opacity: 0, duration: 0.25, ease: "power2.in" }, ${f2(t1 + 0.15)}); tl.set("#splitBg", { autoAlpha: 0 }, ${f2(t1 + 0.41)});`);
+    sfx("whoosh-short", t0 - 0.02, 0.26); sfx("whoosh-short", t1 - 0.02, 0.22);
+    proof.push(t0 + 0.6, t1 - 0.2);
+  }
 
   // ── CSS ───────────────────────────────────────────────────────────────────────
   const weights = { Thin: 100, ExtraLight: 200, Light: 300, Regular: 400, Normal: 450, Medium: 500, DemiBold: 600, Bold: 700, ExtraBold: 800, Heavy: 900 };
@@ -271,7 +287,21 @@ export function composeGancho(spec, ctx = {}) {
       b, strong { font-weight: inherit; }
       .fill { position: absolute; inset: 0; transform-origin: 50% 50%; }
       .fill > video, .fill > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      #splitBg { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 80% at 50% 50%, var(--n-900) 0%, var(--n-950) 70%); }
+      #camWrap { position: absolute; inset: 0; transform-origin: 0 0; }
+      #camClip { position: absolute; inset: 0; overflow: hidden; clip-path: inset(0px round 0.01px); }
       #cam { position: absolute; inset: 0; transform-origin: 50% 42%; }
+      .half { position: absolute; top: 0; width: 720px; height: ${H}px; display: flex; align-items: center; justify-content: center; }
+      .half-l { left: var(--safe); } .half-r { left: ${W - 80 - 720}px; }
+      .rel { position: relative !important; left: auto !important; right: auto !important; top: auto !important; bottom: auto !important; margin: 0 !important; width: 720px !important; transform-origin: 50% 50% !important; }
+      .half .scc { width: 240px; } .half .scn { width: 80px; } .half .sce { font-size: var(--t-h5); gap: var(--s1); } .half .sce img { width: 64px !important; height: 64px !important; }
+      #splitBg .wm { position: absolute; right: var(--safe); bottom: var(--safe); width: 112px; height: 112px; opacity: .22; }
+      .half .subs { transform: none !important; flex-direction: column; align-items: stretch; width: auto; min-width: 560px; }
+      .half .subi { justify-content: flex-start; }
+      .half .subi b { font-size: var(--t-h5); }
+      .half .tweet p { font-size: var(--t-body); }
+      .half .h2hb b { font-size: var(--t-h3); }
+      .half .h2hh { font-size: 20px; letter-spacing: .14em; white-space: nowrap; }
       #cam video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
       .ov { position: absolute; inset: 0; pointer-events: none; }
@@ -421,7 +451,8 @@ ${css}
       <svg width="0" height="0" style="position:absolute"><defs>
         <filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="10" xChannelSelector="R" yChannelSelector="G"/></filter>
       </defs></svg>
-      <div id="cam"><video id="src" class="clip" src="assets/media/${src.file}" muted playsinline data-start="0" data-duration="${T}" data-media-start="0" data-track-index="0"></video></div>
+      <div id="splitBg" class="hid"><div class="stripes"></div>${crest("ame", 112, "position:absolute;right:80px;bottom:80px;opacity:.22")}</div>
+      <div id="camWrap"><div id="camClip"><div id="cam"><video id="src" class="clip" src="assets/media/${src.file}" muted playsinline data-start="0" data-duration="${T}" data-media-start="0" data-track-index="0"></video></div></div></div>
       ${html.join("\n      ")}
       <audio id="mix" src="assets/media/mix.m4a" data-start="0" data-duration="${T}" data-track-index="6" data-volume="1"></audio>
     </div>

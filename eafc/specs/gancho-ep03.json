@@ -15,35 +15,279 @@
     "cruzazuleando": "eafc/assets/ep03/jogador-cruzazuleando.jpg"
   },
   "clips": {
-    "net":   { "src": "work/eafc/vinheta/clips/net.mp4", "prepared": true },
-    "celeb": { "src": "work/eafc/vinheta/clips/celeb.mp4", "prepared": true }
+    "net": {
+      "src": "work/eafc/vinheta/clips/net.mp4",
+      "prepared": true
+    },
+    "celeb": {
+      "src": "work/eafc/vinheta/clips/celeb.mp4",
+      "prepared": true
+    }
   },
   "camera": [
-    { "at": 7.44, "punch": 1.10, "hold": 0.9 },
-    { "at": 33.76, "punch": 1.08, "hold": 1.2 },
-    { "at": 41.68, "punch": 1.10, "hold": 0.7 },
-    { "at": 50.64, "punch": 1.06, "hold": 0.5 },
-    { "at": 53.84, "punch": 1.06, "hold": 0.8 }
+    {
+      "at": 7.44,
+      "punch": 1.1,
+      "hold": 0.9
+    },
+    {
+      "at": 33.76,
+      "punch": 1.08,
+      "hold": 1.2
+    },
+    {
+      "at": 41.68,
+      "punch": 1.1,
+      "hold": 0.7
+    },
+    {
+      "at": 50.64,
+      "punch": 1.06,
+      "hold": 0.5
+    },
+    {
+      "at": 53.84,
+      "punch": 1.06,
+      "hold": 0.8
+    }
   ],
   "events": [
-    { "type": "cutaway", "at": 0.0, "dur": 1.45, "clip": "net", "kb": [1.0, 1.06], "sfx": false },
-    { "type": "cutaway", "at": 1.45, "dur": 1.05, "clip": "celeb", "kb": [1.0, 1.05] },
-    { "type": "playerCard", "at": 0.88, "dur": 3.0, "num": "16", "unit": "ANOS", "name": "Théo Torres", "sub": "Club América · Nº 14", "photo": "theo" },
-    { "type": "photoCard", "at": 3.9, "dur": 3.1, "img": "campeoes", "label": "Maior campeão do México", "tilt": -3 },
-    { "type": "counter", "at": 5.3, "dur": 1.7, "to": 16, "countDur": 0.8, "label": "Títulos de liga", "crest": "ame" },
-    { "type": "tweet", "at": 7.3, "dur": 2.3, "name": "Águila del Azteca", "handle": "@aguiladel14 · 2h", "avatar": "ame", "text": "Desde 2024 sem título… esse Apertura TEM que ser nosso. #VamosAmérica", "replies": "84", "reposts": "312", "likes": "2,1 mil" },
-    { "type": "fixture", "at": 11.5, "dur": 3.5, "title": "Sorteio · Liguilla · Quartas de final", "home": "AME", "awayLabel": "???", "shakeAt": 13.2 },
-    { "type": "faceoff", "at": 15.0, "dur": 2.75, "home": "AME", "away": "CRU", "mid": "LIGUILLA", "badge": "Atual campeão", "badgeAt": 16.16, "exit": "door" },
-    { "type": "h2h", "at": 18.05, "dur": 4.0, "title": "O confronto mais repetido da Liguilla", "home": "AME", "away": "CRU" },
-    { "type": "photoCard", "at": 22.6, "dur": 3.0, "img": "trofeu", "label": "Apertura · Liguilla · mata-mata", "tilt": 2 },
-    { "type": "tvRetro", "at": 28.4, "dur": 5.2, "year": "2013", "img": "azteca", "pushAt": 31.76, "label": "Final · Estádio Azteca" },
-    { "type": "scoreline", "at": 32.6, "dur": 8.3, "home": "CRU", "away": "AME", "h": 2, "a": 0, "updates": [ { "at": 36.72, "h": 2, "a": 2 }, { "at": 38.56, "tag": "Pênaltis" } ] },
-    { "type": "photoCard", "at": 39.8, "dur": 1.1, "img": "campeoes", "tilt": 2 },
-    { "type": "bigText", "at": 39.8, "dur": 1.6, "text": "CAMPEÃO" },
-    { "type": "zoomCapture", "at": 42.3, "dur": 2.1, "img": "dicionario", "origin": "26% 45%", "zoom": 1.9, "zoomAt": 0.35, "zoomDur": 0.8, "marker": { "x": 0.11, "y": 0.415, "w": 0.3, "h": 0.1 } },
-    { "type": "stamp", "at": 45.7, "dur": 1.3, "img": "cruzazuleando", "text": "Cruzazulear", "crest": "cru", "textAt": 0.15 },
-    { "type": "bracket", "at": 47.0, "dur": 3.4, "title": "Liguilla · Apertura", "big": "6", "bigLabel": "JOGOS", "steps": [ { "at": 48.0, "label": "QUARTAS" }, { "at": 48.88, "label": "SEMIFINAL" }, { "at": 49.68, "label": "FINAL" } ] },
-    { "type": "subscribe", "at": 51.1, "dur": 3.3, "items": [ { "at": 51.28, "kind": "like" }, { "at": 51.68, "kind": "sub" }, { "at": 52.56, "kind": "bell" } ] },
-    { "type": "lowerThird", "at": 55.0, "dur": 1.75, "title": "Reta final", "sub": "Apertura · Liguilla" }
+    {
+      "type": "cutaway",
+      "at": 0.0,
+      "dur": 1.45,
+      "clip": "net",
+      "kb": [
+        1.0,
+        1.06
+      ],
+      "sfx": false
+    },
+    {
+      "type": "cutaway",
+      "at": 1.45,
+      "dur": 1.05,
+      "clip": "celeb",
+      "kb": [
+        1.0,
+        1.05
+      ]
+    },
+    {
+      "type": "playerCard",
+      "at": 0.88,
+      "dur": 3.0,
+      "num": "16",
+      "unit": "ANOS",
+      "name": "Théo Torres",
+      "sub": "Club América · Nº 14",
+      "photo": "theo"
+    },
+    {
+      "type": "photoCard",
+      "at": 3.9,
+      "dur": 3.1,
+      "img": "campeoes",
+      "label": "Maior campeão do México",
+      "tilt": -3
+    },
+    {
+      "type": "counter",
+      "at": 5.3,
+      "dur": 1.7,
+      "to": 16,
+      "countDur": 0.8,
+      "label": "Títulos de liga",
+      "crest": "ame"
+    },
+    {
+      "type": "tweet",
+      "at": 7.35,
+      "dur": 2.3,
+      "name": "Águila del Azteca",
+      "handle": "@aguiladel14 · 2h",
+      "avatar": "ame",
+      "text": "Desde 2024 sem título… esse Apertura TEM que ser nosso. #VamosAmérica",
+      "replies": "84",
+      "reposts": "312",
+      "likes": "2,1 mil",
+      "pos": "right"
+    },
+    {
+      "type": "fixture",
+      "at": 11.5,
+      "dur": 3.5,
+      "title": "Sorteio · Liguilla · Quartas de final",
+      "home": "AME",
+      "awayLabel": "???",
+      "shakeAt": 13.2
+    },
+    {
+      "type": "faceoff",
+      "at": 15.0,
+      "dur": 2.75,
+      "home": "AME",
+      "away": "CRU",
+      "mid": "LIGUILLA",
+      "badge": "Atual campeão",
+      "badgeAt": 16.16,
+      "exit": "door"
+    },
+    {
+      "type": "h2h",
+      "at": 18.1,
+      "dur": 4.0,
+      "title": "O confronto mais repetido da Liguilla",
+      "home": "AME",
+      "away": "CRU",
+      "pos": "left"
+    },
+    {
+      "type": "photoCard",
+      "at": 22.6,
+      "dur": 3.0,
+      "img": "trofeu",
+      "label": "Apertura · Liguilla · mata-mata",
+      "tilt": 2
+    },
+    {
+      "type": "tvRetro",
+      "at": 28.4,
+      "dur": 5.2,
+      "year": "2013",
+      "img": "azteca",
+      "pushAt": 31.76,
+      "label": "Final · Estádio Azteca"
+    },
+    {
+      "type": "scoreline",
+      "at": 33.7,
+      "dur": 6.1,
+      "home": "CRU",
+      "away": "AME",
+      "h": 2,
+      "a": 0,
+      "updates": [
+        {
+          "at": 36.72,
+          "h": 2,
+          "a": 2
+        },
+        {
+          "at": 38.56,
+          "tag": "Pênaltis"
+        }
+      ],
+      "pos": "right"
+    },
+    {
+      "type": "photoCard",
+      "at": 39.8,
+      "dur": 1.1,
+      "img": "campeoes",
+      "tilt": 2
+    },
+    {
+      "type": "bigText",
+      "at": 39.8,
+      "dur": 1.15,
+      "text": "CAMPEÃO"
+    },
+    {
+      "type": "zoomCapture",
+      "at": 42.3,
+      "dur": 2.1,
+      "img": "dicionario",
+      "origin": "26% 45%",
+      "zoom": 1.9,
+      "zoomAt": 0.35,
+      "zoomDur": 0.8,
+      "marker": {
+        "x": 0.11,
+        "y": 0.415,
+        "w": 0.3,
+        "h": 0.1
+      }
+    },
+    {
+      "type": "stamp",
+      "at": 45.7,
+      "dur": 1.3,
+      "img": "cruzazuleando",
+      "text": "Cruzazulear",
+      "crest": "cru",
+      "textAt": 0.15
+    },
+    {
+      "type": "bracket",
+      "at": 47.0,
+      "dur": 3.4,
+      "title": "Liguilla · Apertura",
+      "big": "6",
+      "bigLabel": "JOGOS",
+      "steps": [
+        {
+          "at": 48.0,
+          "label": "QUARTAS"
+        },
+        {
+          "at": 48.88,
+          "label": "SEMIFINAL"
+        },
+        {
+          "at": 49.68,
+          "label": "FINAL"
+        }
+      ]
+    },
+    {
+      "type": "subscribe",
+      "at": 50.9,
+      "dur": 3.4,
+      "items": [
+        {
+          "at": 51.28,
+          "kind": "like"
+        },
+        {
+          "at": 51.68,
+          "kind": "sub"
+        },
+        {
+          "at": 52.56,
+          "kind": "bell"
+        }
+      ],
+      "pos": "left"
+    },
+    {
+      "type": "lowerThird",
+      "at": 55.0,
+      "dur": 1.75,
+      "title": "Reta final",
+      "sub": "Apertura · Liguilla"
+    }
+  ],
+  "splits": [
+    {
+      "at": 7.0,
+      "dur": 2.7,
+      "side": "left"
+    },
+    {
+      "at": 17.75,
+      "dur": 4.5,
+      "side": "right"
+    },
+    {
+      "at": 33.6,
+      "dur": 6.2,
+      "side": "left"
+    },
+    {
+      "at": 50.4,
+      "dur": 4.0,
+      "side": "right"
+    }
   ]
 }
