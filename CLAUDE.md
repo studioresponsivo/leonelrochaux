@@ -42,3 +42,6 @@ Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição 
 - `studio/bin/setup.sh` instala Chrome do HyperFrames, modelo Parakeet e OpenCV (roda sozinho no início da sessão).
 - Marca: verde #22C55E + escala neutral; fonte Articulat CF (pesos 400/450/500/600/700).
 - Referência visual: estilo v2 (motion de UI tipo editverse adaptado a rosto + tela) — `docs/motion/estilo-v2.md`.
+
+## Canal 2 — EA FC (Théo)
+Estilo próprio: `docs/motion/estilo-eafc.md` (assets no padrão Premier League + gramática de edição S2G + disciplina v2). Roteiros do canal 2 usam `"theme":"eafc"` (a implementar no motor v2, §10 do doc). Referências baixadas ficam em `work/refs-eafc/` (fora do git); ferramentas de análise de referência: `studio/bin/ref-analyze.py` e `studio/bin/ref-strip.sh`.
