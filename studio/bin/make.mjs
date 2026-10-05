@@ -79,9 +79,19 @@ const cuts = (spec.cuts || []).map((c, ci) => {
     a = Math.max(words[s[0] - 1]?.end ?? 0, words[s[0]].start - 0.06);
     const e = findPhrase(c.to, words[s[0]].start + 1, (i) => i >= s[0]); if (!e) fail(`corte ${ci + 1}: não achei o fim "${c.to}" depois de "${c.from}"`);
     b = Math.min(words[e[1]].end + 0.12, words[e[1] + 1]?.start ?? Infinity);
+    // "tight": o Parakeet cola o silêncio seguinte na última palavra — corta no fim real da fala (silencedetect)
+    if (spec.tight && hasSrc && c.out == null) {
+      const ws = words[e[1]].start, win = b - ws;
+      if (win > 0.45) {
+        const log = execSync(`ffmpeg -v info -ss ${ws} -t ${f2(win)} -i "${src}" -vn -af silencedetect=n=-34dB:d=0.14 -f null - 2>&1 || true`, { maxBuffer: 1 << 24 }).toString();
+        const m = log.match(/silence_start: ([\d.]+)/);
+        if (m && +m[1] > 0.18) b = Math.min(b, ws + +m[1] + 0.1);
+      }
+    }
+    if (c.outMax != null) b = Math.min(b, c.outMax); // teto manual (ex.: o layout da tela muda logo depois da frase)
   }
   if (a == null || b == null || b <= a) fail(`corte ${ci + 1}: use "from"/"to" (texto) ou "in"/"out" (segundos)`);
-  const cut = { in: f2(a), out: f2(b), t0: f2(t), dur: f2(b - a), screen: c.screen || null };
+  const cut = { in: f2(a), out: f2(b), t0: f2(t), dur: f2(b - a), screen: c.screen || null, box: c.box || null, faceX: c.faceX ?? null };
   t += b - a;
   return cut;
 });
@@ -208,6 +218,13 @@ if (isV1) {
     const input = fromFile ? path.join(W, m.src) : src;
     if (!fs.existsSync(input)) fail(`mídia não encontrada: ${fromFile ? `work/${slug}/${m.src}` : "source.mp4"}`);
     const ss = fromFile ? (m.from ?? 0) : m.src;
+    if (m.still) { // quadro congelado (PNG) — a tela do original pode estar se mexendo
+      const key = `st_${fromFile ? norm(m.src) : m.src}_${m.crop.join("-")}_${bw}x${bh}.png`, out = path.join(cache, key);
+      if (!fs.existsSync(out)) sh(`ffmpeg -v error -ss ${ss} -i "${input}" -frames:v 1 -vf "${fromFile ? "" : `crop=${x2 - x1}:${y2 - y1}:${x1}:${y1},`}scale=${bw}:${bh}:force_original_aspect_ratio=increase:flags=lanczos,crop=${bw}:${bh}" -y "${out}"`);
+      m.file = key; m.image = true;
+      fs.copyFileSync(out, path.join(P, "assets/media", key));
+      continue;
+    }
     const key = `cw_${fromFile ? norm(m.src) : m.src}_${m.crop.join("-")}_${bw}x${bh}_${m.dur}_${FPS}.mp4`;
     const out = path.join(cache, key);
     const cropF = fromFile ? "" : `crop=${x2 - x1}:${y2 - y1}:${x1}:${y1},`;

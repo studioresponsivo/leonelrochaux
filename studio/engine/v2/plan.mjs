@@ -29,6 +29,8 @@ const SCENE_DEF = {
   stack: { in: "push-up", out: "blur" },
   swap: { in: "push-up", out: "blur" },
   icons: { in: "whip-up", out: "cut" },
+  prompt: { in: "cut", out: "blur", dur: 3.6 },
+  compare: { in: "zoom", out: "blur", dur: 3.2 },
 };
 export const SCENES = Object.keys(SCENE_DEF);
 export const MODS = ["punch", "focus"];
@@ -45,8 +47,10 @@ export function mediaBox(kind, crop, ctx) {
   if (kind === "full") return [W, H];
   if (kind === "card") return V ? fit(960, 1080) : fit(1500, 760);
   if (kind === "browser") return V ? fit(940, 980) : fit(1180, 640);
-  if (kind === "phone") return V ? [420, 900] : [300, 640];
+  if (kind === "phone") return V ? [400, 856] : [300, 640];
   if (kind === "stack") return V ? fit(900, 980) : fit(1100, 620);
+  if (kind === "cmpRow") return V ? fit(450, 700) : fit(720, 640);
+  if (kind === "cmpCol") return V ? fit(880, 460) : fit(760, 420);
   return [W, H];
 }
 
@@ -105,7 +109,7 @@ export function buildPlan(spec, ctx) {
         const shots = o.shots || [{ src: o.src, crop: o.crop, label: o.label }];
         if (shots[0].src == null) fail(`abertura screen-first: informe "src" (segundos do vídeo original) ou "shots"`);
         const d = faceT / shots.length;
-        shots.forEach((s, i) => scenes.push({ do: "cutaway", t0: f2(i * d), t1: f2((i + 1) * d), frame: s.frame ?? o.frame ?? "full", src: s.src, crop: s.crop, label: s.label ?? (i === 0 ? o.label : null), fx: s.fx ?? (i % 2 ? "pan" : "push"),
+        shots.forEach((s, i) => scenes.push({ do: "cutaway", t0: f2(i * d), t1: f2((i + 1) * d), frame: s.frame ?? o.frame ?? "full", src: s.src, crop: s.crop, still: s.still ?? o.still, label: s.label ?? (i === 0 ? o.label : null), fx: s.fx ?? (i % 2 ? "pan" : "push"),
           in: i === 0 ? "none" : (o.between ?? "whip"), out: i === shots.length - 1 ? (o.out ?? "blur") : "none", origin: "opening" }));
         takeA(faceT); break;
       }
@@ -116,17 +120,18 @@ export function buildPlan(spec, ctx) {
         scenes.push({ do: "ticker", t0: 0, t1: faceT, text: o.text, hl: o.hl, in: "none", out: o.out ?? "blur", origin: "opening" });
         takeA(faceT); break;
       case "number-hook": need("value");
-        scenes.push({ do: "number", t0: 0, t1: faceT, value: o.value, from: o.from, prefix: o.prefix, suffix: o.suffix, label: o.label, in: "none", out: o.out ?? "cut", origin: "opening" });
+        scenes.push({ do: "number", t0: 0, t1: faceT, value: o.value, from: o.from, prefix: o.prefix, suffix: o.suffix, decimals: o.decimals, label: o.label, hl: o.hl,
+          countT: o.countAt != null ? at(o.countAt, "opening.countAt", 0) : undefined, in: "none", out: o.out ?? "cut", origin: "opening" });
         takeA(faceT); break;
       case "search-hook": {
         need("query");
         const mid = o.src != null ? f2(Math.max(1.6, faceT * 0.55)) : faceT;
         scenes.push({ do: "search", t0: 0, t1: mid, query: o.query, in: "none", out: o.src != null ? "none" : (o.out ?? "zoom"), origin: "opening" });
-        if (o.src != null) scenes.push({ do: "cutaway", t0: mid, t1: faceT, src: o.src, crop: o.crop, frame: o.frame ?? "full", fx: "push", in: "zoom", out: o.out ?? "blur", origin: "opening" });
+        if (o.src != null) scenes.push({ do: "cutaway", t0: mid, t1: faceT, src: o.src, crop: o.crop, still: o.still, frame: o.frame ?? "full", fx: "push", in: "zoom", out: o.out ?? "blur", origin: "opening" });
         takeA(faceT); break;
       }
       case "result-first": need("src");
-        scenes.push({ do: "device", t0: 0, t1: faceT, src: o.src, crop: o.crop, kind: o.kind ?? "browser", labels: o.labels || (o.label ? [o.label] : []), in: "none", out: o.out ?? "cut", origin: "opening" });
+        scenes.push({ do: "device", t0: 0, t1: faceT, src: o.src, crop: o.crop, still: o.still, kind: o.kind ?? "browser", url: o.url, labels: o.labels || (o.label ? [o.label] : []), in: "none", out: o.out ?? "cut", origin: "opening" });
         takeA(faceT); break;
       case "face-to-face-cut": {
         const p2 = o.face != null ? faceT : (nextPhrase(0, 1.4) ?? 2);
@@ -138,7 +143,7 @@ export function buildPlan(spec, ctx) {
         faceT = 0; break;
       }
       case "problem-flood": need("src");
-        scenes.push({ do: "cutaway", t0: 0, t1: faceT, src: o.src, crop: o.crop, frame: o.frame ?? "full", fx: "push", gray: true, label: o.label, in: "none", out: "flood", flood: o.color ?? "red", origin: "opening" });
+        scenes.push({ do: "cutaway", t0: 0, t1: faceT, src: o.src, crop: o.crop, still: o.still, frame: o.frame ?? "full", fx: "push", gray: true, label: o.label, in: "none", out: "flood", flood: o.color ?? "red", origin: "opening" });
         takeA(faceT); break;
       case "selection-hook": need("text"); need("word");
         scenes.push({ do: "select", t0: 0, t1: faceT, text: o.text, word: o.word, in: "none", out: o.out ?? "cut", origin: "opening" });
@@ -165,6 +170,19 @@ export function buildPlan(spec, ctx) {
     const s = { ...b, t0, t1, in: b.in ?? (b.fx === "zoom-through" ? "zoom" : def.in), out: b.out ?? def.out };
     if (s.fx === "zoom-through") s.fx = "push";
     for (const k of ["items", "cards"]) if (b[k]) s[k] = b[k].map((it, ii) => ({ ...it, t: it.at != null ? at(it.at, `${label} ${k}[${ii}]`, t0) : null }));
+    if (b.do === "number" && b.countAt != null) s.countT = at(b.countAt, label + ".countAt", t0);
+    if (b.do === "compare") {
+      if (!b.a?.src && b.a?.src !== 0 || !b.b?.src && b.b?.src !== 0) fail(`${label}: compare precisa de "a" e "b" com "src"`);
+      s.a = { ...b.a }; s.b = { ...b.b };
+      if (b.bAt != null) s.bT = at(b.bAt, label + ".bAt", t0);
+      if (b.signAt != null) s.signT = at(b.signAt, label + ".signAt", t0);
+    }
+    if (b.do === "prompt") {
+      const ls = b.lines ?? String(b.text ?? "").split("\n");
+      if (!ls.length || !ls.some((l) => String(typeof l === "string" ? l : l.text ?? "").trim())) fail(`${label}: prompt sem "lines"/"text"`);
+      s.lines = ls.map((l, li) => { const o2 = typeof l === "string" ? { text: l } : { ...l }; if (o2.at != null) o2.t = at(o2.at, `${label} lines[${li}]`, t0); return o2; });
+      if (b.status) { s.status = typeof b.status === "string" ? { text: b.status } : { ...b.status }; if (s.status.at != null) s.status.t = at(s.status.at, label + ".status", t0); }
+    }
     scenes.push(s);
     lastEnd = t1 ?? t0 + 2;
   });
@@ -184,6 +202,10 @@ export function buildPlan(spec, ctx) {
       if (s.t1 == null) s.t1 = f2(sy.matched >= Math.min(2, sy.ws.length) ? sy.lastEnd + 0.7 : s.t0 + 0.6 + sy.ws.length * 0.09 + 1.4);
     }
     if (s.do === "stack" && s.t1 == null) s.t1 = f2(s.t0 + 0.3 + (s.cards || []).length * 1.5);
+    if (s.do === "prompt" && s.t1 == null) {
+      const chars = s.lines.reduce((a, l) => a + String(l.text).length, 0), lastL = Math.max(0, ...s.lines.map((l) => l.t ?? 0));
+      s.t1 = f2(Math.max(s.t0 + 2.4, s.t0 + 0.5 + chars * 0.03 + (s.status ? 1.4 : 0.8), lastL + 1.2, (s.status?.t ?? 0) + 1.2));
+    }
     if ((s.do === "swap" || s.do === "kpis") && s.t1 == null) {
       const lt = Math.max(...(s.items || []).map((it) => it.t ?? 0));
       s.t1 = f2(Math.max(s.t0 + (def.dur ?? 3), lt + 1.6));
@@ -213,7 +235,7 @@ export function buildPlan(spec, ctx) {
     const crop = obj.crop || full;
     const box = mediaBox(kind, crop, ctx);
     const isImg = typeof obj.src === "string" && /\.(png|jpe?g|webp|gif|svg)$/i.test(obj.src);
-    const m = { src: obj.src, from: obj.from, crop, box, dur: f2(dur + 0.4), image: isImg, id: `m${media.length}` };
+    const m = { src: obj.src, from: obj.from, crop, box, dur: f2(dur + 0.4), image: isImg, still: !isImg && !!obj.still, id: `m${media.length}` };
     media.push(m); return m;
   };
   for (const s of scenes) {
@@ -225,6 +247,13 @@ export function buildPlan(spec, ctx) {
     }
     if (s.do === "device") { s.media = want(s, s, s.kind === "phone" ? "phone" : "browser", s.t1 - s.t0 + 0.6); if (!s.media) fail(`device em ${s.t0}s: falta "src"`); }
     if (s.do === "stack") (s.cards || []).forEach((c) => { c.media = want(s, c, "stack", s.t1 - c.t + 0.6); if (!c.media) fail(`stack em ${s.t0}s: card sem "src"`); c.t0 = c.t; });
+    if (s.do === "compare") {
+      const ar = (o2) => { const c = o2.crop || full; return (c[2] - c[0]) / (c[3] - c[1]); };
+      s.layout = s.layout ?? (!ctx.V ? "row" : ar(s.a) < 1.05 && ar(s.b) < 1.05 ? "row" : "col");
+      const kind = s.layout === "row" ? "cmpRow" : "cmpCol";
+      s.a.media = want(s, s.a, kind, s.t1 - s.t0 + 0.6);
+      s.b.media = want(s, s.b, kind, s.t1 - (s.bT ?? s.t0) + 0.6);
+    }
   }
   const end = scenes.length ? Math.max(...scenes.map((s) => s.t1)) : 0;
   return { scenes, punches, focus, opening, faceT, media, warns, phr, end };

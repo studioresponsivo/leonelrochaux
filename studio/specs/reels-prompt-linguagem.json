@@ -1,0 +1,326 @@
+{
+ "name": "reels-prompt-linguagem",
+ "format": "vertical",
+ "tight": true,
+ "fixes": {
+  "ar.": "IA.",
+  "Entende": "entende",
+  "Json": "JSON",
+  "APT,": "GPT,",
+  "APT": "GPT",
+  "Cidreen,": "Seedream,",
+  "cloud,": "Claude,"
+ },
+ "keywords": [
+  "prompt",
+  "json",
+  "inglês",
+  "linguagem",
+  "segredo",
+  "documentação",
+  "descrever",
+  "primeira",
+  "thumb"
+ ],
+ "marks": [
+  "saturada"
+ ],
+ "hush": [
+  "Não precisa de mais nada"
+ ],
+ "cuts": [
+  {
+   "near": 209,
+   "from": "Eu não tô fazendo aquela",
+   "to": "não sei o que lá.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 219,
+   "from": "Eu aprendi uma coisa",
+   "to": "antes de qualquer coisa,",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 228,
+   "from": "você precisa entender como",
+   "to": "a linguagem.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 242,
+   "from": "E é o primeiro segredo.",
+   "to": "primeiro segredo.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 244,
+   "from": "Se você vai usar o Nano",
+   "to": "por aí vai.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 254,
+   "from": "como é que eu sei disso?",
+   "to": "API de comunicação,",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 263,
+   "from": "e você vai ler a documentação.",
+   "to": "a documentação.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 265,
+   "from": "Eu tô sem tempo para ler.",
+   "to": "plataformas entendem.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 362,
+   "from": "Só que eu não preciso mais",
+   "to": "descrever a imagem.",
+   "screen": "canvas"
+  },
+  {
+   "near": 368,
+   "from": "Por exemplo, olha que forma simples.",
+   "to": "algumas direções.",
+   "screen": "canvas"
+  },
+  {
+   "near": 381,
+   "from": "Eu fiz uma geração",
+   "to": "ficou pronto.",
+   "screen": "canvas"
+  },
+  {
+   "near": 388,
+   "from": "E se você pega isso aqui,",
+   "to": "mais nada.",
+   "screen": "canvas"
+  }
+ ],
+ "screens": {
+  "canvas": {
+   "crop": [
+    0,
+    118,
+    1593,
+    1047
+   ],
+   "cam": [
+    1593,
+    20,
+    327,
+    327
+   ]
+  }
+ },
+ "opening": {
+  "style": "problem-flood",
+  "src": 355,
+  "crop": [
+   274,
+   150,
+   790,
+   1067
+  ],
+  "still": true,
+  "label": "Prompt gigante em inglês",
+  "face": "que o mercado ensina"
+ },
+ "beats": [
+  {
+   "at": "Ah, você tem que pegar",
+   "do": "prompt",
+   "mono": true,
+   "title": "prompt.json",
+   "cps": 0.02,
+   "lines": [
+    "{",
+    "  \"style\": \"hyperrealistic, 8K\",",
+    "  \"lighting\": \"studio softbox, rim light\",",
+    "  \"lens\": \"85mm f/1.8\",",
+    "  \"identity\": \"keep the same face\"",
+    "}"
+   ],
+   "until": "Eu aprendi uma coisa"
+  },
+  {
+   "at": "muito inteligente",
+   "do": "punch",
+   "scale": 1.22,
+   "to": "nessa área."
+  },
+  {
+   "at": "você precisa entender",
+   "do": "select",
+   "text": "você precisa entender como o modelo de IA entende a linguagem",
+   "word": "linguagem",
+   "until": "E é o primeiro segredo."
+  },
+  {
+   "at": "primeiro segredo.",
+   "do": "punch",
+   "scale": 1.26,
+   "to": "segredo."
+  },
+  {
+   "at": "Se você vai usar o Nano",
+   "do": "swap",
+   "title": "Cada IA, uma linguagem",
+   "until": "como é que eu sei",
+   "items": [
+    {
+     "at": "Nano Banana,",
+     "text": "Nano Banana: um jeito"
+    },
+    {
+     "at": "Chat APT, você",
+     "text": "ChatGPT: outro jeito"
+    },
+    {
+     "at": "Cidreen, outro",
+     "text": "Seedream: outro jeito"
+    }
+   ]
+  },
+  {
+   "at": "Você vai botar no Google",
+   "do": "search",
+   "query": "nano banana api documentação",
+   "until": "Eu tô sem tempo"
+  },
+  {
+   "at": "sem tempo para ler.",
+   "do": "punch",
+   "scale": 1.2,
+   "to": "para ler."
+  },
+  {
+   "at": "Copia o link,",
+   "do": "icons",
+   "before": "Copia o link e manda no",
+   "icons": [
+    "claude",
+    "ia"
+   ],
+   "out": "cut"
+  },
+  {
+   "at": "Só que eu não preciso",
+   "do": "focus",
+   "x": 470,
+   "y": 565,
+   "z": 2.8,
+   "dur": 0.9
+  },
+  {
+   "at": "A única coisa que eu preciso",
+   "do": "bridge",
+   "text": "A única coisa que eu preciso é descrever a imagem",
+   "hl": [
+    "descrever"
+   ],
+   "bg": "light",
+   "until": "Por exemplo, olha"
+  },
+  {
+   "at": "Por exemplo, olha",
+   "do": "focus",
+   "x": 900,
+   "y": 700,
+   "z": 1.7,
+   "dur": 0.8
+  },
+  {
+   "at": "Eu digo o que aqui",
+   "do": "prompt",
+   "bg": "light",
+   "title": "Prompt · thumb Sunderland",
+   "model": "GPT 2.5",
+   "lines": [
+    {
+     "text": "Fundo: símbolo do @Sunderland grande e desfocado",
+     "at": "ao fundo,"
+    },
+    {
+     "text": "Esquerda: @Jogador_1 apontando pra frente",
+     "at": "lado esquerdo,"
+    },
+    {
+     "text": "Direita: @Jogador_2 ao lado do técnico",
+     "at": "lado direito,"
+    },
+    {
+     "text": "Centro: @Técnico com uniforme de técnico",
+     "at": "no centro,"
+    }
+   ],
+   "until": "Eu fiz uma geração"
+  },
+  {
+   "at": "Eu fiz uma geração",
+   "do": "focus",
+   "x": 900,
+   "y": 690,
+   "z": 1.6,
+   "dur": 0.9
+  },
+  {
+   "at": "foi uma geração que de primeira",
+   "do": "device",
+   "src": 390,
+   "crop": [
+    130,
+    168,
+    1468,
+    922
+   ],
+   "still": true,
+   "url": "youtube.com",
+   "labels": [
+    "Gerada de primeira",
+    "Já é uma thumb",
+    "Só falta o título"
+   ],
+   "dur": 12
+  }
+ ],
+ "cta": {
+  "kicker": "Vídeo completo",
+  "title": "O vídeo completo está no meu canal",
+  "hl": [
+   "canal"
+  ],
+  "image": "capa.jpg",
+  "pill": "Link na bio",
+  "seconds": 5
+ }
+}

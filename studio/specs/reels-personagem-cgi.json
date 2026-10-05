@@ -1,0 +1,369 @@
+{
+ "name": "reels-personagem-cgi",
+ "format": "vertical",
+ "tight": true,
+ "fixes": {
+  "IFC.": "EA FC.",
+  "EFC": "EA FC",
+  "Tel.": "Theo.",
+  "secatriz,": "cicatriz,",
+  "chat": "Chat"
+ },
+ "keywords": [
+  "cgi",
+  "personagem",
+  "rostos",
+  "rosto",
+  "máximo",
+  "igual",
+  "prompt",
+  "absurda"
+ ],
+ "marks": [
+  "absurdo"
+ ],
+ "hush": [
+  "Não existe forma de escrever esse tipo de prompt"
+ ],
+ "cuts": [
+  {
+   "near": 738,
+   "from": "Cara, isso aqui é absurdo.",
+   "to": "é absurdo.",
+   "screen": "canvas"
+  },
+  {
+   "near": 739,
+   "from": "A imagem ela simplesmente saiu",
+   "to": "é insana.",
+   "screen": "canvas"
+  },
+  {
+   "near": 589,
+   "from": "Eu gerei um personagem.",
+   "to": "um personagem.",
+   "box": [
+    1134,
+    1920
+   ],
+   "outMax": 590.45
+  },
+  {
+   "near": 591,
+   "from": "Meio que CGI,",
+   "to": "que CGI,",
+   "screen": "canvas"
+  },
+  {
+   "near": 593,
+   "from": "estilo EFC desse jogador",
+   "to": "nosso modo carreira.",
+   "screen": "canvas"
+  },
+  {
+   "near": 602,
+   "from": "Eu vou usar essa imagem aqui,",
+   "to": "próprio IFC.",
+   "screen": "canvas"
+  },
+  {
+   "near": 611,
+   "from": "E aí eu vou selecionar",
+   "to": "GPT 2.5.",
+   "screen": "canvas"
+  },
+  {
+   "near": 625,
+   "from": "Ele vai preservar os rostos,",
+   "to": "e produtos,",
+   "screen": "canvas"
+  },
+  {
+   "near": 666,
+   "from": "Eu quero que você troque.",
+   "to": "preto da imagem.",
+   "screen": "canvas"
+  },
+  {
+   "near": 673,
+   "from": "Pelo jogador da referência",
+   "to": "referência Tel.",
+   "screen": "canvas"
+  },
+  {
+   "near": 677,
+   "from": "Mantenha a imagem igual.",
+   "to": "Mesma posição.",
+   "screen": "canvas"
+  },
+  {
+   "near": 683,
+   "from": "Mesma luz e etc.",
+   "to": "luz e etc.",
+   "screen": "canvas"
+  },
+  {
+   "near": 703,
+   "from": "Quanto mais fraco você",
+   "to": "Absurda.",
+   "screen": "canvas"
+  },
+  {
+   "near": 723,
+   "from": "Olha o rostinho do meu jogador,",
+   "to": "a posição.",
+   "screen": "canvas"
+  },
+  {
+   "near": 729,
+   "from": "Manteve-se igual,",
+   "to": "o CGI.",
+   "screen": "canvas"
+  },
+  {
+   "near": 803,
+   "from": "Não existe forma de escrever",
+   "to": "extremamente inteligente.",
+   "box": [
+    1134,
+    1920
+   ]
+  }
+ ],
+ "screens": {
+  "canvas": {
+   "crop": [
+    0,
+    118,
+    1593,
+    1047
+   ],
+   "cam": [
+    1593,
+    20,
+    327,
+    327
+   ]
+  }
+ },
+ "opening": {
+  "style": "screen-first",
+  "face": "saiu de uma fotografia",
+  "shots": [
+   {
+    "src": "resultado.png",
+    "crop": [
+     0,
+     0,
+     442,
+     786
+    ],
+    "label": "Personagem CGI gerado com IA"
+   }
+  ]
+ },
+ "beats": [
+  {
+   "at": "como que ela estava",
+   "do": "compare",
+   "sign": "→",
+   "bAt": "como que ela ficou",
+   "note": "Mesma pose, mesma luz",
+   "until": "gerei um personagem",
+   "bg": "light",
+   "a": {
+    "src": 752,
+    "crop": [
+     222,
+     206,
+     766,
+     860
+    ],
+    "still": true,
+    "label": "Print do jogo"
+   },
+   "b": {
+    "src": 752,
+    "crop": [
+     862,
+     206,
+     1406,
+     860
+    ],
+    "still": true,
+    "label": "Com o personagem"
+   },
+   "in": "push-up"
+  },
+  {
+   "at": "Meio que CGI,",
+   "do": "cutaway",
+   "src": 596,
+   "crop": [
+    392,
+    190,
+    928,
+    660
+   ],
+   "still": true,
+   "frame": "card",
+   "bg": "light",
+   "label": "Personagem estilo EA FC",
+   "until": "Eu vou usar essa imagem",
+   "in": "whip"
+  },
+  {
+   "at": "Eu vou usar essa imagem",
+   "do": "device",
+   "kind": "phone",
+   "src": 752,
+   "crop": [
+    300,
+    206,
+    690,
+    860
+   ],
+   "still": true,
+   "labels": [
+    "Print do próprio EA FC"
+   ],
+   "until": "E aí eu vou selecionar",
+   "bg": "light"
+  },
+  {
+   "at": "E aí eu vou selecionar",
+   "do": "cutaway",
+   "src": 612.2,
+   "crop": [
+    300,
+    250,
+    1110,
+    990
+   ],
+   "still": true,
+   "frame": "card",
+   "bg": "light",
+   "label": "Modelo: GPT 2.5",
+   "until": "Ele vai preservar"
+  },
+  {
+   "at": "Ele vai preservar",
+   "do": "focus",
+   "x": 1060,
+   "y": 650,
+   "z": 2.4,
+   "dur": 0.8
+  },
+  {
+   "at": "Eu quero que você troque.",
+   "do": "prompt",
+   "title": "Prompt",
+   "model": "GPT 2.5",
+   "until": "Quanto mais fraco",
+   "lines": [
+    "Estilo: CGI igual ao da referência @Theo_#6",
+    {
+     "text": "Eu quero que você troque o jogador de preto da @Imagem",
+     "at": "Eu quero que você troque."
+    },
+    {
+     "text": "pelo jogador da referência @Theo_#6",
+     "at": "Pelo jogador da referência"
+    },
+    {
+     "text": "Mantenha a imagem igual, mesma posição,",
+     "at": "Mantenha a imagem igual."
+    },
+    {
+     "text": "mesma luz.",
+     "at": "Mesma luz e etc."
+    }
+   ],
+   "status": {
+    "text": "Prompt simples, sem JSON",
+    "tone": "good",
+    "at": "luz e etc."
+   },
+   "bg": "light"
+  },
+  {
+   "at": "Quanto mais fraco",
+   "do": "swap",
+   "title": "Esforço da IA",
+   "until": "Vai gastar 600",
+   "items": [
+    {
+     "at": "Quanto mais fraco",
+     "text": "Fraco: rosto sai diferente",
+     "tone": "bad"
+    },
+    {
+     "at": "deixo no máximo.",
+     "text": "Máximo: rosto preservado"
+    }
+   ]
+  },
+  {
+   "at": "Vai gastar 600",
+   "do": "number",
+   "from": 0,
+   "value": 600,
+   "label": "créditos por imagem",
+   "countAt": "600 créditos?",
+   "until": "Olha o rostinho"
+  },
+  {
+   "at": "Olha o rostinho",
+   "do": "cutaway",
+   "src": "rosto-zoom.png",
+   "crop": [
+    0,
+    0,
+    500,
+    889
+   ],
+   "frame": "full",
+   "fx": "push",
+   "label": "Rosto preservado",
+   "until": "Manteve-se igual,"
+  },
+  {
+   "at": "Manteve-se igual,",
+   "do": "compare",
+   "sign": "=",
+   "note": "Mesmo rosto da referência",
+   "until": "Não existe forma",
+   "a": {
+    "src": 650,
+    "crop": [
+     398,
+     738,
+     682,
+     1040
+    ],
+    "still": true,
+    "label": "Referência"
+   },
+   "b": {
+    "src": "rosto-resultado.png",
+    "crop": [
+     0,
+     0,
+     480,
+     510
+    ],
+    "label": "Resultado"
+   }
+  }
+ ],
+ "cta": {
+  "kicker": "Vídeo completo",
+  "title": "Veja o processo completo no meu canal",
+  "hl": [
+   "canal"
+  ],
+  "image": "capa.jpg",
+  "pill": "Link na bio",
+  "seconds": 5
+ }
+}

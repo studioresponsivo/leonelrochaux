@@ -1,0 +1,383 @@
+{
+ "name": "reels-rosto-igual",
+ "format": "vertical",
+ "tight": true,
+ "fixes": {
+  "BH,": "PH,",
+  "pH": "PH"
+ },
+ "keywords": [
+  "mil",
+  "graça",
+  "iguais",
+  "igual",
+  "rosto",
+  "corpo",
+  "consistência",
+  "diferente"
+ ],
+ "marks": [
+  "bobagem"
+ ],
+ "hush": [
+  "consistência igual do início ao fim"
+ ],
+ "cuts": [
+  {
+   "near": 0,
+   "from": "Um ensaio profissional",
+   "to": "em todas as fotos.",
+   "box": [
+    600,
+    1400
+   ]
+  },
+  {
+   "near": 27,
+   "from": "Se você já tentou criar",
+   "to": "não era igual",
+   "box": [
+    560,
+    1400
+   ]
+  },
+  {
+   "near": 444,
+   "from": "Hoje em dia, as pessoas",
+   "to": "ficou, ficou diferente,",
+   "screen": "canvas"
+  },
+  {
+   "near": 471,
+   "from": "Aqui ó, com esse método",
+   "to": "jogados fora.",
+   "screen": "canvas"
+  },
+  {
+   "near": 482,
+   "from": "Aí veja o pulo do gato.",
+   "to": "pulo do gato.",
+   "screen": "canvas"
+  },
+  {
+   "near": 502,
+   "from": "A engenharia de criação",
+   "to": "é o seguinte.",
+   "screen": "canvas"
+  },
+  {
+   "near": 504,
+   "from": "Você vai conectar a foto",
+   "to": "a foto de rosto.",
+   "box": [
+    1134,
+    1920
+   ]
+  },
+  {
+   "near": 528,
+   "from": "Agora tem um detalhe",
+   "to": "no rosto também.",
+   "screen": "canvas"
+  },
+  {
+   "near": 544,
+   "from": "Gente, isso parece bobagem.",
+   "to": "parece bobagem.",
+   "screen": "canvas"
+  },
+  {
+   "near": 550,
+   "from": "Eu acredito que muita gente",
+   "to": "dessa forma.",
+   "screen": "canvas"
+  },
+  {
+   "near": 552,
+   "from": "Olha a consistência das imagens.",
+   "to": "do início ao fim.",
+   "screen": "canvas"
+  }
+ ],
+ "screens": {
+  "canvas": {
+   "crop": [
+    0,
+    118,
+    1593,
+    1047
+   ],
+   "cam": [
+    1593,
+    20,
+    327,
+    327
+   ]
+  }
+ },
+ "opening": {
+  "style": "number-hook",
+  "from": 0,
+  "value": 1000,
+  "prefix": "R$ ",
+  "label": "por um ensaio profissional",
+  "hl": [
+   "profissional"
+  ],
+  "countAt": "mil reais",
+  "face": "mas os meus",
+  "takeScale": 1.08
+ },
+ "beats": [
+  {
+   "at": "e os rostos saem iguais",
+   "do": "compare",
+   "sign": "=",
+   "note": "Mesmo rosto",
+   "bAt": "saem iguais",
+   "signAt": "iguais.",
+   "until": "Exatamente esse rostinho",
+   "a": {
+    "src": 33,
+    "crop": [
+     70,
+     266,
+     480,
+     820
+    ],
+    "still": true
+   },
+   "b": {
+    "src": 33,
+    "crop": [
+     530,
+     266,
+     940,
+     820
+    ],
+    "still": true
+   },
+   "bg": "dark"
+  },
+  {
+   "at": "esse rostinho lindo",
+   "do": "punch",
+   "scale": 1.15,
+   "to": "rostinho lindo"
+  },
+  {
+   "at": "uma sequência de imagens",
+   "do": "prompt",
+   "title": "prompt.txt",
+   "until": "Hoje em dia",
+   "lines": [
+    "Ensaio profissional, mesmo rosto da @foto_de_referência",
+    "luz de estúdio suave, lente 85mm, pele realista"
+   ],
+   "status": {
+    "text": "Rosto não corresponde à referência",
+    "tone": "bad",
+    "at": "alguém parecido,"
+   }
+  },
+  {
+   "at": "Hoje em dia",
+   "do": "focus",
+   "x": 210,
+   "y": 520,
+   "z": 2.6,
+   "dur": 0.9
+  },
+  {
+   "at": "Aqui, mesmo eu",
+   "do": "focus",
+   "x": 800,
+   "y": 580,
+   "z": 1.0,
+   "dur": 0.7
+  },
+  {
+   "at": "pedindo para trocar",
+   "do": "compare",
+   "in": "push-up",
+   "sign": "≠",
+   "bAt": "olha como é que ficou",
+   "signAt": "ficou diferente",
+   "until": "Aqui ó, com esse método",
+   "a": {
+    "src": 500,
+    "crop": [
+     1020,
+     364,
+     1340,
+     826
+    ],
+    "still": true,
+    "label": "Rosto real"
+   },
+   "b": {
+    "src": 458,
+    "crop": [
+     930,
+     240,
+     1390,
+     800
+    ],
+    "still": true,
+    "label": "Resultado"
+   },
+   "bg": "dark"
+  },
+  {
+   "at": "Aqui ó, com esse método",
+   "do": "focus",
+   "x": 1233,
+   "y": 290,
+   "z": 2.0,
+   "dur": 0.8
+  },
+  {
+   "at": "foi 3 mil",
+   "do": "number",
+   "from": 0,
+   "value": 3000,
+   "label": "créditos jogados fora",
+   "countAt": "mil créditos",
+   "until": "Aí veja o pulo"
+  },
+  {
+   "at": "Aí veja o pulo do gato.",
+   "do": "bridge",
+   "text": "Aí veja o pulo do gato",
+   "hl": [
+    "gato"
+   ],
+   "bg": "green",
+   "until": "Você vai conectar"
+  },
+  {
+   "at": "a foto de corpo",
+   "do": "compare",
+   "in": "whip-up",
+   "sign": "+",
+   "bAt": "e a foto de rosto",
+   "until": "Agora tem um detalhe",
+   "a": {
+    "src": 500,
+    "crop": [
+     648,
+     376,
+     946,
+     840
+    ],
+    "still": true,
+    "label": "Foto de corpo"
+   },
+   "b": {
+    "src": 500,
+    "crop": [
+     1020,
+     364,
+     1340,
+     826
+    ],
+    "still": true,
+    "label": "Foto de rosto"
+   }
+  },
+  {
+   "at": "Agora tem um detalhe",
+   "do": "prompt",
+   "title": "Prompt",
+   "model": "GPT 2.5",
+   "until": "apenas para trocar",
+   "lines": [
+    "Troque o jogador do centro pelo @Corpo_inteiro",
+    {
+     "text": "Quero que o rosto dele seja o mais próximo do real.",
+     "at": "Eu quero que o rosto"
+    },
+    {
+     "text": "No rosto, use a referência @PH_Freitas",
+     "at": "Então, no rosto,"
+    }
+   ],
+   "status": {
+    "text": "Corpo + rosto conectados",
+    "tone": "good",
+    "at": "conecto a foto."
+   }
+  },
+  {
+   "at": "uma imagem limpa",
+   "do": "focus",
+   "x": 632,
+   "y": 504,
+   "z": 1.8,
+   "dur": 0.8
+  },
+  {
+   "at": "trocar o corpo",
+   "do": "cutaway",
+   "src": 541,
+   "crop": [
+    1036,
+    362,
+    1590,
+    680
+   ],
+   "still": true,
+   "frame": "card",
+   "label": "Corpo trocado, foco no rosto",
+   "until": "Gente, isso parece",
+   "bg": "dark"
+  },
+  {
+   "at": "Eu acredito que muita gente",
+   "do": "select",
+   "text": "Eu acredito que muita gente não faz dessa forma",
+   "word": "não",
+   "until": "Olha a consistência"
+  },
+  {
+   "at": "Olha a consistência",
+   "do": "stack",
+   "dur": 7,
+   "cards": [
+    {
+     "at": "Olha a consistência",
+     "src": 553,
+     "crop": [
+      380,
+      118,
+      1410,
+      930
+     ],
+     "still": true
+    },
+    {
+     "at": "consistência igual",
+     "src": 573,
+     "crop": [
+      330,
+      130,
+      1290,
+      880
+     ],
+     "still": true
+    }
+   ],
+   "bg": "dark"
+  }
+ ],
+ "cta": {
+  "kicker": "Vídeo completo",
+  "title": "O passo a passo completo está no meu canal",
+  "hl": [
+   "canal"
+  ],
+  "image": "capa.jpg",
+  "pill": "Link na bio",
+  "seconds": 5
+ }
+}
