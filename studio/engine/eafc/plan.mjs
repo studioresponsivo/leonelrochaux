@@ -19,9 +19,9 @@ const FULL = {
 };
 const OVERLAY = { word: { dur: 1.8 }, stamp: { dur: 2.4 }, tweet: { dur: 3.2 }, badge: { dur: 2.0 } };
 export const SCENES = [...Object.keys(FULL), ...Object.keys(OVERLAY)];
-export const MODS = ["punch", "shake", "lights", "flash", "sfx"];
-export const TRANS_IN = ["none", "cut", "flash", "glitch", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "zoom", "blur", "impact"];
-export const TRANS_OUT = ["none", "cut", "flash", "glitch", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "zoom", "blur"];
+export const MODS = ["punch", "shake", "lights", "flash", "sfx", "freeze", "letterbox", "flashframe", "ambience"];
+export const TRANS_IN = ["none", "cut", "flash", "cutflash", "ink", "glitch", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "zoom", "blur", "impact"];
+export const TRANS_OUT = ["none", "cut", "flash", "ink", "glitch", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "zoom", "blur"];
 export const TEAMS = {
   leicester: { name: "Leicester City", abbr: "LEI", color: "#0053A0", color2: "#FDBE11", logo: "img/logo-leicester.png" },
   arsenal: { name: "Arsenal", abbr: "ARS", color: "#EF0107", color2: "#9C824A", logo: "img/logo-arsenal.png" },
@@ -68,8 +68,9 @@ export function buildPlanEafc(spec, ctx) {
   (spec.beats || []).forEach((b, bi) => {
     const label = `beat ${bi + 1} (${b.do})`;
     if (MODS.includes(b.do)) {
-      const t0 = f2(at(b.at, label) + (b.offset || 0));
-      const t1 = b.to != null ? f2(ctx.span(b.to, label + ".to", t0)[1] + 0.1) : b.until != null ? at(b.until, label + ".until", t0) : f2(t0 + (b.dur ?? (b.do === "punch" ? 2 : b.do === "lights" ? 0.9 : 0.4)));
+      // modificadores não avançam a âncora global (lastT): resolvem a partir dela sem movê-la
+      const t0 = f2((b.at === "start" ? 0 : ctx.span(b.at, label)[0]) + (b.offset || 0));
+      const t1 = b.to != null ? f2(ctx.span(b.to, label + ".to", t0)[1] + 0.1) : b.until != null ? f2(ctx.span(b.until, label + ".until", t0)[0]) : f2(t0 + (b.dur ?? (b.do === "punch" ? 2 : b.do === "lights" ? 0.9 : b.do === "freeze" ? 1.2 : b.do === "letterbox" ? 4 : b.do === "ambience" ? 6 : 0.4)));
       mods.push({ ...b, t0, t1 }); return;
     }
     const def = FULL[b.do] || OVERLAY[b.do];
@@ -160,7 +161,9 @@ export function buildPlanEafc(spec, ctx) {
     if (s.do === "tweet" && s.avatar && /\.(png|jpe?g|webp)$/i.test(s.avatar)) s.avatarMedia = img(s.avatar, lb);
     if (s.do === "title" && s.image) s.media = img(s.image, lb);
     if (s.do === "word" && s.behind) mattes.push([f2(Math.max(0, s.t0 - 0.15)), f2(Math.min(endVoice, s.t1 + 0.15))]);
+    if (s.bg && /\.(png|jpe?g|webp)$/i.test(s.bg) && !s.bgMedia) s.bgMedia = img(s.bg, lb);
   }
+  for (const m of mods) if (m.do === "flashframe") { m.media = img(m.src, `flashframe em ${m.t0}s`); if (!m.media) fail(`flashframe em ${m.t0}s: falta "src"`); }
   // junta trechos de matte próximos
   mattes.sort((a, b) => a[0] - b[0]);
   const merged = [];

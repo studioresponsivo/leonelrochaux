@@ -32,5 +32,12 @@ Referências do Leonel (Drive › "Assets para os videos"): **"Estilo de ediçã
 6. Variação: `studio/specs/historico-eafc.json` guarda padrões/transições; não repetir a sequência do gancho anterior; whip/zoom/glitch/flash no máximo 3× cada por gancho.
 7. Música: cama de tensão sintética (`studio/bin/trilha.py`: drone + pulso a partir da virada + riser no final) a 0,14–0,18 de volume; trocar por trilha licenciada quando houver (`"music": {"file": …}`).
 
+## O que matou a "cara de IA" (v2, depois do feedback do Leonel)
+- Sem legendas. Nada repete a fala; só palavras-arte (serifa cromada/dourada atrás da cabeça) e uma linha pequena de data/lugar.
+- Nada flutua no vazio: todo gráfico mora num objeto ou numa chapa com textura — TV de tubo (placar antigo), painel LED (90', 93'), foto em parallax com vazamento de luz e poeira, faixas de cor com listras em movimento, escudos como adesivos com traço branco (S2G) ou com névoa e reflexo (herói).
+- Câmera viva no rosto: punch-in por frase, zoom-out ao voltar de cena cheia, deriva na mão, grade + vinheta; letterbox 2.35 marca "arquivo"; freeze com boom no fechamento.
+- Cortes com peso: flash preto→cor→branco (`cutflash`), aberração cromática nos hits, flash-frame subliminar, sub-drop antes dos impactos, ambiente de estádio sob estádios.
+- Grão de filme animado por cima de tudo. Proibido: cards arredondados "dashboard", gradiente radial liso, halo neon atrás de PNG, cursor digitando, carimbo em cima dos olhos.
+
 ## Cenas disponíveis (ver `studio/SPEC.md` › EA FC)
 `number` · `crest` (hero / duelo) · `split` · `photo` · `score` (+flip) · `record` · `ladder` · `fixtures` · `title` · `montage` — cheias; `word` · `stamp` (digitado / rubber) · `tweet` · `badge` — overlays; `punch` · `shake` · `lights` · `flash` · `sfx` — modificadores.

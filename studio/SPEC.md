@@ -97,7 +97,7 @@ Motor `studio/engine/eafc/` (guia: `docs/motion/estilo-eafc.md`). Sempre `"forma
 
 | do | campos | padrão in → out | visual |
 |---|---|---|---|
-| `number` | `value`, `from`, `suffix`, `label`, `count` (s), `stamp` (texto digitado embaixo), `color`, `font` serif | cut → cut | número gigante (Anton) contando com glow |
+| `number` | `value`, `from`, `suffix`, `label`, `count` (s), `stamp` (linha pequena embaixo), `color`, `font` serif, `style` "led" | cut → cut | número gigante contando (ou painel LED âmbar) |
 | `crest` | `teams:[1–2]`, `label`, `sub`, `labels` (duelo), `comp` (badge no meio), `vs` ("×"), `bg` (foto `img/…` desfocada) , `size` | impact → blur | 1 escudo batendo na tela com glow / duelo com × |
 | `split` | `teams:[2]`, `labels` (abreviações), `comp`, `sub` | whip → blur | metades na cor dos times (LEI \| ARS) |
 | `photo` | `src`, `label`, `sub`, `stamp`, `fx` push/pan/out, `tone` red/blue/mono, `grain`, `color` | zoom → blur | foto tela cheia com Ken Burns e rótulo |
@@ -112,10 +112,11 @@ Motor `studio/engine/eafc/` (guia: `docs/motion/estilo-eafc.md`). Sempre `"forma
 
 | do | campos | visual |
 |---|---|---|
-| `word` | `text`, `font` serif/display/brand, `size`, `color` (#hex / accent / team), `pos` center/top/bottom/left/right/tl…, `behind` (matte), `hl`, `glow`, `tail`, `silent` | palavras gigantes sincronizadas à fala; `behind:true` recorta o rosto (lento: ~1 min por 1,3 s) |
-| `stamp` | `text`, `pos` tl/tr/bl/br/bottom, `speed`; `style:"rubber"` + `color`, `rot` | texto digitado (data/lugar) ou carimbo vermelho batendo |
+| `word` | `text`, `font` serif/display/brand, `size`, `color` (#hex / accent / team), `chrome`/`gold`/`italic`, `pos` center/top/bottom/left/right/tl…, `behind` (matte), `hl`, `glow`, `tail`, `silent` | palavras gigantes sincronizadas à fala; `behind:true` recorta o rosto (lento: ~1 min por 1,3 s) |
+| `stamp` | `text`, `pos` tl/tr/bl/br/bottom; `style:"rubber"` + `color`, `rot`, `pos` bl/br/low | linha pequena (data/lugar) que desliza, ou carimbo de tinta rugosa |
 | `tweet` | `name`, `handle`, `time`, `text`, `hl`, `theme` light/dark, `pos` bl/br/tl/tr/center, `avatar` (imagem) ou `initials`+`avatarColor(2)`, `replies`, `reposts`, `likes`, `likesAfter`, `views`, `verified` | card de X deslizando com motion blur; coração anima em `likeDelay` |
 | `badge` | `team`, `pos` left/right/tl/tr, `size` | escudo pequeno pulando ao lado do rosto |
 
-**Modificadores**: `punch` (`scale`, `to`/`dur`) · `shake` (`amp`, `dur`) · `lights` (apaga a luz do rosto até `to`) · `flash` (`color`, `dur`) · `sfx` (`name`, `vol`).
-SFX (`studio/assets/sfx-eafc/`): impact-bass-1/2, whoosh, whoosh-short, whoosh-cinematic, riser, glitch-1/2/3, notification, typing, pop, click, click-soft, key-press, ping, sparkle, error, chime.
+**Modificadores**: `punch` (`scale`, `to`/`dur`) · `shake` (`amp`, `dur`) · `lights` (apaga a luz do rosto até `to`) · `flash` (`color`, `dur`) · `sfx` (`name`, `vol`, `offset`) · `letterbox` (`until`/`dur`; barras 2.35:1 no rosto — nas cenas de arquivo photo/score/record/number/montage/title elas entram sozinhas, `"archive": false` desliga) · `freeze` (quadro parado do rosto com zoom + boom; `zoom`, `hold`) · `flashframe` (`src`, `frames`, `tone` mono/neg: imagem subliminar num hit) · `ambience` (`name` crowd, `vol`, `until`).
+**Look "cinema" (v2)**: grão de filme animado em tudo (`"grain": false` desliga, `grainOpacity`), deriva de câmera na mão (`drift`), zoom-out ao voltar para o rosto, vinheta e grade; fotos em parallax (fundo desfocado + frente nítida, `fx` push/pan/out, `tone` mono/duo) com vazamento de luz, poeira e varredura; escudos com varredura especular mascarada pelo PNG, adesivo com traço branco (duelo/split/badge/fixtures), névoa + reflexo no herói; `number` com `"style": "led"` (painel de placar LED, dígitos em matriz de pontos); `score` dentro de TV de tubo (scanlines, flicker); `word` com `"chrome": true` (serifa cromada gelo) ou `"gold": true`, `"italic": true`; `stamp` pequeno desliza (sem cursor), rubber com tinta rugosa (`pos` bl/br/low); transições extras `cutflash` (preto → cor → branco em 6 quadros, `color`) e `ink` (revelação por tinta). Cenas aceitam `bg` (foto desfocada em duotone da cor da cena), `ambience` + `ambienceVol`.
+SFX (`studio/assets/sfx-eafc/`): impact-bass-1/2, whoosh, whoosh-short, whoosh-cinematic, riser, glitch-1/2/3, notification, typing, pop, click, click-soft, key-press, ping, sparkle, error, chime; sintéticos: crowd (ambiente 20 s), sub-drop, tick, shutter, boom, shimmer.

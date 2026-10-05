@@ -119,7 +119,7 @@ const anchor = (v, label, after) => spanOf(v, label, after)[0];
 // ── mídia base ──────────────────────────────────────────────────────────────────
 for (const d of ["assets/media", "assets/fonts", "assets/sfx", "assets/vendor", "assets/brand"]) fs.mkdirSync(path.join(P, d), { recursive: true });
 for (const d of ["fonts", "sfx", "vendor", "brand"]) sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`);
-if (isEafc) for (const d of ["fonts-eafc", "sfx-eafc"]) { fs.mkdirSync(path.join(P, "assets", d), { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`); }
+if (isEafc) for (const d of ["fonts-eafc", "sfx-eafc", "fx"]) { fs.mkdirSync(path.join(P, "assets", d), { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`); }
 const brandFont = fs.existsSync(`${ROOT}/studio/assets/fonts-marca/articulat-700.woff2`);
 if (brandFont) { fs.mkdirSync(`${P}/assets/fonts-marca`, { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/fonts-marca/." "${P}/assets/fonts-marca/"`); }
 const cache = path.join(W, "cache"); fs.mkdirSync(cache, { recursive: true });
@@ -215,6 +215,11 @@ if (isV1) {
     fs.copyFileSync(out, path.join(P, "assets/media", key));
     return { in: a, out: b, file: key };
   });
+  for (const m of plan.mods.filter((x) => x.do === "freeze")) {
+    const key = `freeze_${m.t0}.png`;
+    sh(`ffmpeg -v error -ss ${m.t0} -i "${P}/assets/media/edit.mp4" -frames:v 1 -y "${P}/assets/media/${key}"`);
+    m.file = key;
+  }
   let music = null;
   if (spec.music) {
     const mf = spec.music.file ?? spec.music, src = path.join(W, mf);
