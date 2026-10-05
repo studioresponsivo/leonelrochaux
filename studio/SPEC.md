@@ -74,6 +74,23 @@ Automático: push-in contínuo em todo plano; alternância de enquadramento a ca
 
 **Transições** — entrada: `none cut blur whip whip-left/right/up/down push-up curtain zoom whiteout`; saída: `none cut blur whip* spin shrink flood whiteout zoom`. Whip/push/curtain com motion blur direcional real (SVG). Cenas coladas (fim = início da próxima) viram transição direta entre elas.
 
+## Tema `"theme": "eafc"` (canal 2 — Théo / modo carreira; guia `docs/motion/estilo-eafc.md`)
+Mesmo motor, outra pele: tokens Premier League no `:root` (`--pl-purple #37003C`, `--pl-pink`, `--pl-green`, `--pl-cyan`, `--pl-lilac`, `--pl-yellow`), fundos de capítulo `purple` (radial + diagonais de 68°), `club` (cor cheia do clube) e `white`, display Articulat Heavy 900/800 caixa alta (`.disp`), escudos copiados de `studio/assets/eafc/brand/` para `assets/brand/`. `kpis` e `ytcta` ganham cards roxos e acentos rosa/verde PL. Clubes por sigla (`AME`, `CAZ` com escudo e apelido; `TOL TIG MTY CHI PUM LEO SAN PAC ATL NEC` só cor) ou objeto `{sigla,name,color,ink,crest}`. Exemplo: `studio/specs/gancho-ep03-theo.json`.
+
+| do | campos | padrão in → out | uso |
+|---|---|---|---|
+| `record` | `value`, `from`, `prefix`, `suffix`, `label`, `sub`, `then:{at,value,label}` | cut → cut | A8: número grande tabular contando; `then` entra em corte seco amarelo e o 1º recua |
+| `crest` | `club`, `effect` "flames", `bg` white/club/purple, `nick` | cut → cut | A3: escudo desconstruído — símbolo assenta (1,4 → 1), anel se desenha, disco por clip-path, apelido; chamas vetoriais na cor do clube cobrem e recuam |
+| `fixture` | `home`, `away`, `late` (âncora: lado visitante entra por último com impacto), `label`, `flood` | cut → cut | A9: dois escudos, fundo dividido por wipes que se encontram (1 f de branco), VS pesado, pílula da fase |
+| `table` | `title`, `rows:[{pos,club,name,pj,v,e,d,pts,zone cl/pl/rel}]` (4–8), `mark:{club|row,at}` | push-up → blur | A5: tabela roxa, linhas em stagger 0,05 s; `mark` acende a linha em amarelo na palavra |
+| `scorebug` ★ | `home`, `away`, `score` "2-0", `clock`, `goals:[{at,side home/away,n,gap,hold}]`, `final:{at,text}` | cut → blur | A1: placar vivo sobre o rosto; gol = varredura da cor do clube (18 f) + escudo + dígito girando + GOAL no lugar da sigla rival, volta ao neutro; `final` troca o relógio (ex. "4–2 PÊN.") |
+| `wordwall` | `club`, `text`, `variant` "white" (branco sobre cor), `speed` | cut → cut | A2: 7 linhas da palavra em caixa alta Heavy 150 px correndo em sentidos alternados |
+| `tweet` | `club`, `name`, `handle`, `time`, `text`, `counts:[3]`, `type` (digita), `bg` purple/club | push-up → blur | A10: card de torcedor fake com inclinação 3D; SFX notification; ≤ 1 por vídeo |
+| `tvarchive` | `src`+`label` ou `shots:[{src,label,at}]` | cut → blur | A12: flash branco (1 f + decaimento) → moldura 4:3 com scanlines e aberração leve, pílula de rótulo, push-in; `shots` trocam a imagem com mini-flash |
+| `playercard` ★ | `club`, `photo`, `ovr`, `position`, `name`, `surname`, `tags:[]`, `pos` bl/br | cut → blur | A6: ficha do jogador no canto inferior (foto, OVR 64 px Heavy, nome em duas pesagens, rótulos com "•") |
+
+Saída `"out": "club"` (A4 club-flood): wipe da cor do clube em 12 f + escudo assentando, corte seco (clube = `flood` ?? `late` ?? `away` ?? `club`). Aberturas novas: `record-hook` (cena `record` de 0 até `face`) e `fixture-hook` (`fixture` com `late`). SFX do tema: 1 por evento, `sfxMax: 4` no horizontal, `hush` nas frases-chave; impacto grave fica para o `fixture`.
+
 ## Regras (o make avisa com ⚠)
 - **Variação**: o make grava `studio/specs/historico.json` e avisa se a abertura, os 3 primeiros padrões ou o fundo dominante repetem o vídeo anterior. Nunca a mesma abertura duas vezes seguidas.
 - Nenhuma transição especial (whip, zoom, push-up…) mais de 3× por vídeo; 4–6 tipos de cena por vídeo curto; rosto nunca "pisca" (< 0,8 s) entre cenas.

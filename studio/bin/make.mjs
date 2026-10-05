@@ -116,6 +116,7 @@ const anchor = (v, label, after) => spanOf(v, label, after)[0];
 // ── mídia base ──────────────────────────────────────────────────────────────────
 for (const d of ["assets/media", "assets/fonts", "assets/sfx", "assets/vendor", "assets/brand"]) fs.mkdirSync(path.join(P, d), { recursive: true });
 for (const d of ["fonts", "sfx", "vendor", "brand"]) sh(`cp -r "${ROOT}/studio/assets/${d}/." "${P}/assets/${d}/"`);
+if (spec.theme === "eafc") sh(`cp -r "${ROOT}/studio/assets/eafc/brand/." "${P}/assets/brand/"`); // tema eafc: escudos dos clubes (docs/motion/estilo-eafc.md)
 const brandFont = fs.existsSync(`${ROOT}/studio/assets/fonts-marca/articulat-700.woff2`);
 if (brandFont) { fs.mkdirSync(`${P}/assets/fonts-marca`, { recursive: true }); sh(`cp -r "${ROOT}/studio/assets/fonts-marca/." "${P}/assets/fonts-marca/"`); }
 const cache = path.join(W, "cache"); fs.mkdirSync(cache, { recursive: true });

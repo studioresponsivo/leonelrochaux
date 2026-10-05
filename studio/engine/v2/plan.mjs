@@ -17,6 +17,9 @@ export const OPENINGS = {
   "problem-flood": "o jeito errado (trecho dessaturado) inundado de vermelho → rosto com a solução",
   "selection-hook": "frase na tela, palavra-chave selecionada estilo iOS + punch-in → corte",
   "photo-hook": "fotos passando em pilha com a voz por baixo → contador (R$) sobe e fica vermelho/verde → corte para o rosto",
+  // tema eafc (docs/motion/estilo-eafc.md §7.1)
+  "record-hook": "A8: número contra número contando com a voz em fundo roxo PL → corte seco para o rosto",
+  "fixture-hook": "A9: dois escudos se chocando no centro (lado \"late\" entra por último com impacto), pílula com a fase → rosto",
 };
 const SCENE_DEF = {
   cutaway: { in: "zoom", out: "blur", dur: 2.4 },
@@ -37,12 +40,22 @@ const SCENE_DEF = {
   split: { in: "whip", out: "whip", dur: 4 },
   compare: { in: "cut", out: "blur", dur: 4 },
   ytcta: { in: "cut", out: "cut", dur: 3.5, overlay: true },
+  // tema eafc (docs/motion/estilo-eafc.md §4): A8 record, A3 crest, A9 fixture, A5 table, A1 scorebug (overlay), A2 wordwall, A10 tweet, A12 tvarchive, A6 playercard (overlay)
+  record: { in: "cut", out: "cut", dur: 3 },
+  crest: { in: "cut", out: "cut", dur: 3 },
+  fixture: { in: "cut", out: "cut", dur: 3 },
+  table: { in: "push-up", out: "blur", dur: 4 },
+  scorebug: { in: "cut", out: "blur", dur: 4, overlay: true },
+  wordwall: { in: "cut", out: "cut", dur: 3 },
+  tweet: { in: "push-up", out: "blur", dur: 3.5 },
+  tvarchive: { in: "cut", out: "blur", dur: 3 },
+  playercard: { in: "cut", out: "blur", dur: 3, overlay: true },
 };
 export const OVERLAY = new Set(Object.keys(SCENE_DEF).filter((k) => SCENE_DEF[k].overlay)); // cenas que ficam SOBRE o rosto (fundo transparente)
 export const SCENES = Object.keys(SCENE_DEF);
 export const MODS = ["punch", "focus"];
 export const TRANS_IN = ["none", "cut", "blur", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "push-up", "curtain", "zoom", "whiteout"];
-export const TRANS_OUT = ["none", "cut", "blur", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "spin", "shrink", "flood", "whiteout", "zoom"];
+export const TRANS_OUT = ["none", "cut", "blur", "whip", "whip-left", "whip-right", "whip-up", "whip-down", "spin", "shrink", "flood", "whiteout", "zoom", "club"]; // club = A4 club-flood (tema eafc)
 const TEXT_SYNC = new Set(["bridge", "ticker", "select", "icons"]);
 
 // ── caixas de mídia (tamanho em px no quadro) ───────────────────────────────────
@@ -152,6 +165,12 @@ export function buildPlan(spec, ctx) {
       case "selection-hook": need("text"); need("word");
         scenes.push({ do: "select", t0: 0, t1: faceT, text: o.text, word: o.word, in: "none", out: o.out ?? "cut", origin: "opening" });
         takeA(faceT); break;
+      case "record-hook": need("value");
+        scenes.push({ do: "record", t0: 0, t1: faceT, value: o.value, from: o.from, prefix: o.prefix, suffix: o.suffix, label: o.label, sub: o.sub, then: o.then ? { ...o.then, t: o.then.at != null ? at(o.then.at, "opening.then.at", 0) : f2(faceT * 0.6) } : null, in: "none", out: o.out ?? "cut", origin: "opening" });
+        takeA(faceT); break;
+      case "fixture-hook": need("home"); need("away");
+        scenes.push({ do: "fixture", t0: 0, t1: faceT, home: o.home, away: o.away, label: o.label, late: o.late, lateT: o.late != null ? at(o.late, "opening.late", 0) : null, flood: o.flood, in: "none", out: o.out ?? "cut", origin: "opening" });
+        takeA(faceT); break;
       case "photo-hook": {
         need("images");
         const counter = o.counter ? { ...o.counter, t: o.counter.at != null ? at(o.counter.at, "opening.counter.at", 0) : f2(faceT * 0.55) } : null;
@@ -189,6 +208,12 @@ export function buildPlan(spec, ctx) {
     if (b.vs != null) s.vsT = rt(b.vs, "vs");
     if (b.good != null) s.goodT = rt(b.good, "good");
     for (const k of ["like", "sub", "bell"]) if (b[k] != null) s[k + "T"] = rt(b[k], k);
+    // tema eafc: âncoras das cenas novas (late = lado que entra por último; mark = linha que acende; goals/final = placar; shots = trocas de imagem)
+    if (b.late != null) s.lateT = rt(b.late, "late");
+    if (b.mark) s.mark = { ...b.mark, t: rt(b.mark.at, "mark.at") ?? f2(t0 + 1.2) };
+    if (b.goals) s.goals = b.goals.map((g, k) => ({ ...g, t: rt(g.at, `goals[${k}].at`) ?? f2(t0 + 1 + k) }));
+    if (b.final) s.final = { ...b.final, t: rt(b.final.at, "final.at") ?? f2(t0 + 2.5) };
+    if (b.shots) s.shots = b.shots.map((sh, k) => ({ ...sh, t: sh.at != null ? rt(sh.at, `shots[${k}].at`) : null }));
     scenes.push(s);
     lastEnd = t1 ?? t0 + 2;
   });
@@ -236,11 +261,20 @@ export function buildPlan(spec, ctx) {
     if (s.vsT != null) nested.push(["vs", s.vsT]);
     if (s.goodT != null) nested.push(["good", s.goodT]);
     for (const k of ["like", "sub", "bell"]) if (s[k + "T"] != null) nested.push([k, s[k + "T"]]);
+    if (s.lateT != null) nested.push(["late", s.lateT]);
+    if (s.mark) nested.push(["mark.at", s.mark.t]);
+    (s.goals || []).forEach((g, k) => nested.push([`goals[${k}].at`, g.t]));
+    if (s.final) nested.push(["final.at", s.final.t]);
+    (s.shots || []).forEach((sh, k) => { if (sh.t != null) nested.push([`shots[${k}].at`, sh.t]); });
     for (const k of ["items", "cards"]) (s[k] || []).forEach((it, ii) => { if (it.t != null) nested.push([`${k}[${ii}].at`, it.t]); if (it.badT != null) nested.push([`${k}[${ii}].bad`, it.badT]); });
     for (const [k, t] of nested) if (t != null && (t < s.t0 - 0.05 || t > s.t1 + 0.01)) fail(`cena ${s.do} em ${s.t0}s: âncora "${k}" (${t}s) cai fora da cena [${s.t0}–${s.t1}] — confira a palavra ou a ordem`);
     if (s.counter && s.counter.t + 0.1 + (s.counter.dur ?? 0.95) > s.t1 - 0.1) warns.push(`contador da cena ${s.do} bate no valor final depois do fim da cena (${f2(s.counter.t + 0.1 + (s.counter.dur ?? 0.95))}s > ${s.t1}s) — antecipe counter.at ou atrase face/until`);
     if (s.do === "gallery" && !(s.images || []).length) fail(`gallery em ${s.t0}s: falta "images" [arquivos em work/<slug>/]`);
     if (s.do === "compare" && !(s.right?.images || []).length) fail(`compare em ${s.t0}s: falta "right.images"`);
+    if (s.do === "table" && !(s.rows || []).length) fail(`table em ${s.t0}s: falta "rows" [{pos,club,name,pj,v,e,d,pts}]`);
+    if (s.do === "tvarchive") { if (!s.shots?.length) s.shots = s.src != null ? [{ src: s.src, label: s.label, t: null }] : null; if (!s.shots) fail(`tvarchive em ${s.t0}s: falta "src" (imagem em work/<slug>/) ou "shots"`); s.shots.forEach((sh, k) => { if (sh.t == null) sh.t = k === 0 ? s.t0 : f2(s.t0 + ((s.t1 - s.t0) * k) / s.shots.length); }); }
+    if ((s.do === "fixture" || s.do === "scorebug") && (s.home == null || s.away == null)) fail(`${s.do} em ${s.t0}s: falta "home"/"away" (sigla do clube: AME, CAZ…)`);
+    if (s.do === "wordwall" && !s.text) fail(`wordwall em ${s.t0}s: falta "text"`);
   });
   if (ctx.portfolio && !scenes.length) fail("portfólio sem cenas: adicione beats (device, stack, cutaway, bridge…) com \"dur\"");
 
@@ -268,6 +302,8 @@ export function buildPlan(spec, ctx) {
     if (s.do === "grid") (s.items || []).forEach((it) => { it.media = it.src != null ? want(s, it, "card", s.t1 - it.t + 0.6) : null; }); // item sem src = card neutro (silhueta)
     if (s.do === "compare") s.rImgs = s.right.images.map((f) => want(s, { src: f }, "card", s.t1 - s.t0 + 0.5));
     if (s.do === "hud" && s.logo?.file) s.logo.media = want(s, { src: s.logo.file }, "card", s.t1 - s.t0 + 0.5);
+    if (s.do === "tvarchive") s.shots.forEach((sh) => { sh.media = want(s, { src: sh.src }, "card", s.t1 - s.t0 + 0.5); if (!sh.media) fail(`tvarchive em ${s.t0}s: shot sem "src"`); });
+    if (s.do === "playercard" && s.photo) s.media = want(s, { src: s.photo }, "card", s.t1 - s.t0 + 0.5);
     if (s.do === "clones") { // grades NxN do próprio vídeo (pré-renderizadas pelo make), do instante da cena
       if (ctx.V) fail(`clones em ${s.t0}s: por enquanto só no formato horizontal`);
       const lv = s.levels || [3, 9, 27];

@@ -1,0 +1,38 @@
+{
+  "name": "gancho-ep03",
+  "format": "horizontal",
+  "theme": "eafc",
+  "cuts": "all",
+  "audio": "original",
+  "captions": "none",
+  "sfxMax": 4,
+  "hush": ["virou um verbo", "Cruz Azul Lear"],
+  "_music": "§6 da bíblia pede trilha de tensão contínua (−22 dB sob a voz). Ainda sem arquivo; quando houver: \"music\": { \"file\": \"trilha-tensao.mp3\", \"volume\": 0.08 }",
+  "opening": { "style": "record-hook", "value": 16, "from": 0, "label": "anos", "sub": "titular do América", "face": "maior campeão" },
+  "beats": [
+    { "at": 5.1, "do": "crest", "club": "AME", "effect": "flames", "bg": "white", "nick": "Las Águilas", "dur": 1.9 },
+    { "at": 7.0, "do": "record", "value": 16, "from": 0, "label": "títulos", "then": { "at": "2024", "value": 0, "label": "desde 2024" }, "until": "E pra acabar" },
+    { "at": "pior adversário", "do": "punch", "scale": 1.22, "to": "possível" },
+    { "at": 14.6, "do": "fixture", "home": "AME", "away": "CAZ", "late": "Cruz", "label": "Liguilla · Quartas de final", "out": "club", "flood": "CAZ", "dur": 3.0 },
+    { "at": 18.5, "do": "table", "title": "Apertura 2025 · Fase regular", "_note": "dados ilustrativos (não são a tabela real)",
+      "rows": [
+        { "pos": 1, "club": "TOL", "pj": 17, "v": 11, "e": 3, "d": 3, "pts": 36, "zone": "cl" },
+        { "pos": 2, "club": "TIG", "pj": 17, "v": 10, "e": 4, "d": 3, "pts": 34, "zone": "cl" },
+        { "pos": 3, "club": "CAZ", "pj": 17, "v": 9, "e": 6, "d": 2, "pts": 33, "zone": "cl" },
+        { "pos": 4, "club": "MTY", "pj": 17, "v": 9, "e": 3, "d": 5, "pts": 30, "zone": "cl" },
+        { "pos": 5, "club": "CHI", "pj": 17, "v": 8, "e": 4, "d": 5, "pts": 28, "zone": "cl" },
+        { "pos": 6, "club": "PUM", "pj": 17, "v": 7, "e": 5, "d": 5, "pts": 26, "zone": "cl" },
+        { "pos": 7, "club": "LEO", "pj": 17, "v": 7, "e": 4, "d": 6, "pts": 25, "zone": "pl" },
+        { "pos": 8, "club": "AME", "pj": 17, "v": 6, "e": 5, "d": 6, "pts": 23, "zone": "pl" }
+      ],
+      "mark": { "club": "AME", "at": "Arguilha" }, "dur": 4.4 },
+    { "at": "mata-mata", "do": "punch", "scale": 1.2, "dur": 1.6 },
+    { "at": 28.3, "do": "tvarchive", "shots": [ { "src": "img/jogador-cruzazuleando.jpg", "label": "Final · 2013" }, { "src": "img/azteca.png", "label": "Azteca · 2013", "at": "Azteca" } ], "until": "O impressionante" },
+    { "at": "O impressionante", "do": "scorebug", "home": "CAZ", "away": "AME", "score": "2-0", "clock": "90'", "goals": [ { "at": "empatar", "side": "away", "n": 2, "gap": 0.55 } ], "final": { "at": "campeão", "text": "4–2 PÊN." }, "until": "E lá no México" },
+    { "at": "verbo", "do": "wordwall", "club": "CAZ", "text": "CRUZAZULEAR", "dur": 2.4 },
+    { "at": 44.5, "do": "tweet", "club": "CAZ", "name": "Azulcrema x Siempre", "handle": "azulcremaxsiempre", "time": "2h", "text": "cruzazuleó otra vez 😭 nunca cambian", "counts": ["1,2 mil", "4,8 mil", "21 mil"], "until": "Serão" },
+    { "at": "Serão", "do": "kpis", "items": [ { "at": "seis", "value": 6, "label": "jogos" }, { "at": "quarta", "value": 3, "label": "fases" }, { "at": "duas", "value": 2, "suffix": "×", "label": "ida e volta" } ], "until": "Então já" },
+    { "at": "deixa", "do": "ytcta", "like": "like", "sub": "inscreve", "bell": "notificações", "likeText": "Gostei", "subText": "Inscrever-se", "subDone": "Inscrito", "dur": 2.5 },
+    { "at": 53.4, "do": "playercard", "club": "AME", "photo": "img/em-campo.png", "ovr": 68, "position": "ATA", "name": "Théo", "surname": "TORRES", "tags": ["América", "16 anos", "Atacante"], "dur": 3.4 }
+  ]
+}

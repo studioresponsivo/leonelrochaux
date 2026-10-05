@@ -43,6 +43,19 @@ export function composeV2(plan) {
   const px = (n) => Math.round(n * K);
   const ACC = "#22c55e";
   let track = 20; const nextTrack = () => track++;
+  // ── tema "eafc" (canal 2, docs/motion/estilo-eafc.md): tokens PL + cor de clube como material. Só muda algo quando spec.theme === "eafc". ──
+  const EAFC = spec.theme === "eafc";
+  const E = V ? 0.78 : 1, ep = (n) => Math.round(n * E); // escala das cenas eafc (medidas em 1080p horizontal)
+  const CLUBS = { // cor cheia, tom escuro, cor alternativa, cor do texto sobre a cor cheia, escudo (studio/assets/eafc/brand), apelido
+    AME: { name: "América", nick: "Las Águilas", color: "#F8E808", dark: "#081838", alt: "#E82828", ink: "#081838", crest: "america.png" },
+    CAZ: { name: "Cruz Azul", nick: "La Máquina", color: "#082858", dark: "#041a3a", alt: "#C80828", ink: "#ffffff", crest: "cruz-azul.png" },
+    TOL: { name: "Toluca", color: "#E3001B", ink: "#fff" }, TIG: { name: "Tigres", color: "#FDB813", ink: "#1a1a1a" }, MTY: { name: "Monterrey", color: "#0B2D5B", ink: "#fff" },
+    CHI: { name: "Guadalajara", color: "#CC0000", ink: "#fff" }, PUM: { name: "Pumas", color: "#0A2240", ink: "#fff" }, LEO: { name: "León", color: "#006B3F", ink: "#fff" },
+    SAN: { name: "Santos", color: "#0E7A3F", ink: "#fff" }, PAC: { name: "Pachuca", color: "#1C4E9B", ink: "#fff" }, ATL: { name: "Atlas", color: "#B3121B", ink: "#fff" }, NEC: { name: "Necaxa", color: "#D81E05", ink: "#fff" },
+  };
+  const club = (k) => (k && typeof k === "object") ? { sigla: k.sigla ?? "???", name: k.name ?? k.sigla, color: "#37003C", ink: "#fff", ...k } : { sigla: String(k ?? "???"), name: String(k ?? ""), color: "#37003C", ink: "#fff", ...(CLUBS[k] || {}) };
+  const crestEl = (c, size) => c.crest ? `<img src="assets/brand/${c.crest}" alt="" style="width:${size}px;height:${size}px;object-fit:contain;display:block" />` : `<i class="sig" style="width:${size}px;height:${size}px;background:${c.color};color:${c.ink};font-size:${Math.round(size * 0.34)}px">${esc(c.sigla)}</i>`;
+  const firePoly = (y) => `polygon(0% ${y + 8}%, 10% ${y}%, 20% ${y + 12}%, 32% ${y - 4}%, 45% ${y + 10}%, 55% ${y - 2}%, 68% ${y + 14}%, 80% ${y + 2}%, 90% ${y + 10}%, 100% ${y - 6}%, 100% 130%, 0% 130%)`; // borda irregular das "chamas" (A3)
 
   // ── motion blur direcional (SVG feGaussianBlur compartilhado por eixo) ───────
   const mblur = (sel, axis, t, dur, peak) => {
@@ -158,6 +171,14 @@ export function composeV2(plan) {
       ft(c, { filter: "saturate(1) blur(0px)" }, { filter: "saturate(0) blur(6px)", duration: 0.6 }, t - 0.6);
       set(o, { autoAlpha: 0 }, t); recv();
       snd("whoosh", t - 0.35, 0.22, 3);
+      return;
+    }
+    if (kind === "club") { // A4 club-flood (tema eafc): wipe da cor do clube em 12 f, símbolo em branco assenta, corte seco para o que vem
+      const hold = flood?.hold ?? 0.5;
+      ft(`${o}fl`, { xPercent: -100 }, { xPercent: 0, duration: 0.2, ease: "power4.inOut" }, t - hold);
+      ft(`${o}fl img`, { autoAlpha: 0, scale: 1.4 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: "expo.out" }, t - hold + 0.14);
+      set(o, { autoAlpha: 0 }, t); recv();
+      snd("whoosh-short", t - hold - 0.03, 0.26, 3);
       return;
     }
     if (kind === "whiteout") {
@@ -339,7 +360,7 @@ export function composeV2(plan) {
     const prev = scenes[i - 1];
     const overlay = OVERLAY.has(s.do); // cena sobre o rosto (fundo transparente)
     const below = overlay ? null : s.prevAdj && !OVERLAY.has(prev?.do) ? `#S${i - 1}m` : "#baseM";
-    let bg = "light", inner = "", caps = "dark", extra = "";
+    let bg = "light", inner = "", caps = "dark", extra = "", bgStyle = "";
     used.patterns.push(s.do);
     const hl = new Set((s.hl || []).map(norm));
     switch (s.do) {
@@ -410,7 +431,7 @@ export function composeV2(plan) {
         break;
       }
       case "kpis": {
-        bg = "dark";
+        bg = EAFC ? "purple" : "dark";
         const its = s.items || [];
         inner = `<div class="spot"></div>` + its.map((it, k) => {
           const pos = V ? `left:110px;width:860px;top:${330 + k * 270}px;height:230px` : `left:${(W - its.length * 520 + 40) / 2 + k * 520}px;width:480px;top:330px;height:300px`;
@@ -750,10 +771,232 @@ export function composeV2(plan) {
         caps = "dark";
         break;
       }
+      // ── cenas do tema eafc (docs/motion/estilo-eafc.md §4) ──────────────────
+      case "record": { // A8: número contra número — o 1º conta; o 2º ("then") entra em corte seco amarelo e o 1º recua
+        bg = "purple";
+        const fmt = (n) => (isNaN(+n) ? String(n) : Number(n).toLocaleString("pt-BR"));
+        const two = !!s.then, cw = ep(900), cx = two ? [W * 0.28, W * 0.72] : [W / 2], top = H / 2 - ep(215);
+        const col = (k, v, pre, suf, lab, sub, cls) => `<div id="${id}c${k}" class="recCol${cls}" style="left:${f2(cx[k] - cw / 2)}px;top:${top}px;width:${cw}px"><div class="recV disp">${esc(pre || "")}<span id="${id}v${k}">${fmt(v)}</span>${esc(suf || "")}</div><div class="recL">${esc(lab || "")}</div>${sub ? `<div class="recS">${esc(sub)}</div>` : ""}</div>`;
+        inner = col(0, s.from ?? 0, s.prefix, s.suffix, s.label, s.sub, "") + (two ? col(1, s.then.value, s.then.prefix, s.then.suffix, s.then.label, null, " yel") : "");
+        ft(`#${id}c0`, { autoAlpha: 0, y: 30, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.2, ease: "expo.out" }, t0 + 0.04);
+        if (!isNaN(+s.value)) countTo(`${id}v0`, +(s.from ?? 0), +s.value, 0.8, t0 + 0.1, "power3.out");
+        ft(`#${id}c0`, { y: 0 }, { y: -6, duration: 0.8, ease: "power3.out" }, t0 + 0.1);
+        snd("click", t0 + 0.05, 0.2, 2); snd("ping", t0 + 0.9, 0.18, 1);
+        if (two) {
+          const a = s.then.t;
+          set(`#${id}c1`, { autoAlpha: 1 }, a); ft(`#${id}c1`, { scale: 1.1 }, { scale: 1, duration: 0.12, ease: "power3.out" }, a);
+          ft(`#${id}c0`, { scale: 1, opacity: 1 }, { scale: 0.8, opacity: 0.5, duration: 0.25, ease: "power3.out" }, a);
+          snd("pop", a + 0.02, 0.26, 3);
+        }
+        caps = "dark";
+        break;
+      }
+      case "crest": { // A3: escudo desconstruído — símbolo assenta, anel se desenha, disco preenche por clip-path, apelido; "effect":"flames" = chamas vetoriais da cor do clube
+        const c = club(s.club);
+        bg = s.bg ?? "white";
+        if (bg === "club") bgStyle = ` style="background:${c.color}"`;
+        const onWhite = bg === "white", D = ep(520), disc = ep(700), ringR = 370, cy = H / 2 - ep(30), cxx = W / 2;
+        const discCol = onWhite ? (c.dark ?? c.color) : "#ffffff", ringCol = onWhite ? c.color : "#ffffff", circ = f2(2 * Math.PI * ringR);
+        inner = `<div id="${id}g" class="crestG">
+          <div id="${id}d" class="crestDisc" style="left:${f2(cxx - disc / 2)}px;top:${f2(cy - disc / 2)}px;width:${disc}px;height:${disc}px;background:${discCol}"></div>
+          <svg id="${id}r" class="crestRing" viewBox="0 0 800 800" style="left:${f2(cxx - ep(400))}px;top:${f2(cy - ep(400))}px;width:${ep(800)}px;height:${ep(800)}px"><circle id="${id}rc" cx="400" cy="400" r="${ringR}" stroke="${ringCol}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" transform="rotate(-90 400 400)" /></svg>
+          <div id="${id}i" class="crestImg" style="left:${f2(cxx - D / 2)}px;top:${f2(cy - D / 2)}px;width:${D}px;height:${D}px">${crestEl(c, D)}</div></div>
+          <div id="${id}n" class="crestNick" style="top:${f2(cy + disc / 2 + ep(36))}px;color:${onWhite ? "#6b5a75" : "rgba(255,255,255,.85)"}">${esc(s.nick ?? c.nick ?? c.name)}</div>`;
+        if (s.effect === "flames") {
+          inner += `<div id="${id}f1" class="flame" style="background:${c.color}"></div><div id="${id}f2" class="flame" style="background:${c.alt ?? c.dark ?? c.color}"></div>`;
+          set(`#${id}f1, #${id}f2`, { clipPath: firePoly(135) }, 0);
+          ft(`#${id}f1`, { clipPath: firePoly(135) }, { clipPath: firePoly(-30), duration: 0.25, ease: "power2.out" }, t0);
+          ft(`#${id}f2`, { clipPath: firePoly(140) }, { clipPath: firePoly(22), duration: 0.25, ease: "power2.out" }, t0 + 0.06);
+          set(`#${id}d`, { clipPath: "circle(50% at 50% 50%)" }, t0 + 0.32); set(`#${id}i`, { autoAlpha: 1, scale: 1 }, t0 + 0.32);
+          ft(`#${id}f2`, { clipPath: firePoly(22) }, { clipPath: firePoly(140), duration: 0.33, ease: "power3.in" }, t0 + 0.48);
+          ft(`#${id}f1`, { clipPath: firePoly(-30) }, { clipPath: firePoly(135), duration: 0.33, ease: "power3.in" }, t0 + 0.54);
+          set(`#${id}r`, { autoAlpha: 1 }, t0 + 0.8); ft(`#${id}rc`, { attr: { "stroke-dashoffset": circ } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.inOut" }, t0 + 0.8);
+          ft(`#${id}n`, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.1 }, t0 + 1.05);
+          snd("click", t0 + 0.02, 0.22, 2); snd("pop", t0 + 0.86, 0.26, 3); snd("click-soft", t0 + 1.1, 0.16, 1);
+        } else {
+          ft(`#${id}i`, { autoAlpha: 0, scale: 1.4 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: "expo.out" }, t0 + 0.05);
+          ft(`#${id}d`, { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(50% at 50% 50%)", duration: 0.23, ease: "power2.out" }, t0 + 0.2);
+          set(`#${id}r`, { autoAlpha: 1 }, t0 + 0.3); ft(`#${id}rc`, { attr: { "stroke-dashoffset": circ } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.inOut" }, t0 + 0.3);
+          ft(`#${id}n`, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.1 }, t0 + 0.65);
+          snd("click", t0 + 0.06, 0.2, 2); snd("click-soft", t0 + 0.32, 0.16, 1); snd("pop", t0 + 0.6, 0.26, 3);
+        }
+        ft(`#${id}g`, { scale: 1 }, { scale: 1.05, duration: dur, ease: "none" }, t0);
+        caps = onWhite ? "light" : "dark";
+        break;
+      }
+      case "fixture": { // A9: confronto — fundo dividido nas duas cores por wipes que se encontram no centro (1 f de branco); lado "late" entra por último com impacto
+        bg = "white";
+        const h = club(s.home), a = club(s.away), cs = ep(300), ctop = H / 2 - cs / 2 - ep(40), tA = s.lateT ?? t0;
+        inner = `<div id="${id}L" class="fxHalf" style="left:0;background:${h.color}"></div><div id="${id}R" class="fxHalf" style="left:50%;background:${a.color}"></div>
+          <div id="${id}ch" class="fxCrest" style="left:${f2(W * 0.25 - cs / 2)}px;top:${ctop}px;width:${cs}px;height:${cs}px">${crestEl(h, cs)}</div>
+          <div id="${id}ca" class="fxCrest" style="left:${f2(W * 0.75 - cs / 2)}px;top:${ctop}px;width:${cs}px;height:${cs}px">${crestEl(a, cs)}</div>
+          <div id="${id}vs" class="fxVs disp" style="top:${f2(ctop + cs / 2)}px">VS</div>
+          ${s.label ? `<div id="${id}l" class="plPill" style="top:${f2(ctop + cs + ep(70))}px">${esc(s.label)}</div>` : ""}<div id="${id}fx" class="layer" style="background:#fff;opacity:0;visibility:hidden"></div>`;
+        ft(`#${id}L`, { xPercent: -100 }, { xPercent: 0, duration: 0.2, ease: "power4.inOut" }, t0);
+        ft(`#${id}ch`, { autoAlpha: 0, scale: 1.5 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: "expo.out" }, t0 + 0.15);
+        ft(`#${id}vs`, { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, t0 + 0.3);
+        ft(`#${id}R`, { xPercent: 100 }, { xPercent: 0, duration: 0.2, ease: "power4.inOut" }, tA);
+        set(`#${id}fx`, { autoAlpha: 1 }, tA + 0.2); set(`#${id}fx`, { autoAlpha: 0 }, tA + 0.217); // 1 f de branco no encontro
+        ft(`#${id}ca`, { autoAlpha: 0, scale: 1.6 }, { autoAlpha: 1, scale: 1, duration: 0.17, ease: "back.out(1.6)" }, tA + 0.12);
+        ft(c, { x: 0 }, { x: 6, duration: 0.017, yoyo: true, repeat: 3, ease: "none" }, tA + 0.2); set(c, { x: 0 }, tA + 0.3);
+        if (s.label) ft(`#${id}l`, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power3.out" }, tA + 0.4);
+        snd("whoosh-short", t0 - 0.02, 0.24, 2); snd("click", t0 + 0.3, 0.16, 1); snd("impact-bass-1", tA + 0.14, 0.32, 3);
+        ft(`#${id}ch, #${id}ca`, { y: 0 }, { y: -8, duration: f2(Math.max(0.5, t1 - tA - 0.3)), ease: "none" }, tA + 0.3);
+        caps = "light";
+        break;
+      }
+      case "table": { // A5: tabela de classificação roxa; "mark" acende a linha do clube em amarelo na palavra
+        bg = "purple";
+        const rows = s.rows, tw = ep(1400), rh = ep(64), hh = ep(56), pad = 16, tl = (W - tw) / 2, th = hh + rows.length * (rh + 6) + pad * 2, top = (H - th) / 2 + (s.title ? ep(20) : 0);
+        const hdr = ["Pos", "", "Clube", "PJ", "V", "E", "D", "Pts", ""];
+        inner = `${s.title ? `<div id="${id}t" class="plKicker" style="top:${f2(top - ep(64))}px">${esc(s.title)}</div>` : ""}<div id="${id}tb" class="plTable" style="left:${tl}px;top:${f2(top)}px;width:${tw}px;padding:${pad}px">
+          <div id="${id}h" class="tbH" style="height:${hh}px">${hdr.map((x, k) => `<span class="${k === 2 ? "" : "tc"}">${x}</span>`).join("")}</div>
+          ${rows.map((r, k) => { const rc = club(r.club); return `<div id="${id}r${k}" class="tbR" style="height:${rh}px"><i class="tbHl"></i><span class="tbPos"><i class="zone ${esc(r.zone || "")}"></i>${esc(r.pos ?? k + 1)}</span><span class="tbC">${crestEl(rc, ep(44))}</span><span class="tbN">${esc(r.name ?? rc.name)}</span>${[r.pj, r.v, r.e, r.d].map((v) => `<span class="tbD">${esc(v ?? "")}</span>`).join("")}<span class="tbP">${esc(r.pts ?? "")}</span><span class="tbArr">▲</span></div>`; }).join("")}</div>`;
+        ft(`#${id}tb`, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.13, ease: "power2.out" }, t0);
+        ft(`#${id}h`, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.13 }, t0 + 0.05);
+        rows.forEach((_, k) => { ft(`#${id}r${k}`, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power3.out" }, t0 + 0.12 + k * 0.05); if (k < 3) snd("click-soft", t0 + 0.12 + k * 0.05, 0.14, 1); });
+        if (s.title) ft(`#${id}t`, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.2 }, t0 + 0.1);
+        ft(`#${id}tb`, { scale: 1 }, { scale: 1.03, duration: dur, ease: "none" }, t0);
+        if (s.mark) {
+          const k = s.mark.row ?? rows.findIndex((r) => r.club === s.mark.club), a = s.mark.t;
+          if (k >= 0) {
+            ft(`#${id}r${k} .tbHl`, { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, duration: 0.13, ease: "power2.out" }, a);
+            set(`#${id}r${k}`, { attr: { class: "tbR on" } }, a + 0.06);
+            ft(`#${id}r${k}`, { scale: 1 }, { scale: 1.03, duration: 0.1, yoyo: true, repeat: 1, ease: "power2.out" }, a + 0.05);
+            ft(`#${id}r${k} .tbArr`, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.08, yoyo: true, repeat: 3 }, a + 0.15);
+            snd("ping", a + 0.02, 0.2, 3);
+          }
+        }
+        caps = "dark";
+        break;
+      }
+      case "scorebug": { // A1: placar vivo sobre o rosto — neutro (roxo) → GOAL (varredura da cor do clube + escudo + dígito girando) → neutro; "final" troca o relógio
+        bg = "none";
+        const h = club(s.home), a = club(s.away), sc = String(s.score ?? "0-0").split(/[-–]/).map((n) => parseInt(n) || 0), cur = [sc[0] ?? 0, sc[1] ?? 0];
+        const BW = ep(700), BH = ep(90), SW = ep(200), bl = (W - BW) / 2, bt = ep(60);
+        const goals = (s.goals || []).slice().sort((x, y) => x.t - y.t);
+        const gClub = (g) => (g.side === "home" ? h : a), gEdge = (cl) => (cl.ink === "#ffffff" || cl.ink === "#fff" ? "#00FF85" : "#04F5FF");
+        const sweeps = goals.map((g, gi) => { const cl = gClub(g); return `<div id="${id}sw${gi}" class="sbSweep" style="background:linear-gradient(90deg, ${cl.color} 0%, ${cl.color} 82%, ${gEdge(cl)} 100%)">${cl.crest ? `<img src="assets/brand/${cl.crest}" alt="" />` : ""}</div>`; }).join("");
+        const side = (cl, k) => `<div class="sbSig" style="color:${cl.ink}"><b id="${id}s${k}">${esc(cl.sigla)}</b><u id="${id}g${k}" class="sbGoal">GOAL</u></div>`;
+        const dig = (k, cl) => `<span class="sbDw" id="${id}w${k}"><i class="sbCrest" id="${id}c${k}">${crestEl(cl, ep(76))}</i><b class="sbD" id="${id}d${k}">${cur[k]}</b></span>`;
+        inner = `<div id="${id}b" class="sbBar" style="left:${f2(bl)}px;top:${bt}px;width:${BW}px;height:${BH}px">
+          <i class="sbBg" style="left:0;width:${SW}px;background:${h.color}"></i><i class="sbBg" style="left:${SW}px;width:${BW - 2 * SW}px;background:var(--pl-purple)"></i><i class="sbBg" style="right:0;width:${SW}px;background:${a.color}"></i>
+          ${sweeps}
+          <div class="sbTx" style="grid-template-columns:${SW}px 1fr ${SW}px">${side(h, 0)}<div class="sbMid">${dig(0, h)}<i class="sbSep"></i>${dig(1, a)}</div>${side(a, 1)}</div></div>
+          <div id="${id}ck" class="sbClock" style="left:${f2(W / 2 - ep(75))}px;top:${f2(bt + BH + 12)}px;min-width:${ep(150)}px;height:${ep(44)}px"><span id="${id}ckt">${esc(s.clock ?? "")}</span></div>`;
+        goals.forEach((_, gi) => set(`#${id}sw${gi}`, { xPercent: -100 }, 0)); // fora da barra até o gol (via GSAP: transform em CSS viraria "x" em px e somaria ao xPercent)
+        ft(`#${id}b`, { autoAlpha: 0, scaleX: 0 }, { autoAlpha: 1, scaleX: 1, duration: 0.23, ease: "expo.out" }, t0);
+        ft(`#${id}s0, #${id}s1`, { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.17, ease: "power3.out" }, t0 + 0.1);
+        if (s.clock) ft(`#${id}ck`, { autoAlpha: 0, y: -10 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power3.out" }, t0 + 0.3);
+        snd("whoosh-short", t0 - 0.03, 0.22, 2);
+        goals.forEach((g, gi) => {
+          const k = g.side === "home" ? 0 : 1, cl = gClub(g), n = g.n ?? 1, gap = g.gap ?? 0.5, tg = g.t, sw = `#${id}sw${gi}`;
+          const nextT = Math.min(goals[gi + 1]?.t ?? Infinity, s.final?.t ?? Infinity, t1 - 0.25);
+          const back = Math.min(tg + 0.3 + n * gap + (g.hold ?? 2.4), nextT - 0.35);
+          if (cl.crest) ft(`${sw} img`, { x: 40, opacity: 0 }, { x: 0, opacity: 0.22, duration: 0.13 }, tg + 0.2);
+          ft(sw, { xPercent: -100 }, { xPercent: 0, duration: 0.3, ease: "power3.inOut" }, tg);
+          ft(`#${id}s0, #${id}s1, #${id}d0, #${id}d1, #${id}g0, #${id}g1`, { color: "#ffffff" }, { color: cl.ink, duration: 0.2 }, tg + 0.1);
+          ft(`#${id}g${1 - k}`, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.17, ease: "power2.out" }, tg + 0.25);
+          ft(`#${id}s${1 - k}`, { opacity: 1 }, { opacity: 0, duration: 0.12 }, tg + 0.25);
+          ft(`#${id}c${k}`, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 0.35, scale: 1, duration: 0.17, ease: "back.out(1.6)" }, tg + 0.3);
+          snd("click", tg + 0.02, 0.2, 2);
+          for (let q = 0; q < n; q++) {
+            const ti = tg + 0.3 + q * gap; cur[k] += 1;
+            ft(`#${id}d${k}`, { rotationY: 0 }, { rotationY: 90, duration: 0.1, ease: "power2.in" }, ti);
+            set(`#${id}d${k}`, { textContent: String(cur[k]) }, ti + 0.1);
+            ft(`#${id}d${k}`, { rotationY: -90 }, { rotationY: 0, duration: 0.13, ease: "power2.out" }, ti + 0.1);
+            snd("pop", ti + 0.1, 0.28, 3);
+          }
+          // volta ao neutro com a varredura inversa (sem som)
+          ft(sw, { xPercent: 0 }, { xPercent: 100, duration: 0.3, ease: "power3.inOut" }, back);
+          ft(`#${id}s0, #${id}s1, #${id}d0, #${id}d1, #${id}g0, #${id}g1`, { color: cl.ink }, { color: "#ffffff", duration: 0.2 }, back + 0.1);
+          ft(`#${id}g${1 - k}`, { clipPath: "inset(0 0% 0 0)" }, { clipPath: "inset(0 100% 0 0)", duration: 0.13 }, back);
+          ft(`#${id}s${1 - k}`, { opacity: 0 }, { opacity: 1, duration: 0.12 }, back + 0.1);
+          ft(`#${id}c${k}`, { autoAlpha: 0.35 }, { autoAlpha: 0, duration: 0.15 }, back);
+          set(`#${id}s0`, { color: h.ink }, back + 0.31); set(`#${id}s1`, { color: a.ink }, back + 0.31);
+        });
+        if (s.final) {
+          const a0 = s.final.t;
+          ft(`#${id}ck`, { scale: 1 }, { scale: 0.9, duration: 0.08, ease: "power2.in" }, a0);
+          set(`#${id}ckt`, { textContent: s.final.text ?? "FIM" }, a0 + 0.08); set(`#${id}ck`, { backgroundColor: "#00FF85", color: "#37003C" }, a0 + 0.08);
+          ft(`#${id}ck`, { scale: 0.9, autoAlpha: 1 }, { scale: 1.08, autoAlpha: 1, duration: 0.15, ease: "back.out(2)" }, a0 + 0.08);
+          ft(`#${id}ck`, { scale: 1.08 }, { scale: 1, duration: 0.15 }, a0 + 0.23);
+          snd("chime", a0 + 0.02, 0.16, 3);
+        }
+        caps = "dark";
+        break;
+      }
+      case "wordwall": { // A2: muro tipográfico — 7 linhas da palavra em caixa alta Heavy, deslocadas, correndo em sentidos alternados
+        const cl = club(s.club), onColor = s.variant === "white";
+        bg = onColor ? "club" : "white";
+        if (onColor) bgStyle = ` style="background:${cl.color}"`;
+        const word = String(s.text).toUpperCase(), fs = ep(150), lh = Math.round(fs * 0.9), n = 7, top0 = (H - n * lh) / 2;
+        const rep = Math.ceil((W * 2.4) / Math.max(1, word.length * fs * 0.62)) + 1, speed = s.speed ?? 50;
+        inner = Array.from({ length: n }, (_, k) => `<div id="${id}l${k}" class="wwLine disp" style="top:${f2(top0 + k * lh)}px;font-size:${fs}px;line-height:${lh}px;color:${onColor ? "#fff" : cl.color};left:${f2(-(k % 3) * 0.25 * fs - fs * 2)}px">${esc((word + " ").repeat(rep))}</div>`).join("");
+        for (let k = 0; k < n; k++) {
+          const sign = k % 2 ? -1 : 1, a = t0 + k * 0.04;
+          ft(`#${id}l${k}`, { autoAlpha: 0, x: sign * W * 1.2 }, { autoAlpha: 1, x: 0, duration: 0.2, ease: "expo.out" }, a);
+          ft(`#${id}l${k}`, { x: 0 }, { x: -sign * speed * (dur - 0.2), duration: f2(Math.max(0.3, dur - 0.2)), ease: "none" }, a + 0.2);
+        }
+        snd("whoosh", t0 - 0.02, 0.26, 3);
+        caps = "hide";
+        break;
+      }
+      case "tweet": { // A10: card de torcedor fake sobre roxo/cor do clube, inclinação 3D leve, entrada push-up, notification
+        const cl = club(s.club);
+        bg = s.bg ?? "purple";
+        if (bg === "club") bgStyle = ` style="background:${cl.color}"`;
+        const cw = ep(900), tl = (W - cw) / 2, top = H / 2 - ep(200), counts = s.counts || [48, 312, 2104];
+        const ic = { reply: '<svg viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>', rt: '<svg viewBox="0 0 24 24"><path d="M7 7h9l-3-3m3 3-3 3M17 17H8l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>', like: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.6 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>', ok: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1d9bf0"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' };
+        inner = `<div class="persp"><div id="${id}k" class="twCard" style="left:${tl}px;top:${top}px;width:${cw}px">
+          <div class="twHead"><i class="twAv" style="background:${cl.color};color:${cl.ink}">${esc(String(s.name || cl.sigla).slice(0, 1).toUpperCase())}</i><div class="twWho"><b>${esc(s.name || "")} ${ic.ok}</b><u>@${esc(s.handle || "")} · ${esc(s.time ?? "1h")}</u></div></div>
+          <div id="${id}tx" class="twText">${s.type ? "" : esc(s.text || "")}</div>
+          <div class="twAct"><span>${ic.reply}${esc(counts[0])}</span><span>${ic.rt}${esc(counts[1])}</span><span>${ic.like}${esc(counts[2])}</span></div></div></div>`;
+        set(`#${id}k`, { autoAlpha: 1, rotationY: -8, rotationX: 3 }, 0);
+        ft(`#${id}k`, { rotationY: -8, scale: 1 }, { rotationY: -3, scale: 1.03, duration: dur, ease: "sine.inOut" }, t0);
+        if (s.type) { const q = String(s.text || ""), td = Math.min(1.6, q.length / (s.cps ?? 40)); js.push(`(()=>{const o={n:0};const el=document.getElementById("${id}tx");const s=${J(q)};tl.fromTo(o,{n:0},{n:s.length,duration:${f2(td)},ease:"none",immediateRender:false,onUpdate:()=>{el.textContent=s.slice(0,Math.round(o.n));}},${at(t0 + 0.3)});})();`); }
+        snd("notification", t0 + 0.1, 0.24, 3);
+        caps = "dark";
+        break;
+      }
+      case "tvarchive": { // A12: flash branco (1 f + decaimento) → moldura 4:3 com scanlines e leve aberração, rótulo em pílula; "shots" trocam a imagem
+        bg = "black";
+        const fw = ep(1240), fh = Math.round(fw * 0.75), fl = (W - fw) / 2, ftp = (H - fh) / 2, shots = s.shots;
+        inner = `<div id="${id}f" class="tvFrame" style="left:${fl}px;top:${ftp}px;width:${fw}px;height:${fh}px">${shots.map((sh, k) => `<div id="${id}s${k}" class="layer tvShot"><div id="${id}i${k}" class="layer">${mediaEl(sh.media, t0, dur + 0.5)}<img class="ab r" src="assets/media/${sh.media.file}" alt="" /><img class="ab c" src="assets/media/${sh.media.file}" alt="" /></div>${sh.label ? `<div id="${id}l${k}" class="plPill tvLabel">${esc(sh.label)}</div>` : ""}</div>`).join("")}<div class="tvScan layer"></div></div>`;
+        set("#white", { autoAlpha: 1 }, t0); ft("#white", { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.07, ease: "power3.out" }, t0 + 0.017);
+        ft(`#${id}f`, { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: "power3.out" }, t0);
+        snd("whoosh", t0 - 0.1, 0.26, 3);
+        shots.forEach((sh, k) => {
+          const a = Math.max(t0, sh.t), b = shots[k + 1]?.t ?? t1;
+          set(`#${id}s${k}`, { autoAlpha: 1 }, a);
+          if (k > 0) { set(`#${id}s${k - 1}`, { autoAlpha: 0 }, a); ft("#white", { autoAlpha: 0.7 }, { autoAlpha: 0, duration: 0.07, ease: "power3.out" }, a); snd("click", a, 0.18, 2); }
+          ft(`#${id}i${k}`, { scale: 1 }, { scale: 1.08, duration: f2(Math.max(0.3, b - a + 0.3)), ease: "none" }, a);
+          if (sh.label) ft(`#${id}l${k}`, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power3.out" }, a + 0.2);
+        });
+        caps = "dark";
+        break;
+      }
+      case "playercard": { // A6: ficha de jogador sobre o rosto (canto inferior esquerdo): foto, OVR, nome em duas pesagens, rótulos com "•"
+        bg = "none";
+        const cl = club(s.club), cw = ep(720), ch = ep(170), mg = V ? 70 : 120, left = String(s.pos ?? "bl").endsWith("r") ? W - mg - cw : mg, top = H - mg - ch;
+        inner = `<div id="${id}k" class="pcCard" style="left:${left}px;top:${top}px;width:${cw}px;height:${ch}px;border-color:${cl.color}">
+          <div class="pcPhoto" style="width:${ch}px;height:${ch}px;background:${cl.color}">${s.media ? `<img src="assets/media/${s.media.file}" alt="" />` : crestEl(cl, Math.round(ch * 0.6))}</div>
+          <div class="pcOvr"><b class="disp">${esc(s.ovr ?? "")}</b><u>${esc(s.position ?? "")}</u></div>
+          <div class="pcInfo"><div class="pcName"><span>${esc(s.name ?? "")}</span> <b>${esc(s.surname ?? "")}</b></div><div class="pcTags">${(s.tags || []).map(esc).join('<i>•</i>')}</div></div></div>`;
+        ft(`#${id}k`, { autoAlpha: 0, scale: 0.85, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.17, ease: "back.out(1.4)" }, t0);
+        snd("click-soft", t0 + 0.02, 0.22, 2);
+        caps = "dark";
+        break;
+      }
+    }
+    if (s.out === "club") { // A4: camada de inundação da cor do clube (usada pela transição de saída "club")
+      const fc = club(s.flood ?? s.late ?? s.away ?? s.club);
+      extra += `<div id="${id}fl" class="clubFlood" style="background:${fc.color}">${fc.crest ? `<img src="assets/brand/${fc.crest}" alt="" />` : ""}</div>`;
+      set(`#${id}fl`, { xPercent: -100 }, 0);
     }
     used.bgs[bg] = (used.bgs[bg] || 0) + dur;
     sceneHtml += `
-      <div id="${id}" class="layer scene" style="opacity:0;visibility:hidden"><div id="${id}m" class="layer bg-${bg}"><div id="${id}p" class="layer"><div id="${id}c" class="layer">${inner}</div></div>${extra}</div></div>`;
+      <div id="${id}" class="layer scene" style="opacity:0;visibility:hidden"><div id="${id}m" class="layer bg-${bg}"${bgStyle}><div id="${id}p" class="layer"><div id="${id}c" class="layer">${inner}</div></div>${extra}</div></div>`;
     // transições
     const toCta = spec.cta && t1 >= endVoice - 0.05;
     if (overlay) { // sobre o rosto: entra seco, sai com blur; a cena anterior (se colada) some na hora e o rosto recebe o blur-cut
@@ -954,9 +1197,71 @@ export function composeV2(plan) {
       #play { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; background: rgba(10,10,10,.55); display: grid; place-items: center; box-shadow: 0 0 0 2px rgba(255,255,255,.4); } #play svg { width: 48px; height: 48px; margin-left: 6px; }
       #bio { position: absolute; left: 0; right: 0; top: ${V ? 1320 : 880}px; margin: 0 auto; width: fit-content; display: flex; align-items: center; gap: 14px; padding: ${px(24)}px ${px(40)}px; border-radius: 999px; background: var(--n900); color: var(--n50); font: 600 ${px(44)}px/1 var(--font); white-space: nowrap; opacity: 0; box-shadow: 0 24px 50px -18px rgba(0,0,0,.45); } #bio svg { width: ${px(36)}px; height: ${px(36)}px; }
   `;
+  // tema eafc: tokens PL (§3), fundos roxo/clube/branco, tipografia display Heavy caixa alta, cenas A1–A12 e pele PL para kpis/ytcta
+  const eafcCss = `
+      :root { --pl-purple: #37003C; --pl-purple-2: #2d0033; --pl-card: rgba(61,10,71,.6); --pl-pink: #E90052; --pl-green: #00FF85; --pl-cyan: #04F5FF; --pl-lilac: #c8b3d6; --pl-yellow: #F5D000; --ame: #F8E808; --ame-2: #081838; --caz: #082858; --caz-2: #C80828; }
+      .bg-purple { background: linear-gradient(68deg, transparent 0 28%, rgba(255,255,255,.055) 28% 46%, transparent 46% 60%, rgba(255,255,255,.035) 60% 82%, transparent 82%), radial-gradient(${V ? "1000px 1100px" : "1500px 1000px"} at 50% 40%, #2d0033 0%, #1a001f 100%); }
+      .bg-club { background: var(--pl-purple); } .bg-white { background: #fff; }
+      .disp { font-weight: 900; text-transform: uppercase; letter-spacing: -.03em; line-height: .86; }
+      .sig { display: grid; place-items: center; border-radius: 50%; font-weight: 800; font-style: normal; letter-spacing: -.02em; }
+      .plPill { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; padding: ${ep(16)}px ${ep(30)}px; border-radius: 999px; background: #fff; color: var(--pl-purple); font: 600 ${ep(28)}px/1 var(--font); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; opacity: 0; }
+      .plKicker { position: absolute; left: 0; right: 0; text-align: center; font: 600 ${ep(28)}px/1 var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--pl-lilac); opacity: 0; }
+      .recCol { position: absolute; text-align: center; opacity: 0; }
+      .recV { font: 900 ${ep(250)}px/.86 var(--font); letter-spacing: -.03em; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .recCol.yel .recV { color: var(--pl-yellow); }
+      .recL { margin-top: ${ep(34)}px; font: 600 ${ep(50)}px/1 var(--font); letter-spacing: .04em; text-transform: uppercase; color: var(--pl-lilac); }
+      .recS { margin-top: ${ep(20)}px; font: 500 ${ep(30)}px/1.2 var(--font); color: rgba(255,255,255,.55); }
+      .crestG { position: absolute; inset: 0; transform-origin: 50% 47%; }
+      .crestDisc { position: absolute; border-radius: 50%; clip-path: circle(0% at 50% 50%); }
+      .crestRing { position: absolute; opacity: 0; overflow: visible; } .crestRing circle { fill: none; stroke-width: 14; stroke-linecap: round; }
+      .crestImg { position: absolute; opacity: 0; } .crestImg img { width: 100%; height: 100%; object-fit: contain; display: block; }
+      .crestNick { position: absolute; left: 0; right: 0; text-align: center; font: 500 ${ep(30)}px/1 var(--font); letter-spacing: .01em; opacity: 0; }
+      .flame { position: absolute; inset: 0; clip-path: polygon(0% 130%, 100% 130%, 100% 130%, 0% 130%); }
+      .fxHalf { position: absolute; top: 0; bottom: 0; width: 50%; }
+      .fxCrest { position: absolute; opacity: 0; } .fxCrest img { display: block; }
+      .fxVs { position: absolute; left: 50%; width: ${ep(260)}px; height: ${ep(260)}px; margin: -${ep(130)}px 0 0 -${ep(130)}px; border-radius: 50%; background: var(--pl-purple); color: #fff; display: grid; place-items: center; font-size: ${ep(118)}px; padding-top: ${ep(10)}px; opacity: 0; box-shadow: 0 0 0 ${ep(10)}px #fff; }
+      .plTable { position: absolute; border-radius: 16px; background: var(--pl-purple); opacity: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 40px 90px -30px rgba(0,0,0,.6); transform-origin: 50% 50%; }
+      .tbH, .tbR { position: relative; display: grid; grid-template-columns: ${ep(90)}px ${ep(70)}px 1fr ${ep(100)}px ${ep(90)}px ${ep(90)}px ${ep(90)}px ${ep(120)}px ${ep(50)}px; align-items: center; padding: 0 ${ep(18)}px; border-radius: 10px; }
+      .tbH { font: 600 ${ep(24)}px/1 var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--pl-lilac); opacity: 0; } .tbH .tc { text-align: center; }
+      .tbR { margin-top: 6px; font: 500 ${ep(34)}px/1 var(--font); color: #fff; background: var(--pl-card); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); font-variant-numeric: tabular-nums; opacity: 0; }
+      .tbR > span { position: relative; } .tbHl { position: absolute; inset: 0; border-radius: 10px; background: var(--pl-yellow); transform-origin: 0 50%; opacity: 0; }
+      .tbPos { display: flex; align-items: center; gap: ${ep(14)}px; font-weight: 700; } .zone { width: 4px; height: ${ep(36)}px; border-radius: 2px; background: transparent; } .zone.cl { background: var(--pl-cyan); } .zone.pl { background: var(--pl-yellow); } .zone.rel { background: var(--pl-pink); }
+      .tbC img, .tbC .sig { display: block; } .tbC .sig { font-size: ${ep(16)}px; }
+      .tbN { font-weight: 700; } .tbD, .tbP, .tbArr { text-align: center; } .tbD { color: var(--pl-lilac); } .tbP { font-weight: 700; } .tbArr { color: var(--pl-green); font-size: ${ep(26)}px; opacity: 0; }
+      .tbR.on, .tbR.on .tbD, .tbR.on .tbArr { color: var(--pl-purple); } .tbR.on .zone { background: var(--pl-purple); }
+      .sbBar { position: absolute; opacity: 0; transform-origin: 0 50%; overflow: hidden; border-radius: 8px; font-variant-numeric: tabular-nums; box-shadow: 0 20px 50px -20px rgba(0,0,0,.6); }
+      .sbBg { position: absolute; top: 0; bottom: 0; }
+      .sbSweep { position: absolute; inset: 0; } .sbSweep img { position: absolute; right: ${ep(140)}px; top: -${ep(40)}px; width: ${ep(170)}px; height: ${ep(170)}px; object-fit: contain; }
+      .sbTx { position: absolute; inset: 0; display: grid; align-items: center; color: #fff; }
+      .sbSig { position: relative; height: 100%; display: grid; place-items: center; font: 800 ${ep(42)}px/1 var(--font); letter-spacing: -.01em; } .sbSig b { font-weight: 800; }
+      .sbGoal { position: absolute; inset: 0; display: grid; place-items: center; font: 900 ${ep(42)}px/1 var(--font); letter-spacing: -.02em; clip-path: inset(0 100% 0 0); text-decoration: none; }
+      .sbMid { display: flex; justify-content: center; align-items: center; gap: ${ep(22)}px; }
+      .sbDw { position: relative; width: ${ep(64)}px; height: ${ep(70)}px; perspective: 500px; } .sbD { position: absolute; inset: 0; display: grid; place-items: center; font: 900 ${ep(54)}px/1 var(--font); } .sbCrest { position: absolute; left: -${ep(6)}px; top: -${ep(3)}px; opacity: 0; } .sbCrest img { display: block; }
+      .sbSep { width: ${ep(14)}px; height: ${ep(14)}px; background: var(--pl-lilac); transform: rotate(45deg); border-radius: 2px; }
+      .sbClock { position: absolute; width: fit-content; padding: 0 ${ep(22)}px; border-radius: 999px; background: var(--pl-purple); color: #fff; display: grid; place-items: center; font: 700 ${ep(26)}px/1 var(--font); letter-spacing: .02em; white-space: nowrap; opacity: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+      .wwLine { position: absolute; white-space: nowrap; opacity: 0; }
+      .twCard { position: absolute; border-radius: 20px; background: #fff; padding: ${ep(32)}px ${ep(36)}px; color: #0f1419; opacity: 0; box-shadow: 0 40px 90px -30px rgba(0,0,0,.6); transform-origin: 50% 50%; }
+      .twHead { display: flex; align-items: center; gap: ${ep(18)}px; } .twAv { flex: none; width: ${ep(56)}px; height: ${ep(56)}px; border-radius: 50%; display: grid; place-items: center; font: 800 ${ep(26)}px/1 var(--font); font-style: normal; }
+      .twWho b { display: flex; align-items: center; gap: 8px; font: 700 ${ep(30)}px/1.1 var(--font); } .twWho b svg { width: ${ep(26)}px; height: ${ep(26)}px; } .twWho u { display: block; margin-top: 6px; text-decoration: none; font: 500 ${ep(26)}px/1 var(--font); color: #536471; }
+      .twText { margin-top: ${ep(22)}px; min-height: ${ep(48)}px; font: 500 ${ep(36)}px/1.3 var(--font); letter-spacing: -.01em; }
+      .twAct { display: flex; gap: ${ep(60)}px; margin-top: ${ep(26)}px; font: 500 ${ep(26)}px/1 var(--font); color: #536471; } .twAct span { display: flex; align-items: center; gap: 10px; } .twAct svg { width: ${ep(28)}px; height: ${ep(28)}px; }
+      .tvFrame { position: absolute; border-radius: 40px; overflow: hidden; background: #000; opacity: 0; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 60px 120px -30px rgba(0,0,0,.9); }
+      .tvShot { opacity: 0; visibility: hidden; } .tvShot img.ab { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; opacity: .3; }
+      .tvShot img.ab.r { transform: translateX(2px); filter: sepia(1) saturate(6) hue-rotate(-40deg); } .tvShot img.ab.c { transform: translateX(-2px); filter: sepia(1) saturate(6) hue-rotate(140deg); }
+      .tvScan { background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 2px, transparent 2px 4px), radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,.55) 100%); }
+      .tvLabel { left: ${ep(36)}px; top: ${ep(36)}px; right: auto; margin: 0; }
+      .pcCard { position: absolute; border-radius: 16px; background: rgba(10,10,12,.86); border-left: 8px solid; display: flex; align-items: center; gap: ${ep(24)}px; padding: 0 ${ep(28)}px 0 0; opacity: 0; box-shadow: 0 30px 70px -30px rgba(0,0,0,.7); overflow: hidden; }
+      .pcPhoto { flex: none; overflow: hidden; display: grid; place-items: center; } .pcPhoto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; display: block; }
+      .pcOvr { flex: none; text-align: center; } .pcOvr b { display: block; font-size: ${ep(64)}px; color: #fff; } .pcOvr u { display: block; margin-top: 6px; text-decoration: none; font: 600 ${ep(22)}px/1 var(--font); letter-spacing: .06em; color: var(--pl-lilac); }
+      .pcName { font: 500 ${ep(34)}px/1 var(--font); color: #fff; white-space: nowrap; } .pcName b { font-weight: 800; }
+      .pcTags { margin-top: ${ep(12)}px; font: 500 ${ep(22)}px/1 var(--font); color: var(--pl-lilac); white-space: nowrap; } .pcTags i { font-style: normal; margin: 0 ${ep(8)}px; opacity: .6; }
+      .clubFlood { position: absolute; inset: 0; display: grid; place-items: center; } .clubFlood img { width: ${ep(420)}px; height: ${ep(420)}px; object-fit: contain; opacity: 0; }
+      .eafc .kpi { background: rgba(61,10,71,.75); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); border-radius: 16px; } .eafc .kv { font-weight: 800; letter-spacing: -.03em; } .eafc .kl { color: var(--pl-lilac); text-transform: uppercase; letter-spacing: .04em; font-size: ${ep(26)}px; font-weight: 600; }
+      .eafc .ytSub { background: var(--pl-pink); box-shadow: 0 20px 50px -20px rgba(233,0,82,.6); } .eafc .ytBtn[data-on] { background: var(--pl-green); color: var(--pl-purple); } .eafc .ytBtn[data-on] svg path { fill: var(--pl-purple); stroke: var(--pl-purple); } .eafc .ytSub[data-on] { background: rgba(55,0,60,.75); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+  `;
   const jakarta = [500, 700].map((w) => `@font-face { font-family: "Jakarta"; font-weight: ${w}; src: url(assets/fonts/plus-jakarta-sans-latin-${w}-normal.woff2) format("woff2"); }
       @font-face { font-family: "Jakarta"; font-weight: ${w}; src: url(assets/fonts/plus-jakarta-sans-latin-ext-${w}-normal.woff2) format("woff2"); unicode-range: U+0100-024F; }`).join("\n      ");
-  const brand = plan.brandFont ? [400, 450, 500, 600, 700].map((w) => `@font-face { font-family: "Brand"; font-weight: ${w}; src: url(assets/fonts-marca/articulat-${w}.woff2) format("woff2"); }`).join("\n      ") : "";
+  const brand = plan.brandFont ? [400, 450, 500, 600, 700, ...(EAFC ? [800, 900] : [])].map((w) => `@font-face { font-family: "Brand"; font-weight: ${w}; src: url(assets/fonts-marca/articulat-${w}.woff2) format("woff2"); }`).join("\n      ") : "";
 
   const baseBg = portfolio ? "bg-dark" : "";
   const html = `<!doctype html>
@@ -968,11 +1273,11 @@ export function composeV2(plan) {
     <style>
       ${jakarta}
       ${brand}
-      ${css}
+      ${css}${EAFC ? eafcCss : ""}
     </style>
   </head>
   <body>
-    <div id="stage" data-composition-id="main" data-start="0" data-duration="${total}" data-width="${W}" data-height="${H}">
+    <div id="stage"${EAFC ? ' class="eafc"' : ""} data-composition-id="main" data-start="0" data-duration="${total}" data-width="${W}" data-height="${H}">
       <svg width="0" height="0" style="position:absolute"><defs>
         <filter id="mbx" x="-30%" y="-5%" width="160%" height="110%" color-interpolation-filters="sRGB"><feGaussianBlur id="mbxg" stdDeviation="0 0" /></filter>
         <filter id="mby" x="-5%" y="-30%" width="110%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur id="mbyg" stdDeviation="0 0" /></filter>

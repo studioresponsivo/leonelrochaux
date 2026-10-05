@@ -113,5 +113,47 @@
   ],
   "chapterBg": "light",
   "date": "2026-10-03"
+ },
+ {
+  "name": "gancho-ep03",
+  "slug": "theo-ep03",
+  "format": "horizontal",
+  "opening": "record-hook",
+  "patterns": [
+   "crest",
+   "record",
+   "fixture",
+   "table",
+   "tvarchive",
+   "scorebug",
+   "wordwall",
+   "tweet",
+   "kpis",
+   "ytcta",
+   "playercard"
+  ],
+  "transitions": [
+   "none",
+   "cut",
+   "cut",
+   "cut",
+   "cut",
+   "cut",
+   "club",
+   "push-up",
+   "blur",
+   "cut",
+   "cut",
+   "cut",
+   "cut",
+   "push-up",
+   "push-up",
+   "blur",
+   "cut",
+   "cut",
+   "cut"
+  ],
+  "chapterBg": "purple",
+  "date": "2026-10-05"
  }
 ]
