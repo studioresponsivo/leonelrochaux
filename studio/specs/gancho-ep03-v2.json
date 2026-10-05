@@ -1,0 +1,32 @@
+{
+  "name": "gancho-ep03-v2",
+  "format": "horizontal",
+  "cuts": "all",
+  "audio": "original",
+  "captions": "none",
+  "sfxMax": 5,
+  "crf": 16,
+  "hush": ["virou um verbo", "Cruz Azul Lear"],
+  "opening": { "style": "number-hook", "value": 16, "from": 0, "suffix": " anos", "label": "titular do maior campeão do México", "face": "maior campeão", "take": false },
+  "beats": [
+    { "at": "Tem 16", "do": "hud", "until": "jejum", "value": 16, "label": "títulos de liga", "tone": "good",
+      "then": { "at": "2024", "value": 0, "tone": "bad", "label": "títulos desde 2024" } },
+    { "at": "pior adversário", "do": "punch", "scale": 1.2, "to": "possível" },
+    { "at": "Cruz Azul", "do": "stack", "until": "confronto", "bg": "dark",
+      "cards": [ { "src": "img/cruz-azul.png", "label": "Cruz Azul · atual campeão do México" } ] },
+    { "at": "confronto", "do": "bridge", "to": "Arguilha", "bg": "light", "text": "O clássico que mais se repetiu na Liguilla", "hl": ["mais"] },
+    { "at": "mata-mata", "do": "punch", "scale": 1.18, "to": "mexicano" },
+    { "at": "2013", "do": "cutaway", "until": "Azteca", "src": "img/azteca.png", "frame": "card", "fx": "push", "label": "Estádio Azteca · final de 2013", "bg": "dark" },
+    { "at": "2 a 0", "do": "swap", "until": 40.2, "bg": "dark", "title": "Final 2013 · Azteca",
+      "items": [
+        { "text": "Cruz Azul 2 – 0 América", "tone": "bad" },
+        { "at": "empatar", "text": "América empata · 2 – 2", "tone": "good" },
+        { "at": "pênalti", "text": "Pênaltis · 4 – 2 América", "tone": "good" },
+        { "at": "campeão", "text": "América campeão", "tone": "good" }
+      ] },
+    { "at": "verbo", "do": "bridge", "until": "Serão", "bg": "green", "text": "Cruzazulear", "sub": "verbo · perder um jogo que já estava ganho" },
+    { "at": "Serão", "do": "kpis", "to": "finais",
+      "items": [ { "at": "seis", "value": 6, "label": "jogos" }, { "at": "quarta", "value": 3, "label": "fases" }, { "at": "duas finais", "value": 2, "label": "finais" } ] },
+    { "at": "deixa o like", "do": "ytcta", "until": 56, "like": "like", "sub": "inscreve", "bell": "notificações" }
+  ]
+}

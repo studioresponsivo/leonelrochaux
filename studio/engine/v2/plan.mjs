@@ -207,7 +207,7 @@ export function buildPlan(spec, ctx) {
     if (b.errors) s.errT = b.errors.map((e, k) => rt(e, `errors[${k}]`));
     if (b.vs != null) s.vsT = rt(b.vs, "vs");
     if (b.good != null) s.goodT = rt(b.good, "good");
-    for (const k of ["like", "sub", "bell"]) if (b[k] != null) s[k + "T"] = rt(b[k], k);
+    if (b.do === "ytcta") for (const k of ["like", "sub", "bell"]) if (b[k] != null) s[k + "T"] = rt(b[k], k);
     // tema eafc: âncoras das cenas novas (late = lado que entra por último; mark = linha que acende; goals/final = placar; shots = trocas de imagem)
     if (b.late != null) s.lateT = rt(b.late, "late");
     if (b.mark) s.mark = { ...b.mark, t: rt(b.mark.at, "mark.at") ?? f2(t0 + 1.2) };

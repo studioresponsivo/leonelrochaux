@@ -155,5 +155,40 @@
   ],
   "chapterBg": "purple",
   "date": "2026-10-05"
+ },
+ {
+  "name": "gancho-ep03-v2",
+  "slug": "theo-ep03",
+  "format": "horizontal",
+  "opening": "number-hook",
+  "patterns": [
+   "hud",
+   "stack",
+   "bridge",
+   "cutaway",
+   "swap",
+   "bridge",
+   "kpis",
+   "ytcta"
+  ],
+  "transitions": [
+   "none",
+   "cut",
+   "cut",
+   "cut",
+   "push-up",
+   "cut",
+   "cut",
+   "zoom",
+   "blur",
+   "push-up",
+   "blur",
+   "cut",
+   "push-up",
+   "cut",
+   "cut"
+  ],
+  "chapterBg": "dark",
+  "date": "2026-10-05"
  }
 ]
