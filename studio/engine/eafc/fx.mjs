@@ -6,10 +6,10 @@ import { f2 } from "../v2/plan.mjs";
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 
 // grão animado: vídeo de ruído em overlay (determinístico, é um clip)
-export function grainHtml(total, track, opacity = 0.14, loop = 4) {
+export function grainHtml(total, track, opacity = 0.2, loop = 4) {
   const clips = [];
   for (let k = 0; k * loop < total; k++) clips.push(`<video id="grain${k}" class="clip" src="assets/fx/grain-540p.mp4" muted playsinline data-start="${f2(k * loop)}" data-duration="${f2(Math.min(loop, total - k * loop))}" data-media-start="0" data-track-index="${track}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>`);
-  return `<div id="grain" class="layer" style="mix-blend-mode:overlay;opacity:${opacity};pointer-events:none">${clips.join("")}</div>`;
+  return `<div id="grain" class="layer" style="mix-blend-mode:hard-light;opacity:${opacity};pointer-events:none">${clips.join("")}</div>`;
 }
 
 // vazamento de luz: duas manchas radiais que cruzam o quadro (screen)

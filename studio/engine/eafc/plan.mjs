@@ -96,6 +96,7 @@ export function buildPlanEafc(spec, ctx) {
       if (!TRANS_OUT.includes(s.out)) fail(`cena ${s.do} em ${s.t0}s: transição de saída "${s.out}" não existe (${TRANS_OUT.join(", ")})`);
     }
     if (s.do === "word" || s.do === "title" || s.do === "stamp") {
+      if (s.do === "word" && Array.isArray(s.lines) && !s.text) s.text = s.lines.join(" ");
       const txt = s.do === "title" ? s.title : s.text;
       if (!txt || !String(txt).trim()) fail(`cena ${s.do} em ${s.t0}s: falta "${s.do === "title" ? "title" : "text"}"`);
       if (s.do === "word") {

@@ -98,7 +98,7 @@ Motor `studio/engine/eafc/` (guia: `docs/motion/estilo-eafc.md`). Sempre `"forma
 | do | campos | padrão in → out | visual |
 |---|---|---|---|
 | `number` | `value`, `from`, `suffix`, `label`, `count` (s), `stamp` (linha pequena embaixo), `color`, `font` serif, `style` "led" | cut → cut | número gigante contando (ou painel LED âmbar) |
-| `crest` | `teams:[1–2]`, `label`, `sub`, `labels` (duelo), `comp` (badge no meio), `vs` ("×"), `bg` (foto `img/…` desfocada) , `size` | impact → blur | 1 escudo batendo na tela com glow / duelo com × |
+| `crest` | `teams:[1–2]`, `label`, `sub`, `labels` (duelo), `comp` (badge no meio), `vs` ("×"), `bg` (foto `img/…` desfocada), `size`, `layout: "bleed"` + `side` right/left (escudo gigante sangrando pela borda, label/sub empilhados do outro lado — use para não repetir o herói centralizado) | impact → blur | 1 escudo batendo na tela com glow / duelo com × |
 | `split` | `teams:[2]`, `labels` (abreviações), `comp`, `sub` | whip → blur | metades na cor dos times (LEI \| ARS) |
 | `photo` | `src`, `label`, `sub`, `stamp`, `fx` push/pan/out, `tone` red/blue/mono, `grain`, `color` | zoom → blur | foto tela cheia com Ken Burns e rótulo |
 | `score` | `home`, `away`, `score` "1-0", `meta`, `flip:{at, score, tag, color}` | whip → blur | placar broadcast; `flip` rola os dígitos + carimbo "VIRADA" |
@@ -112,7 +112,7 @@ Motor `studio/engine/eafc/` (guia: `docs/motion/estilo-eafc.md`). Sempre `"forma
 
 | do | campos | visual |
 |---|---|---|
-| `word` | `text`, `font` serif/display/brand, `size`, `color` (#hex / accent / team), `chrome`/`gold`/`italic`, `pos` center/top/bottom/left/right/tl…, `behind` (matte), `hl`, `glow`, `tail`, `silent` | palavras gigantes sincronizadas à fala; `behind:true` recorta o rosto (lento: ~1 min por 1,3 s) |
+| `word` | `text`, `font` serif/display/brand, `size`, `color` (#hex / accent / team), `chrome`/`gold`/`italic`, `pos` center/top/bottom/left/right/tl… ou composição livre `lines` ["A HISTÓRIA","VAI SE","REPETIR?"] + `align` left/right/center + `x`/`y` em px (o rosto escala ~1,14 no punch: margem ≥ 150 px e `y` ≥ 190 com letterbox), `offset` (s), `behind` (matte), `hl`, `glow`, `tail`, `silent` | palavras gigantes sincronizadas à fala; `behind:true` recorta o rosto (lento: ~1 min por 1,3 s) |
 | `stamp` | `text`, `pos` tl/tr/bl/br/bottom; `style:"rubber"` + `color`, `rot`, `pos` bl/br/low | linha pequena (data/lugar) que desliza, ou carimbo de tinta rugosa |
 | `tweet` | `name`, `handle`, `time`, `text`, `hl`, `theme` light/dark, `pos` bl/br/tl/tr/center, `avatar` (imagem) ou `initials`+`avatarColor(2)`, `replies`, `reposts`, `likes`, `likesAfter`, `views`, `verified` | card de X deslizando com motion blur; coração anima em `likeDelay` |
 | `badge` | `team`, `pos` left/right/tl/tr, `size` | escudo pequeno pulando ao lado do rosto |

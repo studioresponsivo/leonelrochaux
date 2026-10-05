@@ -86,7 +86,7 @@ export function composeEafc(plan) {
     if (kind === "flash") { flash(t, color || "#fff", 0.3); chroma(t, 0.14); set(o, { autoAlpha: 1 }, t); ft(m, { scale: 1.06 }, { scale: 1, duration: 0.5, ease: "power3.out" }, t); snd("whoosh-short", t - 0.08, 0.3, 2); return 0.1; }
     if (kind === "cutflash") {
       const f = 1 / 60, c = color || "#EF0107";
-      set("#flash", { backgroundColor: "#000", autoAlpha: 1 }, t - 5 * f); set("#flash", { backgroundColor: c + "66" }, t - 4 * f); set("#flash", { backgroundColor: c }, t - 3 * f); set("#flash", { backgroundColor: "#fff" }, t - f);
+      set("#flash", { backgroundColor: c + "44", autoAlpha: 1 }, t - 5 * f); set("#flash", { backgroundColor: c + "99" }, t - 4 * f); set("#flash", { backgroundColor: c }, t - 3 * f); set("#flash", { backgroundColor: "#fff" }, t - f);
       set(o, { autoAlpha: 1 }, t); set("#flash", { autoAlpha: 0 }, t + f); ft(m, { scale: 1.05, filter: "brightness(1.5)" }, { scale: 1, filter: "brightness(1)", duration: 0.3, ease: "power3.out" }, t);
       snd("shutter", t - 4 * f, 0.4, 3); snd("impact-bass-2", t, 0.5, 3); return 0.1;
     }
@@ -151,8 +151,8 @@ export function composeEafc(plan) {
       return;
     }
     if (kind === "zoom") {
-      ft(m, { scale: 1, filter: "blur(0px)" }, { scale: 2.2, filter: "blur(16px)", duration: 0.3, ease: "power2.in" }, t - 0.15);
-      ft(o, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.16 }, t - 0.03);
+      ft(m, { scale: 1, filter: "blur(0px)" }, { scale: 1.7, filter: "blur(14px)", duration: 0.16, ease: "power2.in" }, t - 0.16);
+      set(o, { autoAlpha: 0 }, t);
       if (below) { ft(below, { scale: 1.3, filter: "blur(12px)" }, { scale: 1, filter: "blur(0px)", duration: 0.4, ease: "power3.out" }, t - 0.08); set(below, { filter: "none" }, t + 0.35); }
       snd("whoosh", t - 0.1, 0.3, 3);
       return;
@@ -234,7 +234,7 @@ export function composeEafc(plan) {
   (mattes || []).forEach((m, i) => { set(`#fgw${i}`, { autoAlpha: 1 }, m.in + 0.02); set(`#fgw${i}`, { autoAlpha: 0 }, m.out - 0.02); });
 
   // ── modificadores ──────────────────────────────────────────────────────────
-  let modHtml = "", ambHtml = "";
+  let modHtml = "", ambHtml = "", faceModHtml = ""; // faceModHtml: mods que moram dentro da cadeia do rosto (freeze)
   for (const m of mods) {
     if (m.do === "shake") shake(m.t0, m.amp ?? 14, m.dur ?? 0.32);
     if (m.do === "flash") flash(m.t0, m.color || "#fff", m.dur ?? 0.3, m.peak ?? 1);
@@ -249,7 +249,7 @@ export function composeEafc(plan) {
     }
     if (m.do === "freeze") {
       const id = `fz${uid()}`;
-      modHtml += `<div id="${id}" class="freeze layer" style="opacity:0;visibility:hidden"><div id="${id}k" class="layer"><img src="assets/media/${m.file}" alt="" /></div><div class="layer vig"></div><div class="layer" style="background:${SCRATCH};opacity:.25;mix-blend-mode:screen"></div></div>`;
+      faceModHtml += `<div id="${id}" class="freeze layer" style="opacity:0;visibility:hidden"><div id="${id}k" class="layer"><img src="assets/media/${m.file}" alt="" /></div><div class="layer vig"></div><div class="layer" style="background:${SCRATCH};opacity:.25;mix-blend-mode:screen"></div></div>`;
       set(`#${id}`, { autoAlpha: 1 }, m.t0);
       ft(`#${id}k`, { scale: 1.0, filter: "grayscale(0) contrast(1)" }, { scale: m.zoom ?? 1.28, filter: "grayscale(.35) contrast(1.15)", duration: m.t1 - m.t0, ease: "power2.out" }, m.t0);
       shake(m.t0 + 0.02, 10, 0.25); chroma(m.t0, 0.12); snd(m.sound || "boom", m.t0, m.vol ?? 0.6, 3);
@@ -284,7 +284,7 @@ export function composeEafc(plan) {
   const fogHtml = (id) => `<div id="${id}f" class="layer fog"><i></i><b></b></div>`;
   const fog = (id, t0, dur) => { ft(`#${id}f i`, { x: -140, y: 20 }, { x: 160, y: -30, duration: dur + 0.5, ease: "sine.inOut" }, t0 - 0.2); ft(`#${id}f b`, { x: 120, y: -10 }, { x: -140, y: 30, duration: dur + 0.5, ease: "sine.inOut" }, t0 - 0.2); ft(`#${id}f`, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, t0); };
   const crestIn = (id, t, { from = "scale", dur = 0.42 } = {}) => {
-    if (from === "scale") ft(`#${id}`, { scale: 2.4, autoAlpha: 0, rotationY: -30, filter: "blur(20px)" }, { scale: 1, autoAlpha: 1, rotationY: 0, filter: "blur(0px)", duration: dur, ease: "power4.out" }, t);
+    if (from === "scale") ft(`#${id}`, { scale: 2.4, autoAlpha: 1, rotationY: -30, filter: "blur(20px)" }, { scale: 1, autoAlpha: 1, rotationY: 0, filter: "blur(0px)", duration: dur, ease: "power4.out" }, t);
     else { const k = from === "left" ? -1 : 1; ft(`#${id}`, { x: k * W * 0.55, rotationY: k * 35, autoAlpha: 0 }, { x: 0, rotationY: 0, autoAlpha: 1, duration: dur, ease: "power4.out" }, t); mblur(`#${id}`, "x", t, Math.min(0.3, dur), 24); }
     sweep(api, `${id}sw`, t + dur + 0.05, 0.7);
     ft(`#${id}`, { y: 0 }, { y: -8, duration: 1.7, ease: "sine.inOut", repeat: 3, yoyo: true }, t + dur);
@@ -335,7 +335,22 @@ export function composeEafc(plan) {
         color = s.color || ts[0].color;
         const bgh = cineBg(id, color, s.bgMedia, { tone: s.tone ?? "duo", blur: s.bgBlur ?? 10 });
         cineBgMotion(id, t0, dur, !!s.bgMedia);
-        if (!duel) {
+        if (!duel && s.layout === "bleed") {
+          // escudo gigante sangrando pela borda (side: right|left) + label/sub empilhados do lado oposto
+          const side = s.side === "left" ? "left" : "right", sz = s.size ?? 1400;
+          inner = `${bgh}${fogHtml(id)}${dustHtml(`${id}d`, 28, i + 11)}
+            <div class="bleedCrest ${side}">${crestEl(ts[0], sz, `${id}cr`)}</div>
+            <div id="${id}tx" class="bleedText ${side}">${s.label ? `<div id="${id}l" class="bleedLabel">${esc(s.label)}</div>` : ""}${s.sub ? `<div id="${id}s" class="bleedSub" style="color:${s.subColor || ACC}">${esc(s.sub)}</div>` : ""}</div>`
+            + leak(api, `${id}lk`, t0 + 0.25, Math.min(dur + 0.2, 2.2), { color: "#ffd9a0", color2: color, from: side, strength: 0.4 });
+          set(`#${id}cr`, { yPercent: -50 }, 0); set(`#${id}tx`, { yPercent: -50 }, 0);
+          crestIn(`${id}cr`, t0 + 0.02, { from: side, dur: 0.36 });
+          dust(api, `${id}d`, t0, dur); fog(id, t0, dur);
+          if (s.in !== "impact") { snd("impact-bass-2", t0 + 0.05, 0.55, 3); shake(t0 + 0.1, 10); chroma(t0 + 0.05, 0.12); }
+          snd("sub-drop", t0 - 0.05, 0.4, 2);
+          flash(t0 + 0.12, color, 0.45, 0.3);
+          if (s.label) { ft(`#${id}l`, { autoAlpha: 0, x: side === "right" ? -70 : 70, filter: "blur(10px)" }, { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.36, ease: "power4.out" }, t0 + 0.3); mblur(`#${id}l`, "x", t0 + 0.3, 0.2, 18); }
+          if (s.sub) subIn(`${id}s`, t0 + 0.55);
+        } else if (!duel) {
           const sz = s.size ?? 520;
           inner = `${bgh}${fogHtml(id)}${dustHtml(`${id}d`, 28, i + 11)}<div class="floorGlow" style="background:radial-gradient(closest-side, ${color}55, transparent)"></div>
             <div class="heroCrest">${crestEl(ts[0], sz, `${id}cr`, { reflect: true })}</div>
@@ -438,13 +453,13 @@ export function composeEafc(plan) {
           ${tm ? `<div class="recCrestBig">${crestEl(tm, 300, `${id}cr`)}</div>` : ""}
           <div class="recNums">${its.map((it, k) => `<div class="recCell" id="${id}c${k}"><b id="${id}v${k}">${esc(it.from ?? 0)}</b><span>${esc(it.label)}</span></div>`).join("")}</div>
           ${s.title ? `<div id="${id}t" class="serifTitle">${esc(s.title)}</div>` : ""}
-          ${s.sub ? `<div id="${id}s" class="crestSub" style="top:auto;bottom:90px;color:${ACC}">${esc(s.sub)}</div>` : ""}`
+          ${s.sub ? `<div id="${id}s" class="crestSub" style="top:auto;bottom:165px;color:${ACC}">${esc(s.sub)}</div>` : ""}`
           + leak(api, `${id}lk`, t0 + 0.2, Math.min(dur + 0.2, 2.6), { color: "#ffd0a0", color2: color, from: "right", strength: 0.35 });
         cineBgMotion(id, t0, dur, !!s.bgMedia);
         if (tm) crestIn(`${id}cr`, t0 + 0.02, { from: "scale", dur: 0.4 });
         its.forEach((it, k) => {
-          ft(`#${id}c${k}`, { autoAlpha: 0, y: 60, filter: "blur(10px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.34, ease: "power4.out" }, t0 + 0.3 + k * 0.12);
-          countTo(`#${id}v${k}`, +(it.from ?? 0), +it.value, t0 + 0.35 + k * 0.12, 0.7); snd("tick", t0 + 0.3 + k * 0.12, 0.25, 1);
+          ft(`#${id}c${k}`, { autoAlpha: 0, y: 60, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, t0 + 0.3 + k * 0.12);
+          countTo(`#${id}v${k}`, +(it.from ?? 0), +it.value, t0 + 0.3 + k * 0.12, 0.7); snd("tick", t0 + 0.3 + k * 0.12, 0.25, 1);
         });
         dust(api, `${id}d`, t0, dur);
         if (s.in !== "impact") snd("impact-bass-1", t0 + 0.08, 0.5, 3);
@@ -528,6 +543,7 @@ export function composeEafc(plan) {
           cineBgMotion(id, t0, dur, !!s.bgMedia);
           ft(`#${id}p`, { autoAlpha: 0, scale: 0.92, rotationY: -10, rotationX: 4 }, { autoAlpha: 1, scale: 1, rotationY: -6, rotationX: 3, duration: 0.5, ease: "power3.out" }, t0);
           ft(`#${id}p`, { rotationY: -6 }, { rotationY: -2, duration: Math.max(0.6, dur - 0.5), ease: "sine.inOut" }, t0 + 0.5);
+          tto(`#${id}p`, { scale: 1.06, duration: Math.max(0.6, dur - 0.5), ease: "none" }, t0 + 0.5);
           if (a !== v) { const nT = Math.max(2, Math.round((s.count ?? 0.8) / 0.09)); for (let k = 0; k < nT; k++) snd("tick", t0 + 0.15 + k * 0.09, 0.2, 0); js.push(`(()=>{const o={v:${a}};const e1=document.querySelector("#${id}v"),e2=document.querySelector("#${id}g");tl.fromTo(o,{v:${a}},{v:${v},duration:${f2(s.count ?? 0.8)},ease:"steps(${Math.max(1, Math.abs(v - a))})",immediateRender:false,onUpdate:()=>{const t=String(Math.round(o.v));e1.textContent=t;e2.textContent=t;}},${at(t0 + 0.15)});})();`); }
           dust(api, `${id}d`, t0, dur);
           snd("sub-drop", t0 + 0.02, 0.45, 3); snd("impact-bass-2", t0 + 0.15 + (s.count ?? 0.8), 0.5, 3); shake(t0 + 0.17 + (s.count ?? 0.8), 8);
@@ -585,10 +601,19 @@ export function composeEafc(plan) {
         const fs = s.size ?? (s.font === "serif" ? 230 : s.font === "brand" ? 180 : 260);
         const col = s.color === "accent" ? ACC : s.color === "team" ? TEAM.color : (s.color || "#fff");
         const ws = s.sync.ws, hl = new Set((s.hl || []).map(norm));
-        const style = `font-family:${fam};font-size:${fs}px;color:${col};${posStyle(s.pos ?? "center")};${s.font === "serif" ? (s.italic ? "font-style:italic;" : "") : "text-transform:uppercase;letter-spacing:.01em;"}${s.glow ? `text-shadow:0 0 60px ${col}88;` : ""}`;
-        const html = `<div id="${id}" class="bigWord${s.behind ? " behind" : ""}${s.gold ? " gold" : ""}${s.chrome ? " chrome" : ""}" style="${style}">${wordsHtml(id, ws, hl)}</div>`;
+        // composição livre: "lines" (quebras), "align" (left/right/center) e "x"/"y" em px — para o rosto não esconder letras
+        const align = s.align || ({ left: "left", tl: "left", bl: "left", right: "right", tr: "right", br: "right" }[s.pos] || "center");
+        const free = s.x != null || s.y != null;
+        const posCss = free
+          ? `${s.y != null ? `top:${s.y}px;bottom:auto;` : "top:46%;"}${align === "left" ? `left:${s.x ?? 90}px;right:auto;justify-content:flex-start;` : align === "right" ? `right:${s.x ?? 90}px;left:auto;justify-content:flex-end;` : "left:0;right:0;margin:0 auto;justify-content:center;"}`
+          : posStyle(s.pos ?? "center");
+        const brAfter = new Set();
+        if (Array.isArray(s.lines)) { let acc = 0; s.lines.slice(0, -1).forEach((l) => { acc += String(l).split(/\s+/).filter(Boolean).length; brAfter.add(acc - 1); }); }
+        const inner = ws.map((w, k) => `<span class="cw${hl.has(norm(w)) ? " hl" : ""}" id="${id}w${k}">${esc(w)}</span>${brAfter.has(k) ? '<i class="bwBr"></i>' : ""}`).join(" ");
+        const style = `font-family:${fam};font-size:${fs}px;color:${col};${posCss};${s.font === "serif" ? (s.italic ? "font-style:italic;" : "") : "text-transform:uppercase;letter-spacing:.01em;"}${s.glow ? `text-shadow:0 0 60px ${col}88;` : ""}`;
+        const html = `<div id="${id}" class="bigWord${s.behind ? " behind" : ""}${s.gold ? " gold" : ""}${s.chrome ? " chrome" : ""}" style="${style}">${inner}</div>`;
         if (s.behind) behindHtml += html; else overlayHtml += html;
-        if (posMid(s.pos)) set(o, { yPercent: -50 }, 0);
+        if (posMid(s.pos) && !free) set(o, { yPercent: -50 }, 0);
         cascade(id, ws, s.sync.times, { dx: s.font === "serif" ? 30 : 60, blur: 14, dur: 0.26, snd: s.silent ? null : (s.font === "serif" ? "whoosh-short" : "impact-bass-1"), vol: s.font === "serif" ? 0.16 : 0.3 });
         ft(o, { x: 0 }, { x: s.drift ?? 14, duration: dur, ease: "none" }, t0);
         tto(o, { autoAlpha: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, t1 - 0.2);
@@ -720,6 +745,12 @@ export function composeEafc(plan) {
       .heroCrest { position: absolute; left: 0; right: 0; top: 150px; display: flex; justify-content: center; perspective: 1400px; }
       .crestLabel { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font: 400 128px/1 var(--display); text-transform: uppercase; letter-spacing: .02em; color: #fff; -webkit-text-stroke: 2px #0a0a0a; paint-order: stroke fill; text-shadow: 2px 2px 0 #181818, 4px 4px 0 #121212, 6px 6px 0 #0c0c0c, 0 22px 40px rgba(0,0,0,.7); opacity: 0; }
       .crestLabel.small { font-size: 96px; top: 820px; }
+      .bleedCrest { position: absolute; top: 50%; perspective: 1400px; }
+      .bleedCrest.right { right: -600px; } .bleedCrest.left { left: -600px; }
+      .bleedText { position: absolute; top: 50%; display: flex; flex-direction: column; gap: 26px; max-width: 1040px; }
+      .bleedText.right { left: 120px; align-items: flex-start; text-align: left; } .bleedText.left { right: 120px; align-items: flex-end; text-align: right; }
+      .bleedLabel { font: 400 220px/.9 var(--display); text-transform: uppercase; letter-spacing: .01em; color: #fff; -webkit-text-stroke: 2px #0a0a0a; paint-order: stroke fill; text-shadow: 2px 2px 0 #181818, 4px 4px 0 #121212, 6px 6px 0 #0c0c0c, 0 22px 40px rgba(0,0,0,.7); opacity: 0; white-space: pre-line; }
+      .bleedSub { font: 600 46px/1 var(--cond); text-transform: uppercase; letter-spacing: .3em; opacity: 0; }
       .crestSub { position: absolute; left: 0; right: 0; top: 905px; text-align: center; font: 600 32px/1 var(--font); text-transform: uppercase; letter-spacing: .22em; opacity: 0; }
       .crestSub.low { top: 960px; }
       .duelGlow { position: absolute; inset: 0; }
@@ -747,7 +778,7 @@ export function composeEafc(plan) {
       .recNums { position: absolute; left: 0; right: 0; top: 430px; display: flex; justify-content: center; gap: 90px; }
       .recCell { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 170px; opacity: 0; }
       .recCell b { font: 400 230px/1 var(--display); color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 16px 50px rgba(0,0,0,.6); }
-      .recCell span { font: 600 32px/1 var(--cond); text-transform: uppercase; letter-spacing: .3em; color: var(--acc); }
+      .recCell span { font: 600 40px/1 var(--cond); text-transform: uppercase; letter-spacing: .3em; color: var(--acc); }
       .serifTitle { position: absolute; left: 0; right: 0; top: 760px; text-align: center; font: 900 118px/1 var(--serif); font-style: italic; color: #fff; letter-spacing: -.01em; text-shadow: 0 20px 60px rgba(0,0,0,.6); opacity: 0; }
       .ladRow { position: absolute; left: 420px; right: 220px; display: flex; align-items: center; gap: 44px; opacity: 0; }
       .ladRow .ladIdx { font: 900 54px/1 var(--serif); font-style: italic; color: rgba(255,255,255,.35); width: 90px; }
@@ -777,11 +808,12 @@ export function composeEafc(plan) {
       .bigLabel small { font: 500 34px/1 var(--font); letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.8); }
       .bigLabel.center { left: 0; right: 0; bottom: auto; top: 0; height: 100%; justify-content: center; align-items: center; }
       .bigLabel.center b { font-size: 200px; text-align: center; }
-      .stamp { position: absolute; overflow: hidden; padding: 6px 0; font: 500 28px/1 var(--font); letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.92); text-shadow: 0 2px 14px rgba(0,0,0,.7); opacity: 0; white-space: nowrap; }
+      .stamp { position: absolute; overflow: hidden; padding: 6px 0; font: 500 30px/1 var(--font); letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.92); text-shadow: 0 2px 14px rgba(0,0,0,.7); opacity: 0; white-space: nowrap; }
       .stamp span { display: inline-block; }
       .stamp.tl { left: 90px; top: 80px; } .stamp.tr { right: 90px; top: 80px; } .stamp.bl { left: 90px; bottom: 150px; } .stamp.br { right: 90px; bottom: 150px; }
-      .stamp.bottom { left: 0; right: 0; bottom: 150px; justify-content: center; }
+      .stamp.bottom { left: 0; right: 0; bottom: 150px; text-align: center; }
       .bigWord { position: absolute; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 .28em; line-height: .95; font-weight: 900; opacity: 1; white-space: nowrap; }
+      .bigWord .bwBr { flex-basis: 100%; height: 0; }
       .bigWord .cw { text-shadow: 0 10px 40px rgba(0,0,0,.45); }
       .bigWord .cw.hl { color: var(--acc); font-style: italic; }
       .bigWord.gold .cw { background: linear-gradient(170deg, #fff3c4 0%, #ffd766 35%, #c8961e 60%, #ffe9a3 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 10px 30px rgba(0,0,0,.5)) drop-shadow(0 0 28px rgba(255,215,102,.35)); }
@@ -867,6 +899,7 @@ export function composeEafc(plan) {
             ${faceVideos}
             <div id="behind">${behindHtml}</div>
             ${fgHtml}
+            ${faceModHtml}
           </div></div></div></div></div><div id="faceGrade" class="layer"></div><div id="vig" class="layer vig"></div><div id="faceShade" class="layer"></div><div id="lights" class="layer"></div></div>
         </div></div>
         ${sceneHtml}
@@ -875,7 +908,7 @@ export function composeEafc(plan) {
       <div id="caps">
         ${capsHtml}
       </div>
-      ${grainOn ? grainHtml(total, nextTrack(), spec.grainOpacity ?? 0.14) : ""}
+      ${grainOn ? grainHtml(total, nextTrack(), spec.grainOpacity ?? 0.2) : ""}
       <div id="lbT"></div><div id="lbB"></div>
       <div id="slices"><div id="sl0"></div><div id="sl1"></div><div id="sl2"></div></div>
       <div id="flash"></div>

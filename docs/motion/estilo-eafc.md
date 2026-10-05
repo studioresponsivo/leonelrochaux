@@ -37,7 +37,9 @@ Referências do Leonel (Drive › "Assets para os videos"): **"Estilo de ediçã
 - Nada flutua no vazio: todo gráfico mora num objeto ou numa chapa com textura — TV de tubo (placar antigo), painel LED (90', 93'), foto em parallax com vazamento de luz e poeira, faixas de cor com listras em movimento, escudos como adesivos com traço branco (S2G) ou com névoa e reflexo (herói).
 - Câmera viva no rosto: punch-in por frase, zoom-out ao voltar de cena cheia, deriva na mão, grade + vinheta; letterbox 2.35 marca "arquivo"; freeze com boom no fechamento.
 - Cortes com peso: flash preto→cor→branco (`cutflash`), aberração cromática nos hits, flash-frame subliminar, sub-drop antes dos impactos, ambiente de estádio sob estádios.
-- Grão de filme animado por cima de tudo. Proibido: cards arredondados "dashboard", gradiente radial liso, halo neon atrás de PNG, cursor digitando, carimbo em cima dos olhos.
+- Palavra atrás do rosto nunca perde a leitura: ou fica alta (só o cabelo cobre o pé das letras: `y` 20–50) ou em bloco assimétrico de 2–3 linhas num canto (`lines` + `align` + `x`/`y`), com o cabelo só encostando. Letra escondida no meio da palavra ("CA[MP]EÃO") é defeito.
+- Escudo-herói só uma vez por vídeo; os outros usam `layout: "bleed"` (escudo gigante cortado pela borda, direita ou esquerda) ou o duelo. Cortes de rosto → cena: `cut`/`whip`/`cutflash`, nunca cross-dissolve (o `zoom` corta no pico).
+- Grão de filme animado por cima de tudo (hard-light, aparece também no preto). Proibido: cards arredondados "dashboard", gradiente radial liso, halo neon atrás de PNG, cursor digitando, carimbo em cima dos olhos.
 
 ## Cenas disponíveis (ver `studio/SPEC.md` › EA FC)
 `number` · `crest` (hero / duelo) · `split` · `photo` · `score` (+flip) · `record` · `ladder` · `fixtures` · `title` · `montage` — cheias; `word` · `stamp` (digitado / rubber) · `tweet` · `badge` — overlays; `punch` · `shake` · `lights` · `flash` · `sfx` — modificadores.
