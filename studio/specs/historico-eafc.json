@@ -20,6 +20,7 @@
    "badge",
    "stamp",
    "ladder",
+   "photo",
    "crest",
    "tweet",
    "photo",
@@ -38,7 +39,7 @@
    "impact",
    "flash",
    "zoom",
-   "impact",
+   "cutflash",
    "glitch",
    "glitch",
    "impact",
@@ -48,6 +49,7 @@
    "flash",
    "cut",
    "blur",
+   "cut",
    "whip",
    "zoom",
    "zoom",
@@ -61,6 +63,6 @@
    "blur"
   ],
   "chapterBg": null,
-  "date": "2026-10-04"
+  "date": "2026-10-05"
  }
 ]
