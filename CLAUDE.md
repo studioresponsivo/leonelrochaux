@@ -29,6 +29,13 @@ Vários cortes do mesmo vídeo = vários JSON na mesma sessão (a transcrição 
 - **Densidade**: 1 objeto por vez; algo muda a cada ~1–1,5 s; nenhuma transição especial > 3× por vídeo; SFX ≤ 6 audíveis/10 s no vertical (3 no horizontal) — o limitador corta o excesso; `hush` nas frases-chave. Organizado, nunca poluído, nunca "cara de IA".
 - **Qualidade**: câmera profissional — nunca entregar abaixo da resolução/fps da fonte. Prévia 720p só para o chat; o arquivo final completo vai para `entregas/` (GitHub).
 
+## Instagram (carrossel, Reels, palavra-chave → DM) — guia completo em `instagram/README.md`
+Bot próprio na VPS (`instagram/bot/`, API oficial da Meta, zero dependências); CLI `instagram/ig.mjs` (lê `IG_BOT_URL`/`IG_ADMIN_TOKEN` de `instagram/.env`, fora do git).
+- **Carrossel**: ler `instagram/carrossel/SPEC.md` (uma vez) → escrever `instagram/carrosseis/<slug>.json` (exemplo `exemplo-landing.json`) → `node instagram/carrossel/render.mjs instagram/carrosseis/<slug>.json` → mostrar `work/ig/<slug>/prova.jpg` + avisos ⚠ → só depois do OK: `node instagram/ig.mjs postar work/ig/<slug> [--quando "AAAA-MM-DD HH:MM"]`.
+- **Reels**: `node instagram/ig.mjs postar entregas/<slug>/<nome>.mp4 --legenda <arquivo>` (ou `--texto "..."`).
+- **Palavra-chave**: editar `instagram/bot/palavras.json` → `node instagram/ig.mjs palavras`. Toda CTA usa uma palavra que existe ali. Leads: `node instagram/ig.mjs leads`.
+- Nunca publicar sem o OK do Leonel. Nunca commitar token/segredo (repositório público).
+
 ## Economia de tokens (regras)
 - NÃO ler skills do HyperFrames, `compose.mjs` nem docs, a menos que algo quebre ou o estilo precise de um efeito novo.
 - NÃO imprimir transcrição em JSON nem logs inteiros; os scripts já resumem.

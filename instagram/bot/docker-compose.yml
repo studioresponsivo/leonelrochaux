@@ -1,0 +1,32 @@
+# VPS sem nada nas portas 80/443:  docker compose --profile caddy up -d --build   (Caddy cuida do HTTPS sozinho)
+# VPS que já tem nginx/Traefik:    docker compose up -d --build                   (aponte o proxy para 127.0.0.1:3000)
+name: ig-bot
+
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - dados:/data
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["caddy"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    depends_on:
+      - bot
+
+volumes:
+  dados:
+  caddy:

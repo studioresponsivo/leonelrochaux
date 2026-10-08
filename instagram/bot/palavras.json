@@ -1,0 +1,24 @@
+{
+  "_como_usar": "Cada chave é uma palavra-chave (maiúscula/acento/emoji não importam). dm = 1ª mensagem (vai como resposta privada ao comentário). {usuario} = @ da pessoa, {link} = link com UTM. publico = respostas no comentário (sorteia uma; [] para não responder). pedir_resposta = true manda primeiro um convite e só envia o link (link_dm) quando a pessoa responde — precisa do webhook de mensagens (App Review). Subir mudanças: node instagram/ig.mjs palavras",
+
+  "quero": {
+    "variacoes": ["eu quero"],
+    "dm": "Oi {usuario}! Aqui está o checklist da landing page que converte:\n{link}\n\nSe quiser que eu olhe a sua, me responde aqui.",
+    "link": "https://studioresponsivo.com.br",
+    "publico": [
+      "Te mandei no direct 📩",
+      "Enviado! Confere seu direct 👀",
+      "Chegou aí no direct ✅",
+      "Mandei agora, olha o direct 🚀"
+    ]
+  },
+
+  "aula": {
+    "pedir_resposta": true,
+    "botao": "Quero o link",
+    "dm": "Oi {usuario}! Separei a aula pra você. Toca no botão abaixo (ou responde SIM) que eu te mando o link.",
+    "link_dm": "Aqui está a aula:\n{link}\n\nQualquer dúvida, me chama por aqui.",
+    "link": "https://studioresponsivo.com.br",
+    "publico": ["Te chamei no direct 📩", "Olha seu direct 👀"]
+  }
+}

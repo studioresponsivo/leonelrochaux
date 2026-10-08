@@ -4,3 +4,8 @@ __pycache__/
 entregas/80-20-ias/reels-80-20.mp4
 studio/assets/fonts-marca/
 entregas/*/grandes/
+
+# Instagram: segredos e dados locais do bot
+instagram/.env
+instagram/bot/.env
+instagram/bot/dados/

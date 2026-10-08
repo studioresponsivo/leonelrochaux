@@ -1,0 +1,13 @@
+{
+  "handle": "@leonelrochaux",
+  "legenda": "Página bonita que não vende é a regra, não a exceção.\n\nOs 3 erros que mais vejo (e que mais custam lead):\n1. Título que fala de você, não do cliente\n2. Um botão para cada coisa\n3. Prova escondida no rodapé\n\nComenta QUERO que eu te mando o checklist completo no direct.\n\n#landingpage #webdesign #uxdesign #conversao",
+  "slides": [
+    { "tipo": "capa", "kicker": "Landing page", "titulo": "Sua página é bonita. *E não vende.*", "subtitulo": "3 erros que eu vejo toda semana em páginas que chegam no Studio." },
+    { "tipo": "texto", "titulo": "O título fala de você, *não do cliente*", "texto": "\"Somos referência em soluções digitais\" não diz nada. Diga, em uma frase, o resultado que a pessoa quer." },
+    { "tipo": "comparacao", "titulo": "Na prática", "ruim": { "rotulo": "Antes", "itens": ["Soluções inovadoras em design", "Conheça nossos serviços", "Fale conosco"] }, "bom": { "rotulo": "Depois", "itens": ["Sua página pronta para gerar leads", "Veja 3 cases com números", "Quero meu orçamento"] } },
+    { "tipo": "texto", "titulo": "Um botão para *cada coisa*", "texto": "Comprar, agendar, baixar, seguir... Quem tem cinco caminhos não escolhe nenhum. Uma página, uma ação." },
+    { "tipo": "texto", "titulo": "Prova escondida *no rodapé*", "texto": "Depoimento, número e logo de cliente vêm logo depois da primeira dobra. Não no fim, onde quase ninguém chega." },
+    { "tipo": "lista", "titulo": "Checklist rápido", "itens": ["Título = resultado do cliente", "Uma ação principal por página", "Prova logo após a primeira dobra", "Botão com verbo e benefício"] },
+    { "tipo": "cta", "titulo": "Quer o checklist completo?", "palavra": "QUERO", "texto": "que eu te mando no direct." }
+  ]
+}
